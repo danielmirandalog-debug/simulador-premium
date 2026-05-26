@@ -11,13 +11,10 @@ document.onkeydown = function(e) {
 // 2. MODAL E CONTADOR
 function confirmarTermos() {
     const checkbox = document.getElementById("chk_termos_uso");
-    
-    // Se a caixinha existir e estiver marcada, libera o sistema
     if (checkbox && checkbox.checked) {
         document.getElementById("modalTermos").style.display = "none";
         localStorage.setItem("termos_aceitos_ba21", "sim");
     } else {
-        // Se não estiver marcada, barra o acesso e avisa o usuário
         alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
     }
 }
@@ -45,8 +42,8 @@ function gerarInputs() {
         mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
         outH += `<span style="display:flex; flex-direction:column; gap:2px;">
                     <label>${i}x (%)</label> 
-                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0;">
-                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais">
+                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0; width: 100%;">
+                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais" style="width: 100%;">
                  </span>`;
     }
     document.getElementById("mpParcelas").innerHTML = mpH;
@@ -107,13 +104,18 @@ function simular() {
         
         let nome = p === "pix" ? "Pix" : p === "debito" ? "Débito" : "1x";
         
-        let clOut = tOut > tMP ? 'taxaRuim' : '';
-        let clDemais = tOutDemais > tMP ? 'taxaRuim' : '';
-        let classeFinalMP = (tMP <= tOut || tMP <= tOutDemais) ? 'taxaBoa' : 'taxaRuim';
+        // Regra de Cores Comparativa Individualizada (Base = MP)
+        let clOut = 'taxaNormal';
+        if (tOut > tMP) clOut = 'taxaRuim';
+        else if (tOut < tMP) clOut = 'taxaBoa';
+
+        let clDemais = 'taxaNormal';
+        if (tOutDemais > tMP) clDemais = 'taxaRuim';
+        else if (tOutDemais < tMP) clDemais = 'taxaBoa';
 
         html += `<tr>
                     <td><b>${nome}</b></td>
-                    <td class="taxa-destaque ${classeFinalMP}">${tMP.toFixed(2)}%</td>
+                    <td class="taxa-destaque taxaNormal">${tMP.toFixed(2)}%</td>
                     <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
                     <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
                  </tr>`;
@@ -126,13 +128,17 @@ function simular() {
             let tOut = parseFloat(document.getElementById("out" + i + "_manual").value) || 0;
             let tOutDemais = parseFloat(document.getElementById("out" + i + "_demais").value) || 0;
             
-            let clOut = tOut > tMP ? 'taxaRuim' : '';
-            let clDemais = tOutDemais > tMP ? 'taxaRuim' : '';
-            let classeFinalMP = (tMP <= tOut || tMP <= tOutDemais) ? 'taxaBoa' : 'taxaRuim';
+            let clOut = 'taxaNormal';
+            if (tOut > tMP) clOut = 'taxaRuim';
+            else if (tOut < tMP) clOut = 'taxaBoa';
+
+            let clDemais = 'taxaNormal';
+            if (tOutDemais > tMP) clDemais = 'taxaRuim';
+            else if (tOutDemais < tMP) clDemais = 'taxaBoa';
             
             html += `<tr>
                         <td><b>${i}x</b></td>
-                        <td class="taxa-destaque ${classeFinalMP}">${tMP.toFixed(2)}%</td>
+                        <td class="taxa-destaque taxaNormal">${tMP.toFixed(2)}%</td>
                         <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
                         <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
                      </tr>`;
@@ -251,7 +257,7 @@ function salvarNoHistorico() {
     alert("Simulação arquivada com sucesso!");
 }
 
-function consultingHistorico() { /* Mapeado para consultarHistorico */ consultarHistorico(); }
+function consultingHistorico() { consultarHistorico(); }
 function consultarHistorico() {
     const termo = prompt("Busque por Seller, Responsável ou Data:").toLowerCase();
     if (termo === null) return;
@@ -313,7 +319,7 @@ function calcularDescobreTaxa(origem) {
     const resTaxa = document.getElementById("res_taxa_percent");
     const resFinal = document.getElementById("res_valor_final");
 
-    if (origem === 'valor' || origem === 'recebido') {
+    if (origem === 'valor' || machined === 'recebido') {
         if (valorOp > 0 && valorRec > 0) {
             let taxa = ((valorOp - valorRec) / valorOp) * 100;
             resTaxa.innerText = `${taxa.toFixed(2)}%`;
