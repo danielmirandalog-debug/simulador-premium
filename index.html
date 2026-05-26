@@ -17,19 +17,30 @@
         .card { background: white; padding: 20px; margin-bottom: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-top: 6px solid #FFE600; }
         h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         label { font-size: 13px; font-weight: bold; color: #777; display: block; }
+        
+        /* Fontes temáticas para Seções Específicas */
+        .lbl-custos-ocultos { color: #d32f2f !important; font-size: 13px; font-weight: bold; display: block; }
+        .lbl-cofrinho { color: #007bff !important; font-size: 13px; font-weight: bold; display: block; }
+
         input { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; user-select: text !important; }
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
         .btn-exportar { background: #333 !important; color: white !important; }
+        .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 14px; margin-top: 15px; }
         .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
         .grid-taxas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
         .barraContainer { width: 100%; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
         .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
+        
+        /* Configuração de Tabela e Cores de Comparação */
         .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         .tabela-moderna th { background: #f9f9f9; padding: 12px; text-align: center; border-bottom: 2px solid #333; color: #666; font-weight: bold; }
         .tabela-moderna td { padding: 14px; text-align: center; border-bottom: 1px solid #f0f0f0; }
         .taxa-destaque { font-size: 18px; font-weight: 800; }
-        .taxaBoa { color: #007bff; }
-        .taxaRuim { color: #d32f2f; }
+        
+        .taxaNormal { color: #007bff !important; } /* Azul por Padrão */
+        .taxaBoa { color: #007bff !important; }    /* Azul se Concorrência for Melhor */
+        .taxaRuim { color: #d32f2f !important; }   /* Vermelho se Concorrência for Pior */
+        
         .chk-container { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 0; font-size: 14px; font-weight: bold; color: #555; cursor: pointer; }
         .chk-container input { width: 20px; height: 20px; margin: 0; }
         .box-calculadora { display: none; background: #fff; border: 2px solid #333; border-radius: 15px; padding: 20px; margin-top: 10px; position: relative; }
@@ -56,10 +67,6 @@
             <span><label>Executivo</label><input id="input_executivo" type="text" placeholder="Executivo"></span>
             <span><label>Data</label><input id="input_data" type="text" readonly style="background:#f9f9f9"></span>
         </div>
-        <div class="grid-taxas" style="margin-top:10px">
-            <button onclick="salvarNoHistorico()" style="background:#333; color:white; font-size:12px; padding:10px">💾 Arquivar Proposta</button>
-            <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; padding:10px">🔍 Consultar Salvos</button>
-        </div>
     </div>
 
     <div class="card">
@@ -78,24 +85,24 @@
 
     <div class="card">
         <h3>Concorrência <button type="button" class="btn-limpar" onclick="limparSecao('out')">Limpar</button></h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-             <div style="border: 1px solid #eee; padding: 8px; border-radius: 8px;">
-                 <label style="color:#333; text-align:center; margin-bottom:5px;">⚡ PIX (%)</label>
-                 <input id="out_pix_manual" type="number" placeholder="Visa/Master" style="margin-bottom:5px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: start;">
+             <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+                 <label style="color:#333; text-align:center; margin-bottom:8px; display:block;">⚡ PIX (%)</label>
+                 <input id="out_pix_manual" type="number" placeholder="Visa/Master" style="margin-bottom:8px;">
                  <input id="out_pix_demais" type="number" placeholder="Demais Band.">
              </div>
-             <div style="border: 1px solid #eee; padding: 8px; border-radius: 8px;">
-                 <label style="color:#333; text-align:center; margin-bottom:5px;">💳 DÉBITO (%)</label>
-                 <input id="out_debito_manual" type="number" placeholder="Visa/Master" style="margin-bottom:5px;">
+             <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+                 <label style="color:#333; text-align:center; margin-bottom:8px; display:block;">¼ Débito (%)</label>
+                 <input id="out_debito_manual" type="number" placeholder="Visa/Master" style="margin-bottom:8px;">
                  <input id="out_debito_demais" type="number" placeholder="Demais Band.">
              </div>
-             <div style="border: 1px solid #eee; padding: 8px; border-radius: 8px;">
-                 <label style="color:#333; text-align:center; margin-bottom:5px;">🛍️ CRÉDITO 1X (%)</label>
-                 <input id="out1_manual" type="number" placeholder="Visa/Master" style="margin-bottom:5px;">
+             <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+                 <label style="color:#333; text-align:center; margin-bottom:8px; display:block;">🛍 Crédito 1x (%)</label>
+                 <input id="out1_manual" type="number" placeholder="Visa/Master" style="margin-bottom:8px;">
                  <input id="out1_demais" type="number" placeholder="Demais Band.">
              </div>
         </div>
-        <div class="grid-taxas" style="margin-top:10px">
+        <div class="grid-taxas" style="margin-top:15px">
             <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'out')">📷 Câmera</label>
             <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Arquivo</label>
         </div>
@@ -132,23 +139,23 @@
 
         <h3 style="margin-top:25px">Custos Ocultos <button type="button" class="btn-limpar" onclick="limparSecao('fixos')">Limpar</button></h3>
         <div class="grid-taxas">
-            <span><label>Software</label><input id="fixo_sistema" type="number"></span>
-            <span><label>Aluguel de Máquina</label><input id="fixo_maquina" type="number"></span>
-            <span><label>Cesta de Serviços</label><input id="fixo_cesta" type="number"></span>
-            <span><label>Manutenção da Conta</label><input id="fixo_manutencao" type="number"></span>
+            <span><label class="lbl-custos-ocultos">💻 Software</label><input id="fixo_sistema" type="number"></span>
+            <span><label class="lbl-custos-ocultos">📟 Aluguel de Máquina</label><input id="fixo_maquina" type="number"></span>
+            <span><label class="lbl-custos-ocultos">🧺 Cesta de Serviços</label><input id="fixo_cesta" type="number"></span>
+            <span><label class="lbl-custos-ocultos">🔧 Manutenção da Conta</label><input id="fixo_manutencao" type="number"></span>
         </div>
         <div style="background:#f6fff6; padding:15px; border-radius:12px; border:1px dashed #4caf50; margin-top:15px">
-            <h4 style="margin:0">📊 Pix App Bancário</h4>
+            <h4 style="margin:0; color:#4caf50;">📊 Pix App Bancário</h4>
             <div class="grid-taxas">
-                <span><label>Volume</label><input id="vol_pix_app" type="number"></span>
-                <span><label>Taxa %</label><input id="taxa_pix_app" type="number"></span>
+                <span><label class="lbl-custos-ocultos">Volume</label><input id="vol_pix_app" type="number"></span>
+                <span><label class="lbl-custos-ocultos">Taxa %</label><input id="taxa_pix_app" type="number"></span>
             </div>
         </div>
 
         <h3 style="margin-top:25px">Cofrinho</h3>
         <div class="grid-taxas">
-            <span><label>Aporte Mensal</label><input id="cofrinho_reserva" type="number"></span>
-            <span><label>% CDI Alvo</label><input id="cofrinho_cdi_alvo" type="number" value="115"></span>
+            <span><label class="lbl-cofrinho">💰 Aporte Mensal</label><input id="cofrinho_reserva" type="number"></span>
+            <span><label class="lbl-cofrinho">📈 % CDI Alvo</label><input id="cofrinho_cdi_alvo" type="number" value="115"></span>
         </div>
         <button onclick="simularFaturamento()">Gerar Estudo</button>
         <div id="resultadoFaturamento"></div>
@@ -157,11 +164,13 @@
 
     <label class="chk-container"><input type="checkbox" id="chk_info_completo"> Incluir Termos Adicionais</label>
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
+    <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
+    <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:14px; margin-top:10px;">🔍 Consultar Propostas Salvas</button>
 
     <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa (Bruto/Líquido)</button>
     
     <div id="boxDescobreTaxa" class="box-calculadora">
-        <h3>Calculadora Reversa <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑️</button></h3>
+        <h3>Calculadora Reversa <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑</button></h3>
         <div class="display-calculadora">
             <div style="margin-bottom:10px">
                 <span style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase">Resultado Principal</span><br>
