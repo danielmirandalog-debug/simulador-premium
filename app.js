@@ -32,6 +32,15 @@ document.addEventListener("DOMContentLoaded", function() {
     if(document.getElementById("num_visitas")) {
         document.getElementById("num_visitas").innerText = visitas;
     }
+
+    // Ouvinte para formatar CNPJ automaticamente
+    const cnpjInput = document.getElementById("input_cnpj");
+    if(cnpjInput) {
+        cnpjInput.addEventListener("input", function(e) {
+            let x = e.target.value.replace(/\D/g, "").match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/);
+            e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + '.' + x[3] + (x[4] ? '/' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+        });
+    }
 });
 
 const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
@@ -104,7 +113,6 @@ function simular() {
         
         let nome = p === "pix" ? "Pix" : p === "debito" ? "Débito" : "1x";
         
-        // Regra de Cores Comparativa Individualizada (Base = MP)
         let clOut = 'taxaNormal';
         if (tOut > tMP) clOut = 'taxaRuim';
         else if (tOut < tMP) clOut = 'taxaBoa';
@@ -115,7 +123,7 @@ function simular() {
 
         html += `<tr>
                     <td><b>${nome}</b></td>
-                    <td class="taxa-destaque taxaNormal">${tMP.toFixed(2)}%</td>
+                    <td class="taxa-destaque" style="color:#333 !important;">${tMP.toFixed(2)}%</td>
                     <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
                     <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
                  </tr>`;
@@ -138,7 +146,7 @@ function simular() {
             
             html += `<tr>
                         <td><b>${i}x</b></td>
-                        <td class="taxa-destaque taxaNormal">${tMP.toFixed(2)}%</td>
+                        <td class="taxa-destaque" style="color:#333 !important;">${tMP.toFixed(2)}%</td>
                         <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
                         <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
                      </tr>`;
@@ -230,7 +238,7 @@ function simularFaturamento() {
         <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
             <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% em Demais Bandeiras na concorrência.</small>
-            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
+            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span>br>
             <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
             <h4>📈 Projeção Cofrinho (Líquido)</h4>
             <b>Aporte: R$ ${resMensal.toFixed(2)} / mês</b><br>
@@ -250,7 +258,7 @@ function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
     inputs.forEach(i => { if(i.id) snapshot[i.id] = i.value; });
-    const dados = { id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot };
+    const dados = { id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", cnpj: document.getElementById("input_cnpj").value || "", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot };
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
     historico.push(dados);
     localStorage.setItem("historico_simulacoes", JSON.stringify(historico));
@@ -259,13 +267,13 @@ function salvarNoHistorico() {
 
 function consultingHistorico() { consultarHistorico(); }
 function consultarHistorico() {
-    const termo = prompt("Busque por Seller, Responsável ou Data:").toLowerCase();
+    const termo = prompt("Busque por Seller, CNPJ, Responsável ou Data:").toLowerCase();
     if (termo === null) return;
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-    let filtrados = historico.filter(h => h.seller.toLowerCase().includes(termo) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo));
+    let filtrados = historico.filter(h => h.seller.toLowerCase().includes(termo) || (h.cnpj && h.cnpj.includes(termo)) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo));
     if (filtrados.length === 0) return alert("Nenhum registro encontrado.");
     let msg = "Registros encontrados (digite o número para recuperar):\n\n";
-    filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} (${f.data})\n`);
+    filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} ${f.cnpj ? '['+f.cnpj+']' : ''} (${f.data})\n`);
     const escolha = prompt(msg);
     if (escolha > 0 && escolha <= filtrados.length) {
         const item = filtrados[escolha-1].snapshot;
@@ -319,7 +327,7 @@ function calcularDescobreTaxa(origem) {
     const resTaxa = document.getElementById("res_taxa_percent");
     const resFinal = document.getElementById("res_valor_final");
 
-    if (origem === 'valor' || machined === 'recebido') {
+    if (origem === 'valor' || origem === 'recebido') {
         if (valorOp > 0 && valorRec > 0) {
             let taxa = ((valorOp - valorRec) / valorOp) * 100;
             resTaxa.innerText = `${taxa.toFixed(2)}%`;
