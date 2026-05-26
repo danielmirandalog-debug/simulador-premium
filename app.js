@@ -177,7 +177,6 @@ function simularFaturamento() {
     let f = parseFloat(faturamento.value) || 0;
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
-    // Percentual Geral definido pelo usuário
     let pDemaisGeral = parseFloat(document.getElementById("perc_demais_bandeiras").value);
     if (isNaN(pDemaisGeral) || pDemaisGeral < 0) pDemaisGeral = 0;
 
@@ -195,12 +194,10 @@ function simularFaturamento() {
         let percShare = parseFloat(document.getElementById(shareMap[p]).value) || 0;
         let valorFatia = f * (percShare / 100);
         
-        // Mercado Pago (Taxa Única)
         let elMP = getTaxaEl(p, 'mp');
         let tMP = elMP ? parseFloat(elMP.value) || 0 : 0;
         custoMP += valorFatia * (tMP / 100);
         
-        // Concorrência - Lógica Dinâmica Inteligente
         let elOutManual = getTaxaEl(p, 'out', 'manual');
         let elOutDemais = getTaxaEl(p, 'out', 'demais');
         
@@ -208,7 +205,6 @@ function simularFaturamento() {
         let tOutDemais = elOutDemais ? parseFloat(elOutDemais.value) || 0 : 0;
         
         let pDemaisDoPlano = pDemaisGeral;
-        // Se o campo de taxa Demais estiver zerado ou vazio, força 100% do plano para Visa/Master
         if (tOutDemais === 0) {
             pDemaisDoPlano = 0;
         }
@@ -267,14 +263,22 @@ function simularFaturamento() {
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
+    // Revela e reativa o contêiner do gráfico
+    const chartCanvas = document.getElementById("graficoEconomia");
+    if(chartCanvas) {
+        chartCanvas.style.display = "block";
+        chartCanvas.style.height = "180px";
+    }
+
     if (window.g) window.g.destroy();
-    window.g = new Chart(document.getElementById("graficoEconomia"), {
+    window.g = new Chart(chartCanvas, {
         type: 'bar',
         data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
         options: { 
             animation: false,
             plugins: { legend: { display: false } }, 
-            layout: { padding: { bottom: 0 } }
+            layout: { padding: { bottom: 0 } },
+            maintainAspectRatio: false
         }
     });
 }
