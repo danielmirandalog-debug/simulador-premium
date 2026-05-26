@@ -11,10 +11,13 @@ document.onkeydown = function(e) {
 // 2. MODAL E CONTADOR
 function confirmarTermos() {
     const checkbox = document.getElementById("chk_termos_uso");
+    
+    // Se a caixinha existir e estiver marcada, libera o sistema
     if (checkbox && checkbox.checked) {
         document.getElementById("modalTermos").style.display = "none";
         localStorage.setItem("termos_aceitos_ba21", "sim");
     } else {
+        // Se não estiver marcada, barra o acesso e avisa o usuário
         alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
     }
 }
