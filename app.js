@@ -159,20 +159,36 @@ function simularFaturamento() {
     let f = parseFloat(faturamento.value) || 0;
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
-    const getTaxa = (p, tipo) => {
+    // Capturando a porcentagem de demais bandeiras (padrão 10% se estiver vazio)
+    let pDemais = parseFloat(document.getElementById("perc_demais_bandeiras").value);
+    if (isNaN(pDemais) || pDemais < 0 || pDemais > 100) pDemais = 10;
+    let pVisaMaster = 100 - pDemais;
+
+    // Função interna adaptada para buscar a taxa normal (Visa/Master) ou Demais Bandeiras
+    const getTaxa = (p, tipo, subTipo = 'manual') => {
+        let sufixo = (subTipo === 'demais') ? '_demais' : '_manual';
         let id = (tipo === 'mp') ? (p === 'pix' ? 'mp_pix' : p === 'debito' ? 'mp_debito' : 'mp' + p) : 
-                                  (p === 'pix' ? 'out_pix_manual' : p === 'debito' ? 'out_debito_manual' : 'out' + p + '_manual');
+                                  (p === 'pix' ? 'out_pix' + sufixo : p === 'debito' ? 'out_debito' + sufixo : 'out' + p + sufixo);
         let el = document.getElementById(id);
         return el ? parseFloat(el.value) || 0 : 0;
     };
 
     let custoMP = 0; let custoConc = 0;
     const shareMap = { pix: 'share_pix', debito: 'share_debito', 1: 'share_1x', 2: 'share_2x', 3: 'share_3x', 4: 'share_4x', 6: 'share_6x', 10: 'share_10x' };
+    
     Object.keys(shareMap).forEach(p => {
         let percShare = parseFloat(document.getElementById(shareMap[p]).value) || 0;
         let valorFatia = f * (percShare / 100);
+        
+        // Mercado Pago calcula 100% da fatia na taxa única dele
         custoMP += valorFatia * (getTaxa(p, 'mp') / 100);
-        custoConc += valorFatia * (getTaxa(p, 'out') / 100);
+        
+        // Concorrência calcula a divisão proporcional (Ex: 90% em Visa/Master e 10% em Demais Bandeiras)
+        let valorVisaMaster = valorFatia * (pVisaMaster / 100);
+        let valorDemais = valorFatia * (pDemais / 100);
+        
+        custoConc += (valorVisaMaster * (getTaxa(p, 'out', 'manual') / 100)) + 
+                     (valorDemais * (getTaxa(p, 'out', 'demais') / 100));
     });
 
     let cSoftware = parseFloat(document.getElementById("fixo_sistema").value) || 0;
@@ -212,6 +228,7 @@ function simularFaturamento() {
     document.getElementById("resultadoFaturamento").innerHTML = `
         <div class="resumo-financeiro">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
+            <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% de faturamento em Demais Bandeiras na concorrência.</small>
             <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
             <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
             <h4>📈 Projeção Cofrinho (Líquido)</h4>
