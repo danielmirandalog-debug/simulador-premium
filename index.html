@@ -18,36 +18,41 @@
         h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         label { font-size: 13px; font-weight: bold; color: #777; display: block; }
         
-        /* Fontes temáticas para Seções Específicas */
         .lbl-custos-ocultos { color: #d32f2f !important; font-size: 13px; font-weight: bold; display: block; }
         .lbl-cofrinho { color: #007bff !important; font-size: 13px; font-weight: bold; display: block; }
 
-        /* INPUTS DO SITE EM AZUL POR PADRÃO (Conforme solicitado) */
+        /* INPUTS DO SITE EM AZUL POR PADRÃO */
         input { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; user-select: text !important; color: #007bff !important; font-weight: bold; }
         
-        /* Ajuste específico para os campos text do atendimento manterem cor neutra para leitura */
+        /* Inputs neutros do Atendimento */
         #input_loja, #input_cnpj, #input_cliente, #input_executivo, #input_data { color: #333 !important; font-weight: normal; }
 
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
         .btn-exportar { background: #333 !important; color: white !important; margin-bottom: 5px; }
         .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 14px; margin-top: 5px; }
         .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
+        
         .grid-taxas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
         .barraContainer { width: 100%; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
         .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
         
-        /* Configuração de Tabela e Cores de Comparação no Relatório */
+        /* Gráfico sem margem para remover espaço morto inferior */
+        #graficoEconomia { margin-top: 20px; max-height: 300px; margin-bottom: 0px !important; padding-bottom: 0px !important; }
+        #resultadoFaturamento { margin-bottom: 0px !important; padding-bottom: 0px !important; }
+
         .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         .tabela-moderna th { background: #f9f9f9; padding: 12px; text-align: center; border-bottom: 2px solid #333; color: #666; font-weight: bold; }
         .tabela-moderna td { padding: 14px; text-align: center; border-bottom: 1px solid #f0f0f0; }
         .taxa-destaque { font-size: 18px; font-weight: 800; }
         
-        .taxaNormal { color: #333 !important; }    /* Preto por Padrão na tabela */
-        .taxaBoa { color: #007bff !important; }    /* Azul se Concorrência for Melhor */
-        .taxaRuim { color: #d32f2f !important; }   /* Vermelho se Concorrência for Pior */
+        .taxaNormal { color: #333 !important; }
+        .taxaBoa { color: #007bff !important; }
+        .taxaRuim { color: #d32f2f !important; }
         
-        .chk-container { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 0 10px; font-size: 14px; font-weight: bold; color: #555; cursor: pointer; }
+        /* Checkbox de Termos colado sem folga superior */
+        .chk-container { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 0 10px; margin-top: 0px !important; font-size: 14px; font-weight: bold; color: #555; cursor: pointer; }
         .chk-container input { width: 20px; height: 20px; margin: 0; }
+        
         .box-calculadora { display: none; background: #fff; border: 2px solid #333; border-radius: 15px; padding: 20px; margin-top: 10px; position: relative; }
         .display-calculadora { background: #f4f4f4; border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px; border: 1px solid #ddd; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
@@ -72,9 +77,12 @@
             <span><label>Responsável</label><input id="input_cliente" type="text" placeholder="Cliente"></span>
             <span><label>Executivo</label><input id="input_executivo" type="text" placeholder="Executivo"></span>
         </div>
-        <div class="grid-taxas">
-            <span><label>Data</label><input id="input_data" type="text" readonly style="background:#f9f9f9"></span>
-            <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; padding:12px; margin-top:5px; height:46px;">🔍 CARREGAR PROPOSTA</button>
+        <div class="grid-taxas" style="align-items: center;">
+            <div style="width: 100%;">
+                <label style="margin-bottom: 5px;">Data</label>
+                <input id="input_data" type="text" readonly style="background:#f9f9f9; margin: 0;">
+            </div>
+            <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; padding:0 12px; height:46px; margin: 20px 0 0 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">🔍 CARREGAR PROPOSTA</button>
         </div>
     </div>
 
@@ -92,31 +100,30 @@
         <div id="mpParcelas" class="grid-taxas" style="margin-top:12px"></div>
     </div>
 
-    <!-- Seção Concorrência: Alinhamento Corrigido de Cabeçalhos -->
     <div class="card">
         <h3>Concorrência <button type="button" class="btn-limpar" onclick="limparSecao('out')">Limpar</button></h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: start;">
              <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box;">
                  <label style="color:#333; text-align:center; margin-bottom:8px; display:block;">⚡ PIX (%)</label>
-                 <input id="out_pix_manual" type="number" placeholder="Visa/Master" style="margin-bottom:8px;">
-                 <input id="out_pix_demais" type="number" placeholder="Demais Band.">
-             </div>
+                 <input id="out_pix_manual" type="number" style="margin-bottom:8px;">
+                 <input id="out_pix_demais" type="number">
+                 <p style="margin: 0; padding: 0; font-size: 1px; visibility: hidden;">&nbsp;</p> </div>
              <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box;">
                  <label style="color:#333; text-align:center; margin-bottom:8px; display:block;">💳 DÉBITO (%)</label>
-                 <input id="out_debito_manual" type="number" placeholder="Visa/Master" style="margin-bottom:8px;">
-                 <input id="out_debito_demais" type="number" placeholder="Demais Band.">
+                 <input id="out_debito_manual" type="number" style="margin-bottom:8px;">
+                 <input id="out_debito_demais" type="number">
              </div>
              <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box;">
                  <label style="color:#333; text-align:center; margin-bottom:8px; display:block;">🛍️ CRÉDITO 1X (%)</label>
-                 <input id="out1_manual" type="number" placeholder="Visa/Master" style="margin-bottom:8px;">
-                 <input id="out1_demais" type="number" placeholder="Demais Band.">
+                 <input id="out1_manual" type="number" style="margin-bottom:8px;">
+                 <input id="out1_demais" type="number">
              </div>
         </div>
         <div class="grid-taxas" style="margin-top:15px">
             <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'out')">📷 Câmera</label>
             <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Arquivo</label>
         </div>
-        <div id="outrasParcelas" class="grid-taxas" style="margin-top:12px"></div>
+        <div id="outrasParcelas" class="grid-taxas" style="margin-top:12px;"></div>
     </div>
 
     <div class="card">
@@ -126,8 +133,8 @@
         <button id="btnExportarSimples" class="btn-exportar" onclick="exportarRelatorio(true)" style="display:none;">Exportar Apenas Taxas</button>
     </div>
 
-    <div class="card" style="padding-bottom: 10px;">
-        <h3>Rentabilidade <button type="button" class="btn-limpar" onclick="limparSecao('share')">Limpar</button></h3>
+    <div class="card" style="padding-bottom: 0px; margin-bottom: 25px;">
+        <h3>Rentabilidade 🪙 <button type="button" class="btn-limpar" onclick="limparSecao('share')">Limpar</button></h3>
         <div class="barraContainer"><div class="barraProgresso" id="barra"></div></div>
         <div style="text-align:right; font-size:12px">Meta 100%: <span id="contador">0%</span></div>
         <label>Faturamento Mensal (R$)</label><input id="faturamento" type="number">
@@ -142,13 +149,11 @@
             <span>10x %: <input id="share_10x" oninput="atualizarBarra()" type="number"></span>
         </div>
 
-        <!-- Campo de % Acima dos Custos Ocultos -->
         <div style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:12px; border:1px solid #ffeeba;">
             <label style="color:#856404; font-weight:bold;">📈 Participação de Demais Bandeiras na Concorrência (%)</label>
             <input id="perc_demais_bandeiras" type="number" value="10" placeholder="Digite a porcentagem, ex: 10" style="margin-bottom:0;">
         </div>
 
-        <!-- Custos Ocultos -->
         <h3 style="margin-top:25px">Custos Ocultos <button type="button" class="btn-limpar" onclick="limparSecao('fixos')">Limpar</button></h3>
         <div class="grid-taxas">
             <span><label class="lbl-custos-ocultos">💻 Software</label><input id="fixo_sistema" type="number"></span>
@@ -164,20 +169,17 @@
             </div>
         </div>
 
-        <!-- Cofrinho -->
         <h3 style="margin-top:25px">Cofrinho</h3>
         <div class="grid-taxas">
             <span><label class="lbl-cofrinho">💰 Aporte Mensal</label><input id="cofrinho_reserva" type="number"></span>
             <span><label class="lbl-cofrinho">📈 % CDI Alvo</label><input id="cofrinho_cdi_alvo" type="number" value="115"></span>
         </div>
-        <!-- Removido espaço feio na transição interna do botão -->
-        <button onclick="simularFaturamento()" style="margin-bottom: 5px;">Gerar Estudo</button>
+        <button onclick="simularFaturamento()" style="margin-bottom: 0px;">Gerar Estudo</button>
         <div id="resultadoFaturamento"></div>
-        <canvas id="graficoEconomia" style="margin-top:20px; max-height:300px"></canvas>
+        <canvas id="graficoEconomia"></canvas>
     </div>
 
-    <!-- Área de Saídas Ajustada (Sem Espaços Mortos) -->
-    <label class="chk-container" style="margin-top: 0; padding-top: 5px;"><input type="checkbox" id="chk_info_completo"> Incluir Termos Adicionais</label>
+    <label class="chk-container" style="margin-top: 5px; padding-top: 0px;"><input type="checkbox" id="chk_info_completo"> Incluir Termos Adicionais</label>
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
 
