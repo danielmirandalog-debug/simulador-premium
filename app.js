@@ -46,13 +46,20 @@ document.addEventListener("DOMContentLoaded", function() {
 const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
 function gerarInputs() {
-    let mpH = ""; let outH = "";
+    let mpH = ""; 
+    // Cabeçalho sutil para orientar as colunas da concorrência sem poluir os inputs
+    let outH = `<div style="grid-column: span 2; text-align: center; font-size: 11px; color: #888; font-weight: bold; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #eee;">⬅️ Esquerda: Visa/Master | Direita: Demais Bandeiras ➡️</div>`;
+    
     for (let i = 2; i <= 18; i++) {
         mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
-        outH += `<span style="display:flex; flex-direction:column; gap:2px;">
-                    <label>${i}x (%)</label> 
-                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0; width: 100%;">
-                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais" style="width: 100%;">
+        // Dois inputs limpos lado a lado (esquerda manual/visa-master e direita demais)
+        outH += `<span>
+                    <label>${i}x (%)</label>
+                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" style="width:100%; margin-top:5px;">
+                 </span>
+                 <span>
+                    <label>${i}x Demais (%)</label>
+                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" style="width:100%; margin-top:5px;">
                  </span>`;
     }
     document.getElementById("mpParcelas").innerHTML = mpH;
@@ -238,7 +245,7 @@ function simularFaturamento() {
         <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
             <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% em Demais Bandeiras na concorrência.</small>
-            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span>br>
+            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
             <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
             <h4>📈 Projeção Cofrinho (Líquido)</h4>
             <b>Aporte: R$ ${resMensal.toFixed(2)} / mês</b><br>
