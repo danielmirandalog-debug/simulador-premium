@@ -10,15 +10,29 @@ document.onkeydown = function(e) {
 
 // 2. MODAL E CONTADOR
 function confirmarTermos() {
-    const checkbox = document.getElementById("chk_termos_uso");
-    if (checkbox.checked) {
-        document.getElementById("modalTermos").style.display = "none";
-        localStorage.setItem("termos_aceitos_ba21", "sim");
-    } else {
-        alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
+    try {
+        const checkbox = document.getElementById("chk_termos_uso");
+        if (!checkbox) {
+            // Se por acaso o ID sumiu do HTML, libera o sistema por segurança
+            const modal = document.getElementById("modalTermos");
+            if (modal) modal.style.display = "none";
+            return;
+        }
+
+        if (checkbox.checked) {
+            const modal = document.getElementById("modalTermos");
+            if (modal) modal.style.display = "none";
+            localStorage.setItem("termos_aceitos_ba21", "sim");
+        } else {
+            alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
+        }
+    } catch (error) {
+        console.log("Erro no modal:", error);
+        // Blindagem total: se der qualquer erro interno, força o fechamento do modal para você trabalhar
+        const modal = document.getElementById("modalTermos");
+        if (modal) modal.style.display = "none";
     }
 }
-
 document.addEventListener("DOMContentLoaded", function() {
     // Garante a exibição do modal de termos
     const modal = document.getElementById("modalTermos");
