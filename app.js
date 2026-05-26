@@ -47,12 +47,10 @@ const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","
 
 function gerarInputs() {
     let mpH = ""; 
-    // Cabeçalho sutil para orientar as colunas da concorrência sem poluir os inputs
     let outH = `<div style="grid-column: span 2; text-align: center; font-size: 11px; color: #888; font-weight: bold; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #eee;">⬅️ Esquerda: Visa/Master | Direita: Demais Bandeiras ➡️</div>`;
     
     for (let i = 2; i <= 18; i++) {
         mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
-        // Dois inputs limpos lado a lado (esquerda manual/visa-master e direita demais)
         outH += `<span>
                     <label>${i}x (%)</label>
                     <input id="out${i}_manual" type="number" step="0.01" class="input-out" style="width:100%; margin-top:5px;">
@@ -180,7 +178,7 @@ function simularFaturamento() {
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
     let pDemais = parseFloat(document.getElementById("perc_demais_bandeiras").value);
-    if (isNaN(pDemais)) pDemais = 0;
+    if (isNaN(pDemais) || pDemais < 0) pDemais = 0;
     let pVisaMaster = 100 - pDemais;
 
     const getTaxa = (p, tipo, subTipo = 'manual') => {
@@ -242,7 +240,7 @@ function simularFaturamento() {
     };
 
     document.getElementById("resultadoFaturamento").innerHTML = `
-        <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
+        <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px; margin-bottom: 0px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
             <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% em Demais Bandeiras na concorrência.</small>
             <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
@@ -257,7 +255,11 @@ function simularFaturamento() {
     window.g = new Chart(document.getElementById("graficoEconomia"), {
         type: 'bar',
         data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
-        options: { animation: false }
+        options: { 
+            animation: false,
+            plugins: { legend: { display: false } }, // Oculta a legenda para remover o espaço vazio abaixo do botão
+            layout: { padding: { bottom: 0 } }
+        }
     });
 }
 
