@@ -36,7 +36,12 @@ function gerarInputs() {
     let mpH = ""; let outH = "";
     for (let i = 2; i <= 18; i++) {
         mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
-        outH += `<span><label>${i}x (%)</label> <input id="out${i}_manual" type="number" step="0.01" class="input-out"></span>`;
+        // Criando dois campos para a concorrência: um normal (_manual) e outro para demais (_demais)
+        outH += `<span style="display:flex; flex-direction:column; gap:2px;">
+                    <label>${i}x Concorrência (%)</label> 
+                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0;">
+                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais Band.">
+                 </span>`;
     }
     document.getElementById("mpParcelas").innerHTML = mpH;
     document.getElementById("outrasParcelas").innerHTML = outH;
@@ -57,9 +62,10 @@ function limparSecao(tipo) {
         document.getElementById("mp1").value = "3.05";
         document.querySelectorAll(".input-mp").forEach(i => i.value = "");
     } else if (tipo === 'out') {
-        ["out_pix_manual","out_debito_manual","out1_manual"].forEach(id => {
+        ["out_pix_manual","out_pix_demais","out_debito_manual","out_debito_demais","out1_manual","out1_demais"].forEach(id => {
             if(document.getElementById(id)) document.getElementById(id).value = "";
         });
+        document.querySelectorAll(".input-out").forEach(i => i.value = "");        });
         document.querySelectorAll(".input-out").forEach(i => i.value = "");
     } else if (tipo === 'share') {
         IDs_SHARE.forEach(id => document.getElementById(id).value = "");
@@ -75,26 +81,62 @@ function limparSecao(tipo) {
 }
 
 function simular() {
-    let html = `<table class="tabela-moderna"><tr><th>Plano</th><th>Mercado Pago</th><th>Concorrência</th></tr>`;
+    let html = `<table class="tabela-moderna">
+                    <tr>
+                        <th>Plano</th>
+                        <th>Mercado Pago</th>
+                        <th>Conc. (Visa/Master)</th>
+                        <th>Conc. (Demais)</th>
+                    </tr>`;
     const bases = ["pix", "debito", "1"];
+    
     bases.forEach(p => {
         let idMP = (p === "pix") ? "mp_pix" : (p === "debito" ? "mp_debito" : "mp1");
         let idOut = (p === "pix") ? "out_pix_manual" : (p === "debito" ? "out_debito_manual" : "out1_manual");
+        let idOutDemais = (p === "pix") ? "out_pix_demais" : (p === "debito" ? "out_debito_demais" : "out1_demais");
+        
         let tMP = parseFloat(document.getElementById(idMP).value) || 0;
         let tOut = parseFloat(document.getElementById(idOut).value) || 0;
+        let tOutDemais = parseFloat(document.getElementById(idOutDemais).value) || 0;
+        
         let nome = p === "pix" ? "Pix" : p === "debito" ? "Débito" : "1x";
-        let classeMP = tMP > tOut ? 'taxaRuim' : 'taxaBoa'; 
-        let classeOut = tOut > tMP ? 'taxaRuim' : '';
-        html += `<tr><td><b>${nome}</b></td><td class="taxa-destaque ${classeMP}">${tMP.toFixed(2)}%</td><td class="taxa-destaque ${classeOut}">${tOut.toFixed(2)}%</td></tr>`;
+        
+        // Cores para Visa/Master
+        let clMP_vs_Out = tMP > tOut ? 'taxaRuim' : 'taxaBoa'; 
+        let clOut = tOut > tMP ? 'taxaRuim' : '';
+        
+        // Cores para Demais Bandeiras
+        let clMP_vs_Demais = tMP > tOutDemais ? 'taxaRuim' : 'taxaBoa';
+        let clDemais = tOutDemais > tMP ? 'taxaRuim' : '';
+        
+        // Como o Mercado Pago é taxa única, usamos a cor verde se ganhar de pelo menos uma das duas taxas da concorrência
+        let classeFinalMP = (tMP <= tOut || tMP <= tOutDemais) ? 'taxaBoa' : 'taxaRuim';
+
+        html += `<tr>
+                    <td><b>${nome}</b></td>
+                    <td class="taxa-destaque ${classeFinalMP}">${tMP.toFixed(2)}%</td>
+                    <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
+                    <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
+                 </tr>`;
     });
+
     for (let i = 2; i <= 18; i++) {
         let valMP = document.getElementById("mp" + i).value;
         if (valMP !== "" && !isNaN(valMP)) {
             let tMP = parseFloat(valMP);
             let tOut = parseFloat(document.getElementById("out" + i + "_manual").value) || 0;
-            let classeMP = tMP > tOut ? 'taxaRuim' : 'taxaBoa'; 
-            let classeOut = tOut > tMP ? 'taxaRuim' : '';
-            html += `<tr><td><b>${i}x</b></td><td class="taxa-destaque ${classeMP}">${tMP.toFixed(2)}%</td><td class="taxa-destaque ${classeOut}">${tOut.toFixed(2)}%</td></tr>`;
+            let tOutDemais = parseFloat(document.getElementById("out" + i + "_demais").value) || 0;
+            
+            let clOut = tOut > tMP ? 'taxaRuim' : '';
+            let clDemais = tOutDemais > tMP ? 'taxaRuim' : '';
+            let classeFinalMP = (tMP <= tOut || tMP <= tOutDemais) ? 'taxaBoa' : 'taxaRuim';
+            
+            html += `<tr>
+                        <td><b>${i}x</b></td>
+                        <td class="taxa-destaque ${classeFinalMP}">${tMP.toFixed(2)}%</td>
+                        <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
+                        <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
+                     </tr>`;
         }
     }
     html += "</table>";
