@@ -183,17 +183,21 @@
     </div>
 </div>
 
-<div id="modalTermos" class="modal-overlay">
+<div id="modalTermos" class="modal-overlay" style="display: flex;">
     <div class="modal-content">
         <h2 style="margin-top:0; text-align:center; color:#333">⚠️ Termos e Isenção</h2>
         <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda que:</p>
-        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial com o Mercado Pago.<br>
-           2. <b>Responsabilidade:</b> Todas as taxas inseridas são de inteira responsabilidade do usuário.<br>
-           3. <b>Precisão:</b> Os dados gerados são estimativas e não garantem rentabilidade futura.</p>
-        <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0">
-            <input type="checkbox" id="chk_termos_uso"> Estou de acordo com os termos
+        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial.<br>
+           2. <b>Responsabilidade:</b> Todas as taxas inseridas são de sua inteira responsabilidade.<br>
+           3. <b>Precisão:</b> Os dados gerados são estimativas.</p>
+        
+        <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="chk_termos_uso" style="width:20px; height:20px;"> Estou de acordo com os termos
         </label>
-        <button onclick="confirmarTermos()" style="background:#333; color:white">Acessar Sistema</button>
+        
+        <button type="button" onclick="document.getElementById('modalTermos').style.display='none'; if(typeof confirmarTermos === 'function') confirmarTermos();" style="background:#333; color:white; width:100%; padding:16px; border:none; border-radius:12px; font-weight:800; cursor:pointer; font-size:17px; text-transform:uppercase;">
+            Acessar Sistema
+        </button>
     </div>
 </div>
 
