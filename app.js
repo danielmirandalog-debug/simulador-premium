@@ -20,33 +20,40 @@ function confirmarTermos() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("modalTermos").style.display = "flex";
-    gerarInputs();
-    buscarCDI();
-    document.getElementById("input_data").value = new Date().toLocaleDateString('pt-BR');
+    // Garante a exibição do modal de termos
+    const modal = document.getElementById("modalTermos");
+    if(modal) modal.style.display = "flex";
+    
+    // Executa as funções iniciais de forma segura
+    try { gerarInputs(); } catch(e) { console.log("Erro gerarInputs:", e); }
+    try { buscarCDI(); } catch(e) { console.log("Erro buscarCDI:", e); }
+    
+    const inputData = document.getElementById("input_data");
+    if(inputData) inputData.value = new Date().toLocaleDateString('pt-BR');
+    
     let visitas = localStorage.getItem("contador_visitas") || 0;
     visitas++;
     localStorage.setItem("contador_visitas", visitas);
-    document.getElementById("num_visitas").innerText = visitas;
+    
+    const numVisitas = document.getElementById("num_visitas");
+    if(numVisitas) numVisitas.innerText = visitas;
 });
-
-const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
 function gerarInputs() {
     let mpH = ""; let outH = "";
     for (let i = 2; i <= 18; i++) {
         mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
-        // Criando dois campos para a concorrência: um normal (_manual) e outro para demais (_demais)
         outH += `<span style="display:flex; flex-direction:column; gap:2px;">
                     <label>${i}x Concorrência (%)</label> 
-                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0;">
-                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais Band.">
+                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0; width: 100%;">
+                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais Band." style="width: 100%;">
                  </span>`;
     }
-    document.getElementById("mpParcelas").innerHTML = mpH;
-    document.getElementById("outrasParcelas").innerHTML = outH;
+    const mpContainer = document.getElementById("mpParcelas");
+    const outContainer = document.getElementById("outrasParcelas");
+    if(mpContainer) mpContainer.innerHTML = mpH;
+    if(outContainer) outContainer.innerHTML = outH;
 }
-
 async function buscarCDI() {
     try {
         const r = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
