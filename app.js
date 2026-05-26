@@ -177,16 +177,15 @@ function simularFaturamento() {
     let f = parseFloat(faturamento.value) || 0;
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
-    let pDemais = parseFloat(document.getElementById("perc_demais_bandeiras").value);
-    if (isNaN(pDemais) || pDemais < 0) pDemais = 0;
-    let pVisaMaster = 100 - pDemais;
+    // Percentual Geral definido pelo usuário
+    let pDemaisGeral = parseFloat(document.getElementById("perc_demais_bandeiras").value);
+    if (isNaN(pDemaisGeral) || pDemaisGeral < 0) pDemaisGeral = 0;
 
-    const getTaxa = (p, tipo, subTipo = 'manual') => {
+    const getTaxaEl = (p, tipo, subTipo = 'manual') => {
         let sufixo = (subTipo === 'demais') ? '_demais' : '_manual';
         let id = (tipo === 'mp') ? (p === 'pix' ? 'mp_pix' : p === 'debito' ? 'mp_debito' : 'mp' + p) : 
                                   (p === 'pix' ? 'out_pix' + sufixo : p === 'debito' ? 'out_debito' + sufixo : 'out' + p + sufixo);
-        let el = document.getElementById(id);
-        return el ? parseFloat(el.value) || 0 : 0;
+        return document.getElementById(id);
     };
 
     let custoMP = 0; let custoConc = 0;
@@ -196,13 +195,30 @@ function simularFaturamento() {
         let percShare = parseFloat(document.getElementById(shareMap[p]).value) || 0;
         let valorFatia = f * (percShare / 100);
         
-        custoMP += valorFatia * (getTaxa(p, 'mp') / 100);
+        // Mercado Pago (Taxa Única)
+        let elMP = getTaxaEl(p, 'mp');
+        let tMP = elMP ? parseFloat(elMP.value) || 0 : 0;
+        custoMP += valorFatia * (tMP / 100);
         
-        let valorVisaMaster = valorFatia * (pVisaMaster / 100);
-        let valorDemais = valorFatia * (pDemais / 100);
+        // Concorrência - Lógica Dinâmica Inteligente
+        let elOutManual = getTaxaEl(p, 'out', 'manual');
+        let elOutDemais = getTaxaEl(p, 'out', 'demais');
         
-        custoConc += (valorVisaMaster * (getTaxa(p, 'out', 'manual') / 100)) + 
-                     (valorDemais * (getTaxa(p, 'out', 'demais') / 100));
+        let tOutManual = elOutManual ? parseFloat(elOutManual.value) || 0 : 0;
+        let tOutDemais = elOutDemais ? parseFloat(elOutDemais.value) || 0 : 0;
+        
+        let pDemaisDoPlano = pDemaisGeral;
+        // Se o campo de taxa Demais estiver zerado ou vazio, força 100% do plano para Visa/Master
+        if (tOutDemais === 0) {
+            pDemaisDoPlano = 0;
+        }
+        let pVisaMasterDoPlano = 100 - pDemaisDoPlano;
+
+        let valorVisaMaster = valorFatia * (pVisaMasterDoPlano / 100);
+        let valorDemais = valorFatia * (pDemaisDoPlano / 100);
+        
+        custoConc += (valorVisaMaster * (tOutManual / 100)) + 
+                     (valorDemais * (tOutDemais / 100));
     });
 
     let cSoftware = parseFloat(document.getElementById("fixo_sistema").value) || 0;
@@ -242,7 +258,7 @@ function simularFaturamento() {
     document.getElementById("resultadoFaturamento").innerHTML = `
         <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px; margin-bottom: 0px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
-            <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% em Demais Bandeiras na concorrência.</small>
+            <small style="color:#666; display:block; margin-bottom:10px;">Simulação inteligente considerando faixas ativas por bandeira na concorrência.</small>
             <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
             <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
             <h4>📈 Projeção Cofrinho (Líquido)</h4>
@@ -257,7 +273,7 @@ function simularFaturamento() {
         data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
         options: { 
             animation: false,
-            plugins: { legend: { display: false } }, // Oculta a legenda para remover o espaço vazio abaixo do botão
+            plugins: { legend: { display: false } }, 
             layout: { padding: { bottom: 0 } }
         }
     });
