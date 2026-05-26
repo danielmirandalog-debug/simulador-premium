@@ -263,12 +263,10 @@ function simularFaturamento() {
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
-    // Revela e reativa o contêiner do gráfico
+    // Torna o contêiner do gráfico visível de forma segura antes de carregar os dados
+    const chartBox = document.getElementById("cont_grafico");
     const chartCanvas = document.getElementById("graficoEconomia");
-    if(chartCanvas) {
-        chartCanvas.style.display = "block";
-        chartCanvas.style.height = "180px";
-    }
+    if(chartBox) chartBox.style.display = "block";
 
     if (window.g) window.g.destroy();
     window.g = new Chart(chartCanvas, {
@@ -277,8 +275,8 @@ function simularFaturamento() {
         options: { 
             animation: false,
             plugins: { legend: { display: false } }, 
-            layout: { padding: { bottom: 0 } },
-            maintainAspectRatio: false
+            layout: { padding: { bottom: 0, top: 5 } },
+            maintainAspectRatio: true // Garante a proporção perfeita para não distorcer a tela
         }
     });
 }
