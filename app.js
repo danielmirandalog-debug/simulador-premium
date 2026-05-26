@@ -10,64 +10,46 @@ document.onkeydown = function(e) {
 
 // 2. MODAL E CONTADOR
 function confirmarTermos() {
-    try {
-        const checkbox = document.getElementById("chk_termos_uso");
-        if (!checkbox) {
-            // Se por acaso o ID sumiu do HTML, libera o sistema por segurança
-            const modal = document.getElementById("modalTermos");
-            if (modal) modal.style.display = "none";
-            return;
-        }
-
-        if (checkbox.checked) {
-            const modal = document.getElementById("modalTermos");
-            if (modal) modal.style.display = "none";
-            localStorage.setItem("termos_aceitos_ba21", "sim");
-        } else {
-            alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
-        }
-    } catch (error) {
-        console.log("Erro no modal:", error);
-        // Blindagem total: se der qualquer erro interno, força o fechamento do modal para você trabalhar
-        const modal = document.getElementById("modalTermos");
-        if (modal) modal.style.display = "none";
+    const checkbox = document.getElementById("chk_termos_uso");
+    if (checkbox && checkbox.checked) {
+        document.getElementById("modalTermos").style.display = "none";
+        localStorage.setItem("termos_aceitos_ba21", "sim");
+    } else {
+        alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
     }
 }
+
 document.addEventListener("DOMContentLoaded", function() {
-    // Garante a exibição do modal de termos
-    const modal = document.getElementById("modalTermos");
-    if(modal) modal.style.display = "flex";
-    
-    // Executa as funções iniciais de forma segura
-    try { gerarInputs(); } catch(e) { console.log("Erro gerarInputs:", e); }
-    try { buscarCDI(); } catch(e) { console.log("Erro buscarCDI:", e); }
-    
-    const inputData = document.getElementById("input_data");
-    if(inputData) inputData.value = new Date().toLocaleDateString('pt-BR');
-    
+    document.getElementById("modalTermos").style.display = "flex";
+    gerarInputs();
+    buscarCDI();
+    if(document.getElementById("input_data")) {
+        document.getElementById("input_data").value = new Date().toLocaleDateString('pt-BR');
+    }
     let visitas = localStorage.getItem("contador_visitas") || 0;
     visitas++;
     localStorage.setItem("contador_visitas", visitas);
-    
-    const numVisitas = document.getElementById("num_visitas");
-    if(numVisitas) numVisitas.innerText = visitas;
+    if(document.getElementById("num_visitas")) {
+        document.getElementById("num_visitas").innerText = visitas;
+    }
 });
+
+const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
 function gerarInputs() {
     let mpH = ""; let outH = "";
     for (let i = 2; i <= 18; i++) {
         mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
         outH += `<span style="display:flex; flex-direction:column; gap:2px;">
-                    <label>${i}x Concorrência (%)</label> 
-                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0; width: 100%;">
-                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais Band." style="width: 100%;">
+                    <label>${i}x (%)</label> 
+                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" placeholder="Visa/Master" style="margin:2px 0;">
+                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" placeholder="Demais">
                  </span>`;
     }
-    const mpContainer = document.getElementById("mpParcelas");
-    const outContainer = document.getElementById("outrasParcelas");
-    if(mpContainer) mpContainer.innerHTML = mpH;
-    if(outContainer) outContainer.innerHTML = outH;
+    document.getElementById("mpParcelas").innerHTML = mpH;
+    document.getElementById("outrasParcelas").innerHTML = outH;
 }
+
 async function buscarCDI() {
     try {
         const r = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
@@ -86,10 +68,11 @@ function limparSecao(tipo) {
         ["out_pix_manual","out_pix_demais","out_debito_manual","out_debito_demais","out1_manual","out1_demais"].forEach(id => {
             if(document.getElementById(id)) document.getElementById(id).value = "";
         });
-        document.querySelectorAll(".input-out").forEach(i => i.value = "");        });
         document.querySelectorAll(".input-out").forEach(i => i.value = "");
     } else if (tipo === 'share') {
         IDs_SHARE.forEach(id => document.getElementById(id).value = "");
+        if(document.getElementById("faturamento")) document.getElementById("faturamento").value = "";
+        if(document.getElementById("perc_demais_bandeiras")) document.getElementById("perc_demais_bandeiras").value = "10";
         atualizarBarra();
     } else if (tipo === 'fixos') {
         ["fixo_sistema","fixo_maquina","fixo_cesta","fixo_manutencao","vol_pix_app","taxa_pix_app"].forEach(id => {
@@ -110,7 +93,6 @@ function simular() {
                         <th>Conc. (Demais)</th>
                     </tr>`;
     const bases = ["pix", "debito", "1"];
-    
     bases.forEach(p => {
         let idMP = (p === "pix") ? "mp_pix" : (p === "debito" ? "mp_debito" : "mp1");
         let idOut = (p === "pix") ? "out_pix_manual" : (p === "debito" ? "out_debito_manual" : "out1_manual");
@@ -122,15 +104,8 @@ function simular() {
         
         let nome = p === "pix" ? "Pix" : p === "debito" ? "Débito" : "1x";
         
-        // Cores para Visa/Master
-        let clMP_vs_Out = tMP > tOut ? 'taxaRuim' : 'taxaBoa'; 
         let clOut = tOut > tMP ? 'taxaRuim' : '';
-        
-        // Cores para Demais Bandeiras
-        let clMP_vs_Demais = tMP > tOutDemais ? 'taxaRuim' : 'taxaBoa';
         let clDemais = tOutDemais > tMP ? 'taxaRuim' : '';
-        
-        // Como o Mercado Pago é taxa única, usamos a cor verde se ganhar de pelo menos uma das duas taxas da concorrência
         let classeFinalMP = (tMP <= tOut || tMP <= tOutDemais) ? 'taxaBoa' : 'taxaRuim';
 
         html += `<tr>
@@ -180,12 +155,10 @@ function simularFaturamento() {
     let f = parseFloat(faturamento.value) || 0;
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
-    // Capturando a porcentagem de demais bandeiras (padrão 10% se estiver vazio)
     let pDemais = parseFloat(document.getElementById("perc_demais_bandeiras").value);
-    if (isNaN(pDemais) || pDemais < 0 || pDemais > 100) pDemais = 10;
+    if (isNaN(pDemais)) pDemais = 0;
     let pVisaMaster = 100 - pDemais;
 
-    // Função interna adaptada para buscar a taxa normal (Visa/Master) ou Demais Bandeiras
     const getTaxa = (p, tipo, subTipo = 'manual') => {
         let sufixo = (subTipo === 'demais') ? '_demais' : '_manual';
         let id = (tipo === 'mp') ? (p === 'pix' ? 'mp_pix' : p === 'debito' ? 'mp_debito' : 'mp' + p) : 
@@ -201,10 +174,8 @@ function simularFaturamento() {
         let percShare = parseFloat(document.getElementById(shareMap[p]).value) || 0;
         let valorFatia = f * (percShare / 100);
         
-        // Mercado Pago calcula 100% da fatia na taxa única dele
         custoMP += valorFatia * (getTaxa(p, 'mp') / 100);
         
-        // Concorrência calcula a divisão proporcional (Ex: 90% em Visa/Master e 10% em Demais Bandeiras)
         let valorVisaMaster = valorFatia * (pVisaMaster / 100);
         let valorDemais = valorFatia * (pDemais / 100);
         
@@ -247,9 +218,9 @@ function simularFaturamento() {
     };
 
     document.getElementById("resultadoFaturamento").innerHTML = `
-        <div class="resumo-financeiro">
+        <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
-            <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% de faturamento em Demais Bandeiras na concorrência.</small>
+            <small style="color:#666; display:block; margin-bottom:10px;">Simulação considerando ${pDemais}% em Demais Bandeiras na concorrência.</small>
             <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
             <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
             <h4>📈 Projeção Cofrinho (Líquido)</h4>
@@ -266,7 +237,6 @@ function simularFaturamento() {
     });
 }
 
-// 5. SISTEMA DE HISTÓRICO
 function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
@@ -278,11 +248,12 @@ function salvarNoHistorico() {
     alert("Simulação arquivada com sucesso!");
 }
 
+function consultingHistorico() { /* Mapeado para consultarHistorico */ consultarHistorico(); }
 function consultarHistorico() {
     const termo = prompt("Busque por Seller, Responsável ou Data:").toLowerCase();
     if (termo === null) return;
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-    let filtrados = historico.filter(h => h.seller.toLowerCase().includes(termo) || h.responsavel.toLowerCase().includes(termo) || h.data.includes(termo));
+    let filtrados = historico.filter(h => h.seller.toLowerCase().includes(termo) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo));
     if (filtrados.length === 0) return alert("Nenhum registro encontrado.");
     let msg = "Registros encontrados (digite o número para recuperar):\n\n";
     filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} (${f.data})\n`);
@@ -306,16 +277,24 @@ function exportarRelatorio(apenasTaxas) {
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
     const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ Conta sem anuidade e taxas administrativas\n➡️ Link de pagamento com recebimento na hora\n➡️ Rendimentos diários no cofrinho\n🗒️Simulação com validade de 07 dias.`;
     let checkboxAtivo = apenasTaxas ? document.getElementById("chk_info_simples") : document.getElementById("chk_info_completo");
-    boxInfoAdicional.style.display = checkboxAtivo.checked ? "block" : "none";
-    if (checkboxAtivo.checked) boxInfoAdicional.innerHTML = textoCompleto;
+    if(boxInfoAdicional) {
+        boxInfoAdicional.style.display = (checkboxAtivo && checkboxAtivo.checked) ? "block" : "none";
+        if (checkboxAtivo && checkboxAtivo.checked) boxInfoAdicional.innerHTML = textoCompleto;
+    }
     if (!apenasTaxas) {
-        boxCorpo.style.display = "block"; boxGrafico.style.display = "block";
+        if(boxCorpo) boxCorpo.style.display = "block"; 
+        if(boxGrafico) boxGrafico.style.display = "block";
         let v = window.dadosRelatorioAnalitico;
-        let htmlCustos = "";
-        for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
-        boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
-        if (window.g) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
-    } else { boxCorpo.style.display = "none"; boxGrafico.style.display = "none"; }
+        if(v) {
+            let htmlCustos = "";
+            for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
+            boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
+        }
+        if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
+    } else { 
+        if(boxCorpo) boxCorpo.style.display = "none"; 
+        if(boxGrafico) boxGrafico.style.display = "none"; 
+    }
     setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
 }
 
@@ -324,38 +303,31 @@ function toggleDescobreTaxa() {
     box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
 }
 
-// 6. CALCULADORA REVERSA MELHORADA
 function calcularDescobreTaxa(origem) {
     let valorOp = parseFloat(document.getElementById("calc_valor_op").value) || 0;
     let valorRec = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
     let taxaPercent = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
-    
-    // Elementos de exibição
     const resTaxa = document.getElementById("res_taxa_percent");
     const resFinal = document.getElementById("res_valor_final");
 
     if (origem === 'valor' || origem === 'recebido') {
         if (valorOp > 0 && valorRec > 0) {
-            // Descobre a taxa direto pelo que foi cobrado e o que caiu na conta
             let taxa = ((valorOp - valorRec) / valorOp) * 100;
             resTaxa.innerText = `${taxa.toFixed(2)}%`;
-            resFinal.innerText = `$ ${valorRec.toFixed(2)}`;
+            resFinal.innerText = `R$ ${valorRec.toFixed(2)}`;
             document.getElementById("calc_taxa_perc").value = taxa.toFixed(2);
         }
     } 
-    
     if (origem === 'taxa') {
         if (valorOp > 0 && taxaPercent > 0) {
-            // Modelo Cobrança: Eu passo R$ 100 e quero ver quanto sobra com X% de taxa
             let liquido = valorOp - (valorOp * (taxaPercent / 100));
-            resFinal.innerText = `$ ${liquido.toFixed(2)}`;
+            resFinal.innerText = `R$ ${liquido.toFixed(2)}`;
             resTaxa.innerText = `${taxaPercent.toFixed(2)}%`;
             document.getElementById("calc_valor_rec").value = liquido.toFixed(2);
         } else if (valorRec > 0 && taxaPercent > 0) {
-            // Modelo Recebimento: Eu quero que caia R$ 100 limpo. Quanto devo cobrar no Bruto?
             let brutoNecessario = valorRec / (1 - (taxaPercent / 100));
-            resFinal.innerText = `$ ${valorRec.toFixed(2)} (Liq)`;
-            resTaxa.innerText = `Cobrar: $ ${brutoNecessario.toFixed(2)}`;
+            resFinal.innerText = `R$ ${valorRec.toFixed(2)} (Liq)`;
+            resTaxa.innerText = `Cobrar: R$ ${brutoNecessario.toFixed(2)}`;
             document.getElementById("calc_valor_op").value = brutoNecessario.toFixed(2);
         }
     }
