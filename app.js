@@ -263,7 +263,6 @@ function simularFaturamento() {
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
-    // Torna o contêiner do gráfico visível de forma segura antes de carregar os dados
     const chartBox = document.getElementById("cont_grafico");
     const chartCanvas = document.getElementById("graficoEconomia");
     if(chartBox) chartBox.style.display = "block";
@@ -276,7 +275,7 @@ function simularFaturamento() {
             animation: false,
             plugins: { legend: { display: false } }, 
             layout: { padding: { bottom: 0, top: 5 } },
-            maintainAspectRatio: true // Garante a proporção perfeita para não distorcer a tela
+            maintainAspectRatio: true
         }
     });
 }
@@ -293,18 +292,42 @@ function salvarNoHistorico() {
 }
 
 function consultingHistorico() { consultarHistorico(); }
+
+// 🔴 ATUALIZAÇÃO DA BUSCA: Localização flexível por CNPJ limpo (apenas números) ou texto
 function consultarHistorico() {
-    const termo = prompt("Busque por Seller, CNPJ, Responsável ou Data:").toLowerCase();
-    if (termo === null) return;
+    const termoOriginal = prompt("Busque por Seller, CNPJ, Responsável ou Data:");
+    if (termoOriginal === null) return;
+    
+    const termo = termoOriginal.toLowerCase().trim();
+    const termoSomenteNumeros = termo.replace(/\D/g, ""); // Filtra apenas números digitados na busca
+
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-    let filtrados = historico.filter(h => h.seller.toLowerCase().includes(termo) || (h.cnpj && h.cnpj.includes(termo)) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo));
+    
+    let filtrados = historico.filter(h => {
+        // Limpa o CNPJ guardado na proposta para comparar somente números
+        const cnpjGuardadoNumeros = h.cnpj ? h.cnpj.replace(/\D/g, "") : "";
+        
+        // Se o usuário digitou números e o CNPJ guardado contiver esses números, valida a busca
+        const bateCnpj = (termoSomenteNumeros !== "" && cnpjGuardadoNumeros.includes(termoSomenteNumeros));
+        const bateSeller = h.seller.toLowerCase().includes(termo);
+        const bateResponsavel = h.responsavel && h.responsavel.toLowerCase().includes(termo);
+        const bateData = h.data.includes(termo);
+
+        return bateCnpj || bateSeller || bateResponsavel || bateData;
+    });
+
     if (filtrados.length === 0) return alert("Nenhum registro encontrado.");
+    
     let msg = "Registros encontrados (digite o número para recuperar):\n\n";
     filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} ${f.cnpj ? '['+f.cnpj+']' : ''} (${f.data})\n`);
+    
     const escolha = prompt(msg);
     if (escolha > 0 && escolha <= filtrados.length) {
         const item = filtrados[escolha-1].snapshot;
-        for (let id in item) { let el = document.getElementById(id); if (el) el.value = item[id]; }
+        for (let id in item) { 
+            let el = document.getElementById(id); 
+            if (el) el.value = item[id]; 
+        }
         atualizarBarra();
         alert("Dados carregados!");
     }
