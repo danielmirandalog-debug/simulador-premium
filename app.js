@@ -337,7 +337,7 @@ function exportarRelatorio(apenasTaxas) {
     let boxCorpo = document.getElementById("rel_share_cofrinho");
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
-    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ Conta sem anuidade e taxas administrativas\n➡️ Link de pagamento com recebimento na hora\n➡️ Rendimentos diários no cofrinho\n🗒️Simulação com validade de 07 dias.`;
+    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ NOVIDADE: TEF (consulte condições)\n➡️ Mesma taxa para todas as bandeiras\n➡️ Conta sem anuidade e sem taxas administrativas\n➡️ Link de pagamento com recebimento na hora e mesma taxa da Point\n➡️ Rendimentos diários no cofrinho\n➡️ Software de Gestão Mercado Pago\n🗒️Simulação com validade de 07 dias.`;
     let checkboxAtivo = apenasTaxas ? document.getElementById("chk_info_simples") : document.getElementById("chk_info_completo");
     if(boxInfoAdicional) {
         boxInfoAdicional.style.display = (checkboxAtivo && checkboxAtivo.checked) ? "block" : "none";
