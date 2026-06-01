@@ -337,7 +337,7 @@ function exportarRelatorio(apenasTaxas) {
     let boxCorpo = document.getElementById("rel_share_cofrinho");
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
-    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ NOVIDADE: TEF (consulte condições)\n➡️ Mesma taxa para todas as bandeiras\n➡️ Conta sem anuidade e sem taxas administrativas\n➡️ Link de pagamento com recebimento na hora e mesma taxa da Point\n➡️ Rendimentos diários no cofrinho\n➡️ Software de Gestão Mercado Pago\n🗒️Simulação com validade de 07 dias.`;
+    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ Conta sem anuidade e taxas administrativas\n➡️ Link de pagamento com recebimento na hora\n➡️ Rendimentos diários no cofrinho\n🗒️Simulação com validade de 07 dias.`;
     let checkboxAtivo = apenasTaxas ? document.getElementById("chk_info_simples") : document.getElementById("chk_info_completo");
     if(boxInfoAdicional) {
         boxInfoAdicional.style.display = (checkboxAtivo && checkboxAtivo.checked) ? "block" : "none";
@@ -395,72 +395,94 @@ function calcularDescobreTaxa(origem) {
     }
 }
 
-// 🔴 PROCESSADOR OCR DUPLO INTELIGENTE (Suporta ler tabelas lado a lado de forma blindada)
+// 🔴 PROCESSADOR OCR REESTRUTURADO E BLINDADO POR COORDENADAS
 async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
         const worker = await Tesseract.createWorker('por');
-        // Adiciona suporte a letras para ler cabeçalhos ("visa", "elo", "am")
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789xX,.-% abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' });
+        await worker.setParameters({ tessedit_char_whitelist: '0123456789xX,.-% ' });
+        
         const res = await worker.recognize(e.target.result);
+        let workerLetras = await Tesseract.createWorker('por');
+        let resCompleto = await workerLetras.recognize(e.target.result);
         
-        let txt = res.data.text.toLowerCase().replace(/,/g, ".").replace(/\s*x\s*/g, "x");
+        let textoNum = res.data.text.replace(/,/g, ".");
+        let textoTodo = resCompleto.data.text.toLowerCase().replace(/,/g, ".");
         
-        // Mapeamento padrão do Mercado Pago ou Concorrência simples
-        let secaoAtualConcorrencia = 'manual'; // Inicia assumindo a coluna Visa/Master
-        let linhas = txt.split('\n');
-
-        for(let l = 0; l < linhas.length; l++) {
-            let linhaTexto = linhas[l];
-
-            // Se for concorrência, monitora dinamicamente a troca de tabelas no texto do print
-            if (pref === 'out') {
-                if (linhaTexto.includes('visa') || linhaTexto.includes('master')) {
-                    secaoAtualConcorrencia = 'manual';
-                } else if (linhaTexto.includes('elo') || linhaTexto.includes('am') || linhaTexto.includes('ex')) {
-                    secaoAtualConcorrencia = 'demais';
-                }
-            }
-
-            // Identifica planos de parcelas (ex: 2x, 10x, 12x) seguidos da taxa em verde (captura o último número da linha)
-            let regexParcelas = /(\d{1,2})x\s*[\d.]+\s*%?\s*([\d.]+)/g;
-            let matchP;
-            while ((matchP = regexParcelas.exec(linhaTexto)) !== null) {
-                let p = parseInt(matchP[1]), t = parseFloat(matchP[2]);
-                if (p >= 2 && p <= 18) {
-                    let id = (pref === 'mp') ? ('mp' + p) : ('out' + p + '_' + secaoAtualConcorrencia);
+        // Se for Mercado Pago, roda a lógica pura e estável original (Master V6)
+        if (pref === 'mp') {
+            let regex = /(\d{1,2})x\s*([\d.]+)/g; let match;
+            while ((match = regex.exec(textoNum)) !== null) {
+                let p = parseInt(match[1]), t = parseFloat(match[2]);
+                if (p >= 1 && p <= 18) {
+                    let id = (p === 1) ? "mp1" : ("mp" + p);
                     if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
                 }
             }
-
-            // Identifica taxas fixas do topo (Débito e 1x/Crédito à vista)
-            if (linhaTexto.includes('définit') || linhaTexto.includes('débito') || linhaTexto.includes('debi')) {
-                let numFiltro = linhaTexto.match(/[\d.]+/g);
-                if(numFiltro && numFiltro.length >= 1) {
-                    let t = parseFloat(numFiltro[numFiltro.length - 1]); // Pega a taxa verde do final da linha
-                    let id = (pref === 'mp') ? 'mp_debito' : ('out_debito_' + secaoAtualConcorrencia);
-                    if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
+            // Captura Débito e Pix diretos do MP
+            let linhas = textoNum.split('\n');
+            for(let i=0; i<linhas.length; i++){
+                if(linhas[i].toLowerCase().includes("déb") || linhas[i].toLowerCase().includes("deb")){
+                    let m = linhas[i].match(/[\d.]+/);
+                    if(m) document.getElementById("mp_debito").value = parseFloat(m[0]).toFixed(2);
+                }
+                if(linhas[i].toLowerCase().includes("pix")){
+                    let m = linhas[i].match(/[\d.]+/);
+                    if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
                 }
             }
-            if (linhaTexto.includes('1x')) {
-                let numFiltro = linhaTexto.match(/[\d.]+/g);
-                if(numFiltro && numFiltro.length >= 2) {
-                    let t = parseFloat(numFiltro[numFiltro.length - 1]);
-                    let id = (pref === 'mp') ? 'mp1' : ('out1_' + secaoAtualConcorrencia);
-                    if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
-                }
-            }
-            if (linhaTexto.includes('pix')) {
-                let numFiltro = linhaTexto.match(/[\d.]+/g);
-                if(numFiltro && numFiltro.length >= 1) {
-                    let t = parseFloat(numFiltro[numFiltro.length - 1]);
-                    let id = (pref === 'mp') ? 'mp_pix' : ('out_pix_' + secaoAtualConcorrencia);
-                    if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
-                }
-            }
+            await worker.terminate();
+            await workerLetras.terminate();
+            return; 
         }
+
+        // LÓGICA COORDENADA DA CONCORRÊNCIA: Divide a imagem em duas metades (Esquerda vs Direita)
+        // Evita loop e adivinhações por string corrompida.
+        const palavras = resCompleto.data.words;
+        
+        palavras.forEach(w => {
+            let textoPalavra = w.text.toLowerCase().replace(/,/g, ".");
+            let padraoTaxa = /^[0-9]+(\.[0-9]+)?%?$/;
+            
+            // Filtra se a string lida é uma taxa válida em formato numérico
+            if(padraoTaxa.test(textoPalavra)){
+                let valorTaxa = parseFloat(textoPalavra.replace('%', ''));
+                
+                // Mapeia as caixas limitadoras horizontais (eixo X) da imagem
+                let centroX = w.bbox.x0 + ((w.bbox.x1 - w.bbox.x0) / 2);
+                let larguraImagemTotal = resCompleto.data.image ? resCompleto.data.image.width : 1000;
+                
+                // Decide o sub-campo baseado na metade física da foto
+                let subCampo = (centroX < (larguraImagemTotal / 2)) ? 'manual' : 'demais';
+                
+                // Procura o indicador de plano nas palavras vizinhas próximas verticalmente
+                let linhaTextoProxima = w.line ? w.line.text.toLowerCase() : '';
+                
+                if (linhaTextoProxima.includes('déb') || linhaTextoProxima.includes('deb')) {
+                    let targetId = 'out_debito_' + subCampo;
+                    if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                } else if (linhaTextoProxima.includes('1x')) {
+                    let targetId = 'out1_' + subCampo;
+                    if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                } else if (linhaTextoProxima.includes('pix')) {
+                    let targetId = 'out_pix_' + subCampo;
+                    if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                } else {
+                    let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
+                    if(matchParcela){
+                        let p = parseInt(matchParcela[1]);
+                        if(p >= 2 && p <= 18){
+                            let targetId = 'out' + p + '_' + subCampo;
+                            if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                        }
+                    }
+                }
+            }
+        });
+
         await worker.terminate();
+        await workerLetras.terminate();
     };
     reader.readAsDataURL(file);
 }
