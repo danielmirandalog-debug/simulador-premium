@@ -1,5 +1,5 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V7.0 - Sistema de Manutenção com Senha Mestre e Backup Físico
+   VERSÃO: Master V7.5 - Sistema de Manutenção Unificado com Senha Mestre
 */
 
 // 1. PROTEÇÃO E BLINDAGEM NATIVA
@@ -9,7 +9,7 @@ document.onkeydown = function(e) {
 };
 
 // 2. CONFIGURAÇÃO DE SEGURANÇA ADMINISTRATIVA
-const SENHA_MESTRE = "Marcos2026"; // Altere aqui a sua senha se desejar
+const SENHA_MESTRE = "Marcos2026";
 
 // Verifica o estado da manutenção assim que a página carrega
 function checarStatusManutencao() {
@@ -23,47 +23,29 @@ function checarStatusManutencao() {
     }
 }
 
-// Controla a abertura e fechamento do painel administrativo por senha
+// Controla a ativação e desativação da manutenção por senha direta
 function gerenciarPainelAdmin() {
-    const senhaDigitada = prompt("Digite a senha mestre administrativa para acessar o painel:");
+    const senhaDigitada = prompt("Digite a senha mestre administrativa:");
     if (senhaDigitada === null) return;
 
     if (senhaDigitada === SENHA_MESTRE) {
-        const painel = document.getElementById("painelControleAdmin");
-        const btnStatus = document.getElementById("btnToggleManutencao");
         const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
-
-        // Atualiza o visual do botão interno do painel com base no estado atual
-        if (estadoAtual === "manutencao") {
-            btnStatus.innerText = "🟢 DESATIVAR MODO MANUTENÇÃO (LIBERAR APP)";
-            btnStatus.style.background = "#28a745";
+        
+        if (estadoAtual === "online") {
+            if (confirm("Deseja ativar o MODO MANUTENÇÃO? Isso bloqueará o acesso ao simulador para a equipe.")) {
+                localStorage.setItem("status_manutencao_ba21", "manutencao");
+                alert("Modo manutenção ATIVADO!");
+                location.reload();
+            }
         } else {
-            btnStatus.innerText = "🔴 ATIVAR MODO MANUTENÇÃO (BLOQUEAR APP)";
-            btnStatus.style.background = "#d32f2f";
+            if (confirm("Deseja desativar o MODO MANUTENÇÃO e liberar o acesso ao simulador?")) {
+                localStorage.setItem("status_manutencao_ba21", "online");
+                alert("O aplicativo está ONLINE novamente!");
+                location.reload();
+            }
         }
-
-        // Alterna a exibição do painel
-        painel.style.display = (painel.style.display === "none" || painel.style.display === "") ? "block" : "none";
-        painel.scrollIntoView({ behavior: "smooth" });
     } else {
         alert("Senha incorreta! Acesso negado.");
-    }
-}
-
-// Alterna o estado do sistema entre online e manutenção
-function alternarEstadoManutencao() {
-    const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
-    
-    if (estadoAtual === "online") {
-        if (confirm("Deseja realmente BLOQUEAR o aplicativo e ativar o modo manutenção para todos os usuários?")) {
-            localStorage.setItem("status_manutencao_ba21", "manutencao");
-            alert("Modo manutenção ATIVADO com sucesso!");
-            location.reload();
-        }
-    } else {
-        localStorage.setItem("status_manutencao_ba21", "online");
-        alert("Modo manutenção DESATIVADO. O aplicativo está ONLINE!");
-        location.reload();
     }
 }
 
@@ -79,16 +61,13 @@ function confirmarTermos() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Garante a checagem do status assim que abre a página
     checarStatusManutencao();
 
-    // 2. Se a manutenção estiver ativa, para por aqui e deixa apenas os botões admin funcionando
     const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
     if (estadoAtual === "manutencao") {
         return; 
     }
 
-    // 3. Se estiver online, carrega o simulador normalmente com segurança
     const modalTermos = document.getElementById("modalTermos");
     if (modalTermos) modalTermos.style.display = "flex";
     
@@ -307,7 +286,7 @@ function simularFaturamento() {
         let taxaMensalBase = Math.pow((1 + (cdiAnual / 100)), (1/12)) - 1;
         for(let i=1; i<=meses; i++){
             let taxaAplicada = (saldoAtual <= 10000) ? (taxaMensalBase * alvoPerc) : (saldoAtual <= 100000 ? taxaMensalBase : 0);
-            let rendimentoDoMes = saldoAtual * taxaAplicada;
+            let rendimientoDoMes = saldoAtual * taxaAplicada;
             lucroBrutoAcumulado += rendimentoDoMes;
             saldoAtual += rendimentoDoMes + resMensal;
         }
@@ -383,7 +362,6 @@ function consultarHistorico() {
     }
 }
 
-// BACKUP EXTERNO FISICO .JSON
 function exportarBackupJSON() {
     let historico = localStorage.getItem("historico_simulacoes");
     if (!historico || historico === "[]") return alert("Seu histórico local está vazio.");
@@ -442,7 +420,7 @@ function exportarRelatorio(apenasTaxas) {
         if(v) {
             let htmlCustos = "";
             for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
-            boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
+            boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMEMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
         }
         if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
     } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }
@@ -461,7 +439,7 @@ function calcularDescobreTaxa(origem) {
     const resTaxa = document.getElementById("res_taxa_percent");
     const resFinal = document.getElementById("res_valor_final");
 
-    if (origem === 'valor' || origem === 'recebido') {
+    if (origem === 'valor' || marvel === 'recebido' || origem === 'recebido') {
         if (valorOp > 0 && valorRec > 0) {
             let taxa = ((valorOp - valorRec) / valorOp) * 100;
             resTaxa.innerText = `${taxa.toFixed(2)}%`;
@@ -507,11 +485,11 @@ async function processarOCR(event, pref) {
             let linhas = textoNum.split('\n');
             for(let i=0; i<linhas.length; i++){
                 if(linhas[i].toLowerCase().includes("déb") || linhas[i].toLowerCase().includes("deb")){
-                    let m = linhas[i].match(/[\d.]+/);
+                    let m = lines[i].match(/[\d.]+/);
                     if(m) document.getElementById("mp_debito").value = parseFloat(m[0]).toFixed(2);
                 }
                 if(linhas[i].toLowerCase().includes("pix")){
-                    let m = linhas[i].match(/[\d.]+/);
+                    let m = lines[i].match(/[\d.]+/);
                     if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
                 }
             }
