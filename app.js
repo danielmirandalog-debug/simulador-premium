@@ -1,14 +1,73 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V6 - Calculadora Reversa Completa (Bruto vs Líquido)
+   VERSÃO: Master V7.0 - Sistema de Manutenção com Senha Mestre e Backup Físico
 */
 
-// 1. PROTEÇÃO E BLINDAGEM
+// 1. PROTEÇÃO E BLINDAGEM NATIVA
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.onkeydown = function(e) {
     if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
 };
 
-// 2. MODAL E CONTADOR
+// 2. CONFIGURAÇÃO DE SEGURANÇA ADMINISTRATIVA
+const SENHA_MESTRE = "Marcos2026"; // Altere aqui a sua senha se desejar
+
+// Verifica o estado da manutenção assim que a página carrega
+function checarStatusManutencao() {
+    const estado = localStorage.getItem("status_manutencao_ba21") || "online";
+    const tela = document.getElementById("telaManutencao");
+    
+    if (estado === "manutencao") {
+        if (tela) tela.style.display = "flex";
+    } else {
+        if (tela) tela.style.display = "none";
+    }
+}
+
+// Controla a abertura e fechamento do painel administrativo por senha
+function gerenciarPainelAdmin() {
+    const senhaDigitada = prompt("Digite a senha mestre administrativa para acessar o painel:");
+    if (senhaDigitada === null) return;
+
+    if (senhaDigitada === SENHA_MESTRE) {
+        const painel = document.getElementById("painelControleAdmin");
+        const btnStatus = document.getElementById("btnToggleManutencao");
+        const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
+
+        // Atualiza o visual do botão interno do painel com base no estado atual
+        if (estadoAtual === "manutencao") {
+            btnStatus.innerText = "🟢 DESATIVAR MODO MANUTENÇÃO (LIBERAR APP)";
+            btnStatus.style.background = "#28a745";
+        } else {
+            btnStatus.innerText = "🔴 ATIVAR MODO MANUTENÇÃO (BLOQUEAR APP)";
+            btnStatus.style.background = "#d32f2f";
+        }
+
+        // Alterna a exibição do painel
+        painel.style.display = (painel.style.display === "none" || painel.style.display === "") ? "block" : "none";
+        painel.scrollIntoView({ behavior: "smooth" });
+    } else {
+        alert("Senha incorreta! Acesso negado.");
+    }
+}
+
+// Alterna o estado do sistema entre online e manutenção
+function alternarEstadoManutencao() {
+    const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
+    
+    if (estadoAtual === "online") {
+        if (confirm("Deseja realmente BLOQUEAR o aplicativo e ativar o modo manutenção para todos os usuários?")) {
+            localStorage.setItem("status_manutencao_ba21", "manutencao");
+            alert("Modo manutenção ATIVADO com sucesso!");
+            location.reload();
+        }
+    } else {
+        localStorage.setItem("status_manutencao_ba21", "online");
+        alert("Modo manutenção DESATIVADO. O aplicativo está ONLINE!");
+        location.reload();
+    }
+}
+
+// 3. MODAL E CONTADOR DE ACESSOS
 function confirmarTermos() {
     const checkbox = document.getElementById("chk_termos_uso");
     if (checkbox && checkbox.checked) {
@@ -20,6 +79,14 @@ function confirmarTermos() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    // Executa a checagem de manutenção antes de qualquer outra função
+    checarStatusManutencao();
+
+    const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
+    if (estadoAtual === "manutencao") {
+        return; // Interrompe os modais se a tela estiver bloqueada
+    }
+
     document.getElementById("modalTermos").style.display = "flex";
     gerarInputs();
     buscarCDI();
@@ -33,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("num_visitas").innerText = visitas;
     }
 
-    // Ouvinte para formatar CNPJ automaticamente
     const cnpjInput = document.getElementById("input_cnpj");
     if(cnpjInput) {
         cnpjInput.addEventListener("input", function(e) {
@@ -205,16 +271,13 @@ function simularFaturamento() {
         let tOutDemais = elOutDemais ? parseFloat(elOutDemais.value) || 0 : 0;
         
         let pDemaisDoPlano = pDemaisGeral;
-        if (tOutDemais === 0) {
-            pDemaisDoPlano = 0;
-        }
+        if (tOutDemais === 0) pDemaisDoPlano = 0;
         let pVisaMasterDoPlano = 100 - pDemaisDoPlano;
 
         let valorVisaMaster = valorFatia * (pVisaMasterDoPlano / 100);
         let valorDemais = valorFatia * (pDemaisDoPlano / 100);
         
-        custoConc += (valorVisaMaster * (tOutManual / 100)) + 
-                     (valorDemais * (tOutDemais / 100));
+        custoConc += (valorVisaMaster * (tOutManual / 100)) + (valorDemais * (tOutDemais / 100));
     });
 
     let cSoftware = parseFloat(document.getElementById("fixo_sistema").value) || 0;
@@ -252,9 +315,8 @@ function simularFaturamento() {
     };
 
     document.getElementById("resultadoFaturamento").innerHTML = `
-        <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px; margin-bottom: 0px;">
+        <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
-            <small style="color:#666; display:block; margin-bottom:10px;">Simulação inteligente considerando faixas ativas por bandeira na concorrência.</small>
             <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
             <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
             <h4>📈 Projeção Cofrinho (Líquido)</h4>
@@ -264,19 +326,13 @@ function simularFaturamento() {
         </div>`;
 
     const chartBox = document.getElementById("cont_grafico");
-    const chartCanvas = document.getElementById("graficoEconomia");
     if(chartBox) chartBox.style.display = "block";
 
     if (window.g) window.g.destroy();
-    window.g = new Chart(chartCanvas, {
+    window.g = new Chart(document.getElementById("graficoEconomia"), {
         type: 'bar',
         data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
-        options: { 
-            animation: false,
-            plugins: { legend: { display: false } }, 
-            layout: { padding: { bottom: 0, top: 5 } },
-            maintainAspectRatio: true
-        }
+        options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
     });
 }
 
@@ -291,24 +347,17 @@ function salvarNoHistorico() {
     alert("Simulação arquivada com sucesso!");
 }
 
-function consultingHistorico() { consultarHistorico(); }
 function consultarHistorico() {
     const termoOriginal = prompt("Busque por Seller, CNPJ, Responsável ou Data:");
     if (termoOriginal === null) return;
     
     const termo = termoOriginal.toLowerCase().trim();
     const termoSomenteNumeros = termo.replace(/\D/g, "");
-
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
     
     let filtrados = historico.filter(h => {
         const cnpjGuardadoNumeros = h.cnpj ? h.cnpj.replace(/\D/g, "") : "";
-        const bateCnpj = (termoSomenteNumeros !== "" && cnpjGuardadoNumeros.includes(termoSomenteNumeros));
-        const bateSeller = h.seller.toLowerCase().includes(termo);
-        const bateResponsavel = h.responsavel && h.responsavel.toLowerCase().includes(termo);
-        const bateData = h.data.includes(termo);
-
-        return bateCnpj || bateSeller || bateResponsavel || bateData;
+        return (termoSomenteNumeros !== "" && cnpjGuardadoNumeros.includes(termoSomenteNumeros)) || h.seller.toLowerCase().includes(termo) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo);
     });
 
     if (filtrados.length === 0) return alert("Nenhum registro encontrado.");
@@ -316,9 +365,9 @@ function consultarHistorico() {
     let msg = "Registros encontrados (digite o número para recuperar):\n\n";
     filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} ${f.cnpj ? '['+f.cnpj+']' : ''} (${f.data})\n`);
     
-    const escolha = prompt(msg);
-    if (escolha > 0 && escolha <= filtrados.length) {
-        const item = filtrados[escolha-1].snapshot;
+    const choice = prompt(msg);
+    if (choice > 0 && choice <= filtrados.length) {
+        const item = filtrados[choice-1].snapshot;
         for (let id in item) { 
             let el = document.getElementById(id); 
             if (el) el.value = item[id]; 
@@ -326,6 +375,43 @@ function consultarHistorico() {
         atualizarBarra();
         alert("Dados carregados!");
     }
+}
+
+// BACKUP EXTERNO FISICO .JSON
+function exportarBackupJSON() {
+    let historico = localStorage.getItem("historico_simulacoes");
+    if (!historico || historico === "[]") return alert("Seu histórico local está vazio.");
+    
+    let blob = new Blob([historico], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+    let linkLink = document.createElement("a");
+    linkLink.href = url;
+    linkLink.download = `BACKUP_PROPOSTAS_BA21_${new Date().toISOString().slice(0,10)}.json`;
+    linkLink.click();
+    alert("Arquivo de backup geral baixado com sucesso!");
+}
+
+function importarBackupJSON(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const leitor = new FileReader();
+    leitor.onload = function(e) {
+        try {
+            let dadosImportados = JSON.parse(e.target.result);
+            if (!Array.isArray(dadosImportados)) throw new Error();
+            let historicoLocal = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
+            let idsExistentes = new Set(historicoLocal.map(item => item.id));
+            let novosItensContador = 0;
+
+            dadosImportados.forEach(item => {
+                if (!idsExistentes.has(item.id)) { historicoLocal.push(item); novosItensContador++; }
+            });
+
+            localStorage.setItem("historico_simulacoes", JSON.stringify(historicoLocal));
+            alert(`Sucesso! ${novosItensContador} novas propostas foram mescladas ao seu histórico.`);
+            location.reload();
+        } catch (erro) { alert("Erro ao ler o arquivo. Use um arquivo .json válido gerado pelo app."); }
+    };
+    leitor.readAsText(file);
 }
 
 function exportarRelatorio(apenasTaxas) {
@@ -353,10 +439,7 @@ function exportarRelatorio(apenasTaxas) {
             boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
         }
         if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
-    } else { 
-        if(boxCorpo) boxCorpo.style.display = "none"; 
-        if(boxGrafico) boxGrafico.style.display = "none"; 
-    }
+    } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }
     setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
 }
 
@@ -395,22 +478,17 @@ function calcularDescobreTaxa(origem) {
     }
 }
 
-// 🔴 PROCESSADOR OCR REESTRUTURADO E BLINDADO POR COORDENADAS
 async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
         const worker = await Tesseract.createWorker('por');
         await worker.setParameters({ tessedit_char_whitelist: '0123456789xX,.-% ' });
-        
         const res = await worker.recognize(e.target.result);
         let workerLetras = await Tesseract.createWorker('por');
         let resCompleto = await workerLetras.recognize(e.target.result);
-        
         let textoNum = res.data.text.replace(/,/g, ".");
-        let textoTodo = resCompleto.data.text.toLowerCase().replace(/,/g, ".");
         
-        // Se for Mercado Pago, roda a lógica pura e estável original (Master V6)
         if (pref === 'mp') {
             let regex = /(\d{1,2})x\s*([\d.]+)/g; let match;
             while ((match = regex.exec(textoNum)) !== null) {
@@ -420,7 +498,6 @@ async function processarOCR(event, pref) {
                     if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
                 }
             }
-            // Captura Débito e Pix diretos do MP
             let linhas = textoNum.split('\n');
             for(let i=0; i<linhas.length; i++){
                 if(linhas[i].toLowerCase().includes("déb") || linhas[i].toLowerCase().includes("deb")){
@@ -432,57 +509,37 @@ async function processarOCR(event, pref) {
                     if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
                 }
             }
-            await worker.terminate();
-            await workerLetras.terminate();
-            return; 
+            await worker.terminate(); await workerLetras.terminate(); return; 
         }
 
-        // LÓGICA COORDENADA DA CONCORRÊNCIA: Divide a imagem em duas metades (Esquerda vs Direita)
-        // Evita loop e adivinhações por string corrompida.
         const palavras = resCompleto.data.words;
-        
         palavras.forEach(w => {
             let textoPalavra = w.text.toLowerCase().replace(/,/g, ".");
-            let padraoTaxa = /^[0-9]+(\.[0-9]+)?%?$/;
-            
-            // Filtra se a string lida é uma taxa válida em formato numérico
-            if(padraoTaxa.test(textoPalavra)){
+            if(/^[0-9]+(\.[0-9]+)?%?$/.test(textoPalavra)){
                 let valorTaxa = parseFloat(textoPalavra.replace('%', ''));
-                
-                // Mapeia as caixas limitadoras horizontais (eixo X) da imagem
                 let centroX = w.bbox.x0 + ((w.bbox.x1 - w.bbox.x0) / 2);
                 let larguraImagemTotal = resCompleto.data.image ? resCompleto.data.image.width : 1000;
-                
-                // Decide o sub-campo baseado na metade física da foto
                 let subCampo = (centroX < (larguraImagemTotal / 2)) ? 'manual' : 'demais';
-                
-                // Procura o indicador de plano nas palavras vizinhas próximas verticalmente
                 let linhaTextoProxima = w.line ? w.line.text.toLowerCase() : '';
                 
                 if (linhaTextoProxima.includes('déb') || linhaTextoProxima.includes('deb')) {
-                    let targetId = 'out_debito_' + subCampo;
-                    if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                    if(document.getElementById('out_debito_' + subCampo)) document.getElementById('out_debito_' + subCampo).value = valorTaxa.toFixed(2);
                 } else if (linhaTextoProxima.includes('1x')) {
-                    let targetId = 'out1_' + subCampo;
-                    if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                    if(document.getElementById('out1_' + subCampo)) document.getElementById('out1_' + subCampo).value = valorTaxa.toFixed(2);
                 } else if (linhaTextoProxima.includes('pix')) {
-                    let targetId = 'out_pix_' + subCampo;
-                    if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                    if(document.getElementById('out_pix_' + subCampo)) document.getElementById('out_pix_' + subCampo).value = valorTaxa.toFixed(2);
                 } else {
                     let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
                     if(matchParcela){
                         let p = parseInt(matchParcela[1]);
                         if(p >= 2 && p <= 18){
-                            let targetId = 'out' + p + '_' + subCampo;
-                            if(document.getElementById(targetId)) document.getElementById(targetId).value = valorTaxa.toFixed(2);
+                            if(document.getElementById('out' + p + '_' + subCampo)) document.getElementById('out' + p + '_' + subCampo).value = valorTaxa.toFixed(2);
                         }
                     }
                 }
             }
         });
-
-        await worker.terminate();
-        await workerLetras.terminate();
+        await worker.terminate(); await workerLetras.terminate();
     };
     reader.readAsDataURL(file);
 }
