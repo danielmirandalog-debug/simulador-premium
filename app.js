@@ -79,20 +79,26 @@ function confirmarTermos() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Executa a checagem de manutenção antes de qualquer outra função
+    // 1. Garante a checagem do status assim que abre a página
     checarStatusManutencao();
 
+    // 2. Se a manutenção estiver ativa, para por aqui e deixa apenas os botões admin funcionando
     const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
     if (estadoAtual === "manutencao") {
-        return; // Interrompe os modais se a tela estiver bloqueada
+        return; 
     }
 
-    document.getElementById("modalTermos").style.display = "flex";
+    // 3. Se estiver online, carrega o simulador normalmente com segurança
+    const modalTermos = document.getElementById("modalTermos");
+    if (modalTermos) modalTermos.style.display = "flex";
+    
     gerarInputs();
     buscarCDI();
+    
     if(document.getElementById("input_data")) {
         document.getElementById("input_data").value = new Date().toLocaleDateString('pt-BR');
     }
+    
     let visitas = localStorage.getItem("contador_visitas") || 0;
     visitas++;
     localStorage.setItem("contador_visitas", visitas);
