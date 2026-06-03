@@ -22,7 +22,6 @@
         .lbl-cofrinho { color: #007bff !important; font-size: 13px; font-weight: bold; display: block; }
 
         input { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; user-select: text !important; color: #007bff !important; font-weight: bold; }
-        
         #input_loja, #input_cnpj, #input_cliente, #input_executivo, #input_data { color: #333 !important; font-weight: normal; }
 
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
@@ -30,13 +29,15 @@
         .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 14px; margin-top: 5px; }
         .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
         
+        .btn-backup { background: #28a745 !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; }
+        .btn-restaurar { background: #6c757d !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; cursor: pointer; text-align: center; }
+
         .grid-taxas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
         .barraContainer { width: 100%; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
         .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
         
         .chart-box-wrapper { display: none; margin-top: 15px !important; width: 100%; max-height: 220px !important; overflow: hidden; }
         #graficoEconomia { width: 100% !important; max-height: 220px !important; }
-        #resultadoFaturamento { margin-bottom: 0px !important; padding-bottom: 0px !important; }
 
         .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         .tabela-moderna th { background: #f9f9f9; padding: 12px; text-align: center; border-bottom: 2px solid #333; color: #666; font-weight: bold; }
@@ -52,11 +53,21 @@
         
         .box-calculadora { display: none; background: #fff; border: 2px solid #333; border-radius: 15px; padding: 20px; margin-top: 10px; position: relative; }
         .display-calculadora { background: #f4f4f4; border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px; border: 1px solid #ddd; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 550px; width: 100%; border-top: 10px solid #FFE600; text-align: justify; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 550px; width: 100%; border-top: 10px solid #FFE600; text-align: justify; }
+        
+        /* 🔴 TELA DE MANUTENÇÃO DINÂMICA */
+        .manutencao-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #FFE600; z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; box-sizing: border-box; color: #333; }
+
+        /* PAINEL ADMIN OCULTO EMBAIXO */
+        .painel-admin-box { display: none; background: #fff; border: 3px dashed #d32f2f; border-radius: 15px; padding: 15px; margin-top: 20px; text-align: center; }
+
         #areaRelatorio { position: absolute; left: -9999px; width: 750px; background: white; padding: 50px; color: #333; }
         .info-cli-rel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; background: #f9f9f9; padding: 25px; border-radius: 15px; border: 1px solid #eee; }
         .footer-contador { text-align: center; padding: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 20px; }
+        .btn-link-admin { background: none; border: none; color: #bbb; font-size: 11px; cursor: pointer; text-transform: none; font-weight: normal; padding: 5px; width: auto; margin-top: 10px; }
+        .btn-link-admin:hover { color: #888; text-decoration: underline; }
         
         .concorrencia-linha { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 8px 0; gap: 15px; }
         .concorrencia-label { width: 120px; font-weight: bold; font-size: 14px; color: #333; display: flex; align-items: center; }
@@ -66,6 +77,17 @@
     </style>
 </head>
 <body>
+
+<div id="telaManutencao" class="manutencao-screen">
+    <span style="font-size: 60px; margin-bottom: 10px;">⚙️</span>
+    <h1 style="font-size: 28px; font-weight: 800; margin: 0; text-transform: uppercase;">Atualização de Sistema</h1>
+    <p style="font-size: 17px; font-weight: 600; margin: 15px 0 25px 0; max-width: 500px; line-height: 1.5;">O Simulador Premium BA21 está passando por uma manutenção programada e estratégica de segurança. Voltamos em breve!</p>
+    <div style="background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">🛠️ STATUS: ATUALIZAÇÃO RESTRITA</div>
+    <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()" style="color: #666; margin-top: 40px; border: 1px solid rgba(0,0,0,0.1); padding: 8px 15px; border-radius: 8px; background: rgba(255,255,255,0.3)">⚙️ Acesso Administrativo</button>
+    <div id="painelControleAdmin" class="painel-admin-box" style="margin-top:15px; background: white; border-color: #333;">
+        <button id="btnToggleManutencao" onclick="alternarEstadoManutencao()" style="font-size:13px; padding:12px; margin:0;"></button>
+    </div>
+</div>
 
 <header>Compara taxa - Simulador Premium</header>
 
@@ -86,7 +108,19 @@
                 <input id="input_data" type="text" readonly style="background:#f9f9f9; margin: 0;">
             </div>
             <div>
-                <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; width:100%; height:46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px;">🔍 CARREGAR PROPOSTA</button>
+                <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; width:100%; height:46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">🔍 CARREGAR PROPOSTA</button>
+            </div>
+        </div>
+
+        <div class="grid-taxas" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 15px;">
+            <div>
+                <button onclick="exportarBackupJSON()" class="btn-backup">📥 EXPORTAR BACKUP GERAL</button>
+            </div>
+            <div>
+                <label class="btn-restaurar">
+                    📤 RESTAURAR HISTÓRICO
+                    <input type="file" accept=".json" onchange="importarBackupJSON(event)" style="display: none;">
+                </label>
             </div>
         </div>
     </div>
@@ -107,7 +141,6 @@
 
     <div class="card">
         <h3>Concorrência <button type="button" class="btn-limpar" onclick="limparSecao('out')">Limpar</button></h3>
-        
         <div class="grid-taxas" style="margin-bottom:15px">
             <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'out')">📷 Câmera</label>
             <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Arquivo</label>
@@ -127,7 +160,6 @@
                       </div>
                  </div>
              </div>
-
              <div class="concorrencia-linha">
                  <div class="concorrencia-label">💳 DÉBITO</div>
                  <div class="concorrencia-inputs-box">
@@ -141,7 +173,6 @@
                       </div>
                  </div>
              </div>
-
              <div class="concorrencia-linha" style="border-bottom: none;">
                  <div class="concorrencia-label">🛍️ CRÉDITO 1X</div>
                  <div class="concorrencia-inputs-box">
@@ -184,7 +215,7 @@
 
         <div style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:12px; border:1px solid #ffeeba;">
             <label style="color:#856404; font-weight:bold;">📈 Participação de Demais Bandeiras na Concorrência (%)</label>
-            <input id="perc_demais_bandeiras" type="number" value="10" placeholder="Digite a porcentagem, ex: 10" style="margin-bottom:0;">
+            <input id="perc_demais_bandeiras" type="number" value="10" style="margin-bottom:0;">
         </div>
 
         <h3 style="margin-top:25px">Custos Ocultos <button type="button" class="btn-limpar" onclick="limparSecao('fixos')">Limpar</button></h3>
@@ -209,33 +240,24 @@
         </div>
         <button onclick="simularFaturamento()" style="margin-bottom: 0px;">Gerar Estudo</button>
         <div id="resultadoFaturamento"></div>
-        
-        <div id="cont_grafico" class="chart-box-wrapper">
-            <canvas id="graficoEconomia"></canvas>
-        </div>
+        <div id="cont_grafico" class="chart-box-wrapper"><canvas id="graficoEconomia"></canvas></div>
     </div>
 
     <label class="chk-container"><input type="checkbox" id="chk_info_completo"> Incluir Termos Adicionais</label>
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
-
-    <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa (Bruto/Líquido)</button>
+    <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa</button>
     
     <div id="boxDescobreTaxa" class="box-calculadora">
         <h3>Calculadora Reversa <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑</button></h3>
         <div class="display-calculadora">
-            <div style="margin-bottom:10px">
-                <span style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase">Resultado Principal</span><br>
-                <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800">R$ 0,00</span>
-            </div>
-            <div>
-                <span id="res_taxa_percent" style="font-size:18px; color:#d32f2f; font-weight:800">0.00%</span>
-            </div>
+            <span style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase">Resultado Principal</span><br>
+            <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800">R$ 0,00</span><br>
+            <span id="res_taxa_percent" style="font-size:18px; color:#d32f2f; font-weight:800">0.00%</span>
         </div>
-        <p style="font-size:11px; color:#999; text-align:center; margin-bottom:15px">Preencha dois campos para calcular o terceiro.</p>
         <div class="grid-taxas" style="grid-template-columns: 1fr;">
-            <span><label>Valor Bruto (Passar no cartão)</label> <input id="calc_valor_op" type="number" oninput="calcularDescobreTaxa('valor')"></span>
-            <span><label>Valor Líquido (Receber na conta)</label> <input id="calc_valor_rec" type="number" oninput="calcularDescobreTaxa('recebido')"></span>
+            <span><label>Valor Bruto</label> <input id="calc_valor_op" type="number" oninput="calcularDescobreTaxa('valor')"></span>
+            <span><label>Valor Líquido</label> <input id="calc_valor_rec" type="number" oninput="calcularDescobreTaxa('recebido')"></span>
             <span><label>Taxa Direta (%)</label> <input id="calc_taxa_perc" type="number" oninput="calcularDescobreTaxa('taxa')"></span>
         </div>
     </div>
@@ -243,20 +265,23 @@
     <div class="footer-contador">
         Visitas à aplicação: <span id="num_visitas">0</span><br>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
+        <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()">⚙️ Painel Admin</button>
+        
+        <div id="painelControleAdmin" class="painel-admin-box">
+            <h4 style="color:#d32f2f; margin:0 0 10px 0;">🔒 PAINEL DE CONTROLE DE MANUTENÇÃO</h4>
+            <button id="btnToggleManutencao" onclick="alternarEstadoManutencao()" style="font-size:13px; padding:12px; margin:0; width:auto; min-width:300px;"></button>
+        </div>
     </div>
 </div>
 
 <div id="modalTermos" class="modal-overlay">
     <div class="modal-content">
         <h2 style="margin-top:0; text-align:center; color:#333">⚠️ Termos e Isenção</h2>
-        <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda que:</p>
-        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial com o Mercado Pago.<br>
-           2. <b>Responsabilidade:</b> Todas as taxas inseridas são de inteira responsabilidade do usuário.<br>
-           3. <b>Precisão:</b> Os dados gerados são estimativas e não garantem rentabilidade futura.</p>
+        <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda com as diretrizes e isenções de responsabilidade jurídica.</p>
         <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0">
             <input type="checkbox" id="chk_termos_uso"> Estou de acordo com os termos
         </label>
-        <button type="button" onclick="confirmarTermos()" style="background:#333; color:white; width:100%; padding:16px; border:none; border-radius:12px; font-weight:800; cursor:pointer; font-size:17px; text-transform:uppercase;">Acessar Sistema</button>
+        <button type="button" onclick="confirmarTermos()" style="background:#333; color:white;">Acessar Sistema</button>
     </div>
 </div>
 
@@ -268,21 +293,18 @@
     <div class="info-cli-rel">
         <div><b>Seller:</b> <br><span id="rel_loja" style="font-size:18px; color:#3483FA; font-weight:800"></span></div>
         <div><b>Data:</b> <br><span id="rel_data"></span></div>
-        <div><b>Responsável:</b> <br><span id="rel_cliente" style="font-size:16px; font-weight:600"></span></div>
-        <div><b>Executivo:</b> <br><span id="rel_executivo" style="font-size:16px; font-weight:600"></span></div>
+        <div><b>Responsável:</b> <br><span id="rel_cliente"></span></div>
+        <div><b>Executivo:</b> <br><span id="rel_executivo"></span></div>
     </div>
     <div id="rel_tabela_taxas"></div>
     <div id="rel_share_cofrinho" style="margin-top:25px"></div>
     <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
-   <!-- 🔴 INÍCIO DA ALTERAÇÃO: FRASE DE ISENÇÃO NO RELATÓRIO -->
     <div style="font-size:12px; color:#777; margin-top:40px; border-top:1px solid #eee; padding-top:20px; text-align:justify">
-        <p><b>Sobre o Cofrinho:</b> Projeção baseada em aportes mensais fixos. Valores líquidos de IRPF.</p>
-        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor e não representam a opinião, propriedade ou responsabilidade do Mercado Pago ou de qualquer empresa do grupo Mercado Livre, que fica inteiramente isenta de qualquer pleito judicial ou administrativo relacionado a este documento.</b></p>
+        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor e não representam a opinião, propriedade ou responsabilidade da [Nome da Empresa]...</b></p>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
     </div>
 </div>
-<!-- 🟢 FIM DA ALTERAÇÃO -->
 
 </body>
 </html>
