@@ -22,7 +22,6 @@
         .lbl-cofrinho { color: #007bff !important; font-size: 13px; font-weight: bold; display: block; }
 
         input { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; user-select: text !important; color: #007bff !important; font-weight: bold; }
-        document.getElementById { color: #007bff !important; }
         #input_loja, #input_cnpj, #input_cliente, #input_executivo, #input_data { color: #333 !important; font-weight: normal; }
 
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
@@ -58,7 +57,6 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 550px; width: 100%; border-top: 10px solid #FFE600; text-align: justify; }
         
-        /* 🔴 TELA DE MANUTENÇÃO INTEIRA */
         .manutencao-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #FFE600; z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; box-sizing: border-box; color: #333; }
 
         #areaRelatorio { position: absolute; left: -9999px; width: 750px; background: white; padding: 50px; color: #333; }
@@ -229,7 +227,7 @@
             </div>
         </div>
 
-        <h3 style="margin-top:25px">Cofrinho</h3>
+        <h3 style="margin-top:25px">Cofrinho <button type="button" class="btn-limpar" onclick="limparSecao('cofrinho')">Limpar</button></h3>
         <div class="grid-taxas">
             <span><label class="lbl-cofrinho">💰 Aporte Mensal</label><input id="cofrinho_reserva" type="number"></span>
             <span><label class="lbl-cofrinho">📈 % CDI Alvo</label><input id="cofrinho_cdi_alvo" type="number" value="115"></span>
@@ -261,7 +259,6 @@
     <div class="footer-contador">
         Visitas à aplicação: <span id="num_visitas">0</span><br>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
-        
         <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()">⚙️ Painel Admin</button>
     </div>
 </div>
@@ -293,7 +290,7 @@
     <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
     <div style="font-size:12px; color:#777; margin-top:40px; border-top:1px solid #eee; padding-top:20px; text-align:justify">
-        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor e não representam a opinião, propriedade ou responsabilidade do Mercado Pago ou de qualquer empresa do grupo Mercado Livre, que fica inteiramente isenta de qualquer pleito judicial ou administrativo relacionado a este documento.</b></p>
+        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor...</b></p>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
     </div>
 </div>
