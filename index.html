@@ -26,7 +26,7 @@
 
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
         .btn-exportar { background: #333 !important; color: white !important; margin-bottom: 5px; }
-        .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 14px; margin-top: 5px; }
+        .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 17px; margin-top: 5px; }
         .btn-backup { background: #28a745 !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; }
         .btn-restaurar { background: #6c757d !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; cursor: pointer; text-align: center; }
         .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
@@ -186,7 +186,6 @@
     <div class="card">
         <button onclick="simular()">Comparar Taxas</button>
         <div id="resultado"></div>
-        <label class="chk-container"><input type="checkbox" id="chk_info_simples"> Incluir termos no arquivo</label>
         <button id="btnExportarSimples" class="btn-exportar" onclick="exportarRelatorio(true)" style="display:none;">Exportar Apenas Taxas</button>
     </div>
 
@@ -236,7 +235,6 @@
         <div id="cont_grafico" class="chart-box-wrapper"><canvas id="graficoEconomia"></canvas></div>
     </div>
 
-    <label class="chk-container"><input type="checkbox" id="chk_info_completo"> Incluir Termos Adicionais</label>
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
     <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa</button>
@@ -276,7 +274,6 @@
     </div>
 </div>
 
-<!-- CONTAINER DE EXPORTAÇÃO COMPLETA DE IMAGEM (RELATÓRIO SEM NENHUM CORTE TEXTUAL) -->
 <div id="areaRelatorio">
     <div style="text-align:center; border-bottom:5px solid #FFE600; padding-bottom:30px">
         <h1>Compara taxa - Simulador Premium</h1>
