@@ -225,7 +225,9 @@ function simularFaturamento() {
     let soma = 0;
     IDs_SHARE.forEach(id => soma += parseFloat(document.getElementById(id).value) || 0);
     if (Math.round(soma) !== 100) return alert("O Share total deve somar 100%!");
-    let f = parseFloat(faturamento.value) || 0;
+    
+    const faturamentoInput = document.getElementById("faturamento");
+    let f = faturamentoInput ? parseFloat(faturamentoInput.value) || 0 : 0;
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
     let pDemaisGeral = parseFloat(document.getElementById("perc_demais_bandeiras").value);
@@ -239,8 +241,7 @@ function simularFaturamento() {
     };
 
     let custoMP = 0; let custoConc = 0;
-    const shareMap = { pix: 'share_pix', debito: 'share_debito', 1: 'share_1x', 2: 'share_2x', 3: 'share_3x', 4: 'share_4x', 6: 'share_6x', 10: 'share_10x' };
-    
+    const shareMap = { pix: 'share_pix', debito: 'share_debito', 1: 'share_1x', 2: 'share_2x', 3: 'share_3x', 4: 'share_4x', 6: 'share_6x', 10: 'share_10x' };    
     Object.keys(shareMap).forEach(p => {
         let percShare = parseFloat(document.getElementById(shareMap[p]).value) || 0;
         let valorFatia = f * (percShare / 100);
