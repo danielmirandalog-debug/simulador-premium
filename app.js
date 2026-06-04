@@ -1,5 +1,5 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V7.8 - Inclusão de Termos Automática e Padronização do Rodapé
+   VERSÃO: Master V8.0 - Upgrade de Interface e Reestruturação de Layout Premium
 */
 
 // 1. PROTEÇÃO E BLINDAGEM NATIVA DO SISTEMA
@@ -9,7 +9,7 @@ document.onkeydown = function(e) {
 };
 
 // 2. CONFIGURAÇÃO DE SEGURANÇA ADMINISTRATIVA
-const SENHA_MESTRE = "Bela@2017";
+const SENHA_MESTRE = "Marcos2026";
 
 function checarStatusManutencao() {
     const estado = localStorage.getItem("status_manutencao_ba21") || "online";
@@ -177,7 +177,7 @@ function simular() {
 
         html += `<tr>
                     <td><b>${nome}</b></td>
-                    <td class="taxa-destaque" style="color:#333 !important;">${tMP.toFixed(2)}%</td>
+                    <td class="taxa-destaque" style="color:#0f172a !important; font-weight:800;">${tMP.toFixed(2)}%</td>
                     <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
                     <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
                  </tr>`;
@@ -200,7 +200,7 @@ function simular() {
             
             html += `<tr>
                         <td><b>${i}x</b></td>
-                        <td class="taxa-destaque" style="color:#333 !important;">${tMP.toFixed(2)}%</td>
+                        <td class="taxa-destaque" style="color:#0f172a !important; font-weight:800;">${tMP.toFixed(2)}%</td>
                         <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
                         <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
                      </tr>`;
@@ -219,7 +219,7 @@ function atualizarBarra() {
     });
     document.getElementById("contador").innerText = Math.round(soma) + "%";
     document.getElementById("barra").style.width = soma + "%";
-    document.getElementById("barra").style.background = (Math.round(soma) === 100) ? "#4CAF50" : "#FFE600";
+    document.getElementById("barra").style.background = (Math.round(soma) === 100) ? "#38a169" : "#FFE600";
 }
 
 function simularFaturamento() {
@@ -296,7 +296,7 @@ function simularFaturamento() {
     let alvoPerc = cdiAlvoVal / 100;
 
     const calcInvestimento = (meses) => {
-        let saldoAtual = 0; let lucroBrutoAcumulado = 0;
+        let saldoAtual = 0; let lucro BrutoAcumulado = 0;
         let taxaMensalBase = Math.pow((1 + (cdiAnual / 100)), (1/12)) - 1;
         for(let i=1; i<=meses; i++){
             let taxaAplicada = (saldoAtual <= 10000) ? (taxaMensalBase * alvoPerc) : (saldoAtual <= 100000 ? taxaMensalBase : 0);
@@ -309,19 +309,20 @@ function simularFaturamento() {
     };
 
     window.dadosRelatorioAnalitico = {
-        faturamento: f, aporte: resMensal, cdiAlvo: cdiAlvoVal,
+        faturamento: f, aporte: resMensal, cdiAlvo: cdiAlvoVal, ecoMes: ecoMes,
+        investimento1Ano: calcInvestimento(12), investimento5Anos: calcInvestimento(60),
         itensOcultos: { "Software": cSoftware, "Aluguel": cMaquina, "Cesta Bancária": cCesta, "Manutenção": cManutencao, "Pix App Bancário": cPixApp }
     };
 
     document.getElementById("resultadoFaturamento").innerHTML = `
-        <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
-            <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
-            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
-            <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr>
-            <h4>📈 Projeção Cofrinho (Líquido)</h4>
-            <b>Aporte: R$ ${resMensal.toFixed(2)} / mês</b><br>
-            <b>Saldo 1 Ano:</b> R$ ${calcInvestimento(12).toFixed(2)}<br>
-            <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
+        <div class="resumo-financeiro" style="background:#f8fafc; padding:18px; border-radius:12px; border:1px solid #e2e8f0; margin-top:15px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);">
+            <h4 style="margin-top:0; color:#1e293b; font-weight:800;">💰 Rentabilidade Real Individualizada</h4>
+            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#2563eb' : '#dc2626'}; font-size:17px; font-weight:900">R$ ${ecoMes.toFixed(2)}</span><br>
+            <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 12px 0;">
+            <h4 style="margin:0 0 8px 0; color:#1e293b; font-weight:800;">📈 Projeção Cofrinho (Líquido)</h4>
+            <b>Aporte Mapeado:</b> R$ ${resMensal.toFixed(2)} / mês<br>
+            <b>Saldo Acumulado 1 Ano:</b> R$ ${calcInvestimento(12).toFixed(2)}<br>
+            <b>Saldo Acumulado 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
     const chartBox = document.getElementById("cont_grafico");
@@ -330,7 +331,7 @@ function simularFaturamento() {
     if (window.g) window.g.destroy();
     window.g = new Chart(document.getElementById("graficoEconomia"), {
         type: 'bar',
-        data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
+        data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#ffea2b','#3b82f6'] }] },
         options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
     });
 }
@@ -417,18 +418,35 @@ function exportarRelatorio(apenasTaxas) {
     document.getElementById("rel_cliente").innerText = document.getElementById("input_cliente").value || "---";
     document.getElementById("rel_executivo").innerText = document.getElementById("input_executivo").value || "---";
     document.getElementById("rel_data").innerText = document.getElementById("input_data").value;
-    document.getElementById("rel_tabela_taxas").innerHTML = "<h3>Comparativo de Taxas</h3>" + document.getElementById("resultado").innerHTML;
+    
+    // Injeta a tabela estilizada
+    document.getElementById("rel_tabela_taxas").innerHTML = document.getElementById("resultado").innerHTML;
+    
     let boxCorpo = document.getElementById("rel_share_cofrinho");
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
     
-    // TEXTO DE INFORMAÇÕES ADICIONAIS AUTOMÁTICO (SEMPRE INCLUSO)
-    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: PJ sem anuidade e sem taxas administrativas\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com "recebimento na hora" (mesma taxa da maquininha)\n➡️ Rendimentos diários no cofrinho (até 120% o CDI)\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO! (inclusive finais de semana e feriados)\n➡️ FÁCIL ACESSO AO APP\n➡️ TAXAS FINAIS SEM SURPRESAS (antecipação inclusa)\n➡️ Consultoria de vendas no Mercado Livre e Sistema de Gestão completo e gratuito (consulte condições)\n🗒️ Simulação com validade de 07 dias.`;
-    
-    if(boxInfoAdicional) {
-        boxInfoAdicional.style.display = "block";
-        boxInfoAdicional.innerHTML = textoCompleto;
-    }
+    // ESTRUTURAÇÃO DO DESIGN DE DUAS COLUNAS EM FORMATO CARD DE ALTO IMPACTO
+    const itensAdicionais = [
+        "Máquina sem custo de aluguel mensal",
+        "Opção integrada de automação via TEF",
+        "Mesma taxa transparente para todas as bandeiras",
+        "CONTA NEGÓCIO: PJ sem anuidade e sem tarifas de manutenção",
+        "Parcelamento exclusivo em até 18x na Point",
+        "Link de pagamento com recebimento na hora (mesma taxa da máquina)",
+        "Rendimentos diários automatizados no cofrinho (até 120% do CDI)",
+        "Passou o cartão, o recebimento é imediato (finais de semana e feriados)",
+        "Acesso ágil, intuitivo e seguro pelo App corporativo",
+        "Taxas finais líquidas e sem surpresas (antecipação inclusa)",
+        "Consultoria de vendas no Mercado Livre e Sistema de Gestão completo"
+    ];
+
+    let htmlAdicionais = "";
+    itensAdicionais.forEach(texto => {
+        htmlAdicionais += `<div class="rel-adicional-item"><span class="rel-adicional-icon">✔</span><span>${texto}</span></div>`;
+    });
+    if(boxInfoAdicional) boxInfoAdicional.innerHTML = htmlAdicionais;
+
     if (!apenasTaxas) {
         if(boxCorpo) boxCorpo.style.display = "block"; 
         if(boxGrafico) boxGrafico.style.display = "block";
@@ -436,11 +454,51 @@ function exportarRelatorio(apenasTaxas) {
         if(v) {
             let htmlCustos = "";
             for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
-            boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMEMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
+            
+            boxCorpo.innerHTML = `
+                <div style="background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 14px; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02)">
+                    <div class="rel-secao-titulo" style="margin-bottom: 16px;">📋 Diagnóstico de Custos Operacionais</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div style="border-left: 3.5px solid #64748b; padding-left: 12px;">
+                            <div class="rel-info-label">Volume Mensal Analisado</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 2px;">R$ ${v.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div style="border-left: 3.5px solid #ef4444; padding-left: 12px;">
+                            <div class="rel-info-label">Taxas Ocultas Concorrência Mapeadas</div>
+                            <div style="font-size: 13px; font-weight: 600; color: #475569; margin-top: 4px; line-height: 1.4;">${htmlCustos || "• Nenhuma taxa fixa ou custo oculto adicionado."}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rel-secao-titulo">💰 Análise Quantitativa de Impacto Financeiro</div>
+                <div class="rel-dashboard-faturamento">
+                    <div class="rel-dash-card economia">
+                        <div class="rel-dash-title">Economia Líquida Estimada</div>
+                        <div class="rel-dash-value">R$ ${v.ecoMes.toFixed(2)} <span style="font-size: 13px; font-weight: 500; color: #64748b;">/mês</span></div>
+                        <div class="rel-dash-sub">Retorno Anual de R$ ${(v.ecoMes * 12).toFixed(2)}</div>
+                    </div>
+                    <div class="rel-dash-card cofrinho">
+                        <div class="rel-dash-title">Projeção Cofrinho Corporativo</div>
+                        <div class="rel-dash-value green">R$ ${v.investimento1Ano.toFixed(2)}</div>
+                        <div class="rel-dash-sub">Acumulado líquido em 1 ano de aplicação</div>
+                    </div>
+                </div>`;
         }
         if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
-    } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }
-    setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
+    } else { 
+        if(boxCorpo) boxCorpo.style.display = "none"; 
+        if(boxGrafico) boxGrafico.style.display = "none"; 
+    }
+    
+    // Dispara a captura limpa e em alta escala
+    setTimeout(() => { 
+        html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#f8fafc" }).then(canvas => { 
+            let link = document.createElement("a"); 
+            link.download = `PROPOSTA_PREMIUM_${document.getElementById("input_loja").value.toUpperCase()}.png`; 
+            link.href = canvas.toDataURL("image/png", 1.0); 
+            link.click(); 
+        }); 
+    }, 800);
 }
 
 function toggleDescobreTaxa() {
