@@ -27,11 +27,10 @@
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
         .btn-exportar { background: #333 !important; color: white !important; margin-bottom: 5px; }
         .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 14px; margin-top: 5px; }
-        .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
-        
         .btn-backup { background: #28a745 !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; }
         .btn-restaurar { background: #6c757d !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; cursor: pointer; text-align: center; }
-
+        .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
+        
         .grid-taxas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
         .barraContainer { width: 100%; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
         .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
@@ -266,7 +265,10 @@
 <div id="modalTermos" class="modal-overlay">
     <div class="modal-content">
         <h2 style="margin-top:0; text-align:center; color:#333">⚠️ Termos e Isenção</h2>
-        <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda com as diretrizes e isenções de responsabilidade jurídica.</p>
+        <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda que:</p>
+        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial com o Mercado Pago.</p>
+        <p>2. <b>Responsabilidade:</b> Todas as taxas inseridas são de inteira responsabilidade do usuário.</p>
+        <p>3. <b>Precisão:</b> Os dados gerados são estimativas e não garantem rentabilidade futura.</p>
         <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0">
             <input type="checkbox" id="chk_termos_uso"> Estou de acordo com os termos
         </label>
@@ -274,6 +276,7 @@
     </div>
 </div>
 
+<!-- CONTAINER DE EXPORTAÇÃO COMPLETA DE IMAGEM (RELATÓRIO SEM NENHUM CORTE TEXTUAL) -->
 <div id="areaRelatorio">
     <div style="text-align:center; border-bottom:5px solid #FFE600; padding-bottom:30px">
         <h1>Compara taxa - Simulador Premium</h1>
@@ -290,7 +293,8 @@
     <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
     <div style="font-size:12px; color:#777; margin-top:40px; border-top:1px solid #eee; padding-top:20px; text-align:justify">
-        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor...</b></p>
+        <p><b>Sobre o Cofrinho:</b> Projeção baseada em aportes mensais fixos. Valores líquidos de IRPF.</p>
+        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor e não representam a opinião, propriedade ou responsabilidade da [Nome da Empresa], que fica inteiramente isenta de qualquer pleito judicial ou administrativo relacionado a este documento.</b></p>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
     </div>
 </div>
