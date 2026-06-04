@@ -1,603 +1,601 @@
-/* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V8.0 - Upgrade de Interface e Reestruturação de Layout Premium
-*/
+<!DOCTYPE html>
 
-// 1. PROTEÇÃO E BLINDAGEM NATIVA DO SISTEMA
-document.addEventListener('contextmenu', event => event.preventDefault());
-document.onkeydown = function(e) {
-    if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
-};
+<html lang="pt-BR">
 
-// 2. CONFIGURAÇÃO DE SEGURANÇA ADMINISTRATIVA
-const SENHA_MESTRE = "Marcos2026";
+<head>
 
-function checarStatusManutencao() {
-    const estado = localStorage.getItem("status_manutencao_ba21") || "online";
-    const tela = document.getElementById("telaManutencao");
-    
-    if (estado === "manutencao") {
-        if (tela) tela.style.display = "flex";
-    } else {
-        if (tela) tela.style.display = "none";
-    }
-}
+    <meta charset="UTF-8">
 
-function gerenciarPainelAdmin() {
-    const senhaDigitada = prompt("Digite a senha mestre administrativa:");
-    if (senhaDigitada === null) return;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    if (senhaDigitada === SENHA_MESTRE) {
-        const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
+    <title>Compara taxa - Simulador Premium</title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="theme-color" content="#FFE600">
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="app.js" defer></script>
+
+    <style>
+
+        body { font-family: 'Segoe UI', sans-serif; background: #fdfdfd; margin: 0; color: #333; -webkit-user-select: none; user-select: none; }
+
+        header { background: #FFE600; padding: 25px; text-align: center; font-weight: 800; border-bottom: 4px solid #333; font-size: 22px; }
+
+        .container { max-width: 800px; margin: auto; padding: 15px; }
+
+        .card { background: white; padding: 20px; margin-bottom: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-top: 6px solid #FFE600; }
+
+        h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        label { font-size: 13px; font-weight: bold; color: #777; display: block; }
+
         
-        if (estadoAtual === "online") {
-            if (confirm("Deseja ativar o MODO MANUTENÇÃO? Isso bloqueará o acesso ao simulador para a equipe.")) {
-                localStorage.setItem("status_manutencao_ba21", "manutencao");
-                alert("Modo manutenção ATIVADO com sucesso!");
-                location.reload();
-            }
-        } else {
-            if (confirm("Deseja desativar o MODO MANUTENÇÃO e liberar o acesso ao simulador?")) {
-                localStorage.setItem("status_manutencao_ba21", "online");
-                alert("O aplicativo está ONLINE novamente!");
-                location.reload();
-            }
-        }
-    } else {
-        alert("Senha incorreta! Acesso negado.");
-    }
-}
 
-// 3. MODAL E CONTADOR DE ACESSOS
-function confirmarTermos() {
-    const checkbox = document.getElementById("chk_termos_uso");
-    if (checkbox && checkbox.checked) {
-        document.getElementById("modalTermos").style.display = "none";
-        localStorage.setItem("termos_aceitos_ba21", "sim");
-    } else {
-        alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
-    }
-}
+        .lbl-custos-ocultos { color: #d32f2f !important; font-size: 13px; font-weight: bold; display: block; }
 
-document.addEventListener("DOMContentLoaded", function() {
-    checarStatusManutencao();
+        .lbl-cofrinho { color: #007bff !important; font-size: 13px; font-weight: bold; display: block; }
 
-    const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
-    if (estadoAtual === "manutencao") {
-        return; 
-    }
 
-    const modalTermos = document.getElementById("modalTermos");
-    if (modalTermos) modalTermos.style.display = "flex";
-    
-    gerarInputs();
-    buscarCDI();
-    
-    if(document.getElementById("input_data")) {
-        document.getElementById("input_data").value = new Date().toLocaleDateString('pt-BR');
-    }
-    
-    let visitas = localStorage.getItem("contador_visitas") || 0;
-    visitas++;
-    localStorage.setItem("contador_visitas", visitas);
-    if(document.getElementById("num_visitas")) {
-        document.getElementById("num_visitas").innerText = visitas;
-    }
 
-    const cnpjInput = document.getElementById("input_cnpj");
-    if(cnpjInput) {
-        cnpjInput.addEventListener("input", function(e) {
-            let x = e.target.value.replace(/\D/g, "").match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/);
-            e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + '.' + x[3] + (x[4] ? '/' + x[4] : '') + (x[5] ? '-' + x[5] : '');
-        });
-    }
-});
+        input { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; user-select: text !important; color: #007bff !important; font-weight: bold; }
 
-const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
+        #input_loja, #input_cnpj, #input_cliente, #input_executivo, #input_data { color: #333 !important; font-weight: normal; }
 
-function gerarInputs() {
-    let mpH = ""; 
-    let outH = `<div style="grid-column: span 2; text-align: center; font-size: 11px; color: #888; font-weight: bold; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #eee;">⬅️ Esquerda: Visa/Master | Direita: Demais Bandeiras ➡️</div>`;
-    
-    for (let i = 2; i <= 18; i++) {
-        mpH += `<span><label>${i}x (%)</label> <input id="mp${i}" type="number" step="0.01" class="input-mp"></span>`;
-        outH += `<span>
-                    <label>${i}x (%)</label>
-                    <input id="out${i}_manual" type="number" step="0.01" class="input-out" style="width:100%; margin-top:5px;">
-                 </span>
-                 <span>
-                    <label>${i}x Demais (%)</label>
-                    <input id="out${i}_demais" type="number" step="0.01" class="input-out" style="width:100%; margin-top:5px;">
-                 </span>`;
-    }
-    document.getElementById("mpParcelas").innerHTML = mpH;
-    document.getElementById("outrasParcelas").innerHTML = outH;
-}
 
-async function buscarCDI() {
-    try {
-        const r = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
-        const d = await r.json();
-        window.selicAtual = parseFloat(d[0].valor);
-    } catch (e) { window.selicAtual = 10.75; }
-}
 
-function limparSecao(tipo) {
-    if (tipo === 'mp') {
-        document.getElementById("mp_pix").value = "0.49"; 
-        document.getElementById("mp_debito").value = "0.99";
-        document.getElementById("mp1").value = "3.05";
-        document.querySelectorAll(".input-mp").forEach(i => i.value = "");
-    } else if (tipo === 'out') {
-        ["out_pix_manual","out_pix_demais","out_debito_manual","out_debito_demais","out1_manual","out1_demais"].forEach(id => {
-            if(document.getElementById(id)) document.getElementById(id).value = "";
-        });
-        document.querySelectorAll(".input-out").forEach(i => i.value = "");
-    } else if (tipo === 'share') {
-        IDs_SHARE.forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ""; });
-        if(document.getElementById("faturamento")) document.getElementById("faturamento").value = "";
-        if(document.getElementById("perc_demais_bandeiras")) document.getElementById("perc_demais_bandeiras").value = "10";
-        atualizarBarra();
-    } else if (tipo === 'fixos') {
-        ["fixo_sistema","fixo_maquina","fixo_cesta","fixo_manutencao","vol_pix_app","taxa_pix_app"].forEach(id => {
-            if(document.getElementById(id)) document.getElementById(id).value = "";
-        });
-    } else if (tipo === 'cofrinho') {
-        if(document.getElementById("cofrinho_reserva")) document.getElementById("cofrinho_reserva").value = "";
-        if(document.getElementById("cofrinho_cdi_alvo")) document.getElementById("cofrinho_cdi_alvo").value = "115";
-    }
-}
+        button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px; background: #FFE600; color: #333; font-weight: 800; cursor: pointer; font-size: 17px; text-transform: uppercase; }
 
-function simular() {
-    let html = `<table class="tabela-moderna">
-                    <tr>
-                        <th>Plano</th>
-                        <th>Mercado Pago</th>
-                        <th>Conc. (Visa/Master)</th>
-                        <th>Conc. (Demais)</th>
-                    </tr>`;
-    const bases = ["pix", "debito", "1"];
-    bases.forEach(p => {
-        let idMP = (p === "pix") ? "mp_pix" : (p === "debito" ? "mp_debito" : "mp1");
-        let idOut = (p === "pix") ? "out_pix_manual" : (p === "debito" ? "out_debito_manual" : "out1_manual");
-        let idOutDemais = (p === "pix") ? "out_pix_demais" : (p === "debito" ? "out_debito_demais" : "out1_demais");
+        .btn-exportar { background: #333 !important; color: white !important; margin-bottom: 5px; }
+
+        .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 17px; margin-top: 5px; }
+
+        .btn-backup { background: #28a745 !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; }
+
+        .btn-restaurar { background: #6c757d !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; cursor: pointer; text-align: center; }
+
+        .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
+
         
-        let tMP = parseFloat(document.getElementById(idMP).value) || 0;
-        let tOut = parseFloat(document.getElementById(idOut).value) || 0;
-        let tOutDemais = parseFloat(document.getElementById(idOutDemais).value) || 0;
+
+        .grid-taxas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
+
+        .barraContainer { width: 100%; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
+
+        .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
+
         
-        let nome = p === "pix" ? "Pix" : p === "debito" ? "Débito" : "1x";
+
+        .chart-box-wrapper { display: none; margin-top: 15px !important; width: 100%; max-height: 220px !important; overflow: hidden; }
+
+        #graficoEconomia { width: 100% !important; max-height: 220px !important; }
+
+
+
+        .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+
+        .tabela-moderna th { background: #f9f9f9; padding: 12px; text-align: center; border-bottom: 2px solid #333; color: #666; font-weight: bold; }
+
+        .tabela-moderna td { padding: 14px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+
+        .taxa-destaque { font-size: 18px; font-weight: 800; }
+
         
-        let clOut = 'taxaNormal';
-        if (tOut > tMP) clOut = 'taxaRuim';
-        else if (tOut < tMP) clOut = 'taxaBoa';
 
-        let clDemais = 'taxaNormal';
-        if (tOutDemais > tMP) clDemais = 'taxaRuim';
-        else if (tOutDemais < tMP) clDemais = 'taxaBoa';
+        .taxaNormal { color: #333 !important; }
 
-        html += `<tr>
-                    <td><b>${nome}</b></td>
-                    <td class="taxa-destaque" style="color:#0f172a !important; font-weight:800;">${tMP.toFixed(2)}%</td>
-                    <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
-                    <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
-                 </tr>`;
-    });
+        .taxaBoa { color: #007bff !important; }
 
-    for (let i = 2; i <= 18; i++) {
-        let valMP = document.getElementById("mp" + i).value;
-        if (valMP !== "" && !isNaN(valMP)) {
-            let tMP = parseFloat(valMP);
-            let tOut = parseFloat(document.getElementById("out" + i + "_manual").value) || 0;
-            let tOutDemais = parseFloat(document.getElementById("out" + i + "_demais").value) || 0;
-            
-            let clOut = 'taxaNormal';
-            if (tOut > tMP) clOut = 'taxaRuim';
-            else if (tOut < tMP) clOut = 'taxaBoa';
+        .taxaRuim { color: #d32f2f !important; }
 
-            let clDemais = 'taxaNormal';
-            if (tOutDemais > tMP) clDemais = 'taxaRuim';
-            else if (tOutDemais < tMP) clDemais = 'taxaBoa';
-            
-            html += `<tr>
-                        <td><b>${i}x</b></td>
-                        <td class="taxa-destaque" style="color:#0f172a !important; font-weight:800;">${tMP.toFixed(2)}%</td>
-                        <td class="taxa-destaque ${clOut}">${tOut.toFixed(2)}%</td>
-                        <td class="taxa-destaque ${clDemais}">${tOutDemais.toFixed(2)}%</td>
-                     </tr>`;
-        }
-    }
-    html += "</table>";
-    document.getElementById("resultado").innerHTML = html;
-    document.getElementById("btnExportarSimples").style.display = "block";
-}
-
-function atualizarBarra() {
-    let soma = 0;
-    IDs_SHARE.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) soma += parseFloat(el.value) || 0;
-    });
-    document.getElementById("contador").innerText = Math.round(soma) + "%";
-    document.getElementById("barra").style.width = soma + "%";
-    document.getElementById("barra").style.background = (Math.round(soma) === 100) ? "#38a169" : "#FFE600";
-}
-
-function simularFaturamento() {
-    let soma = 0;
-    IDs_SHARE.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) soma += parseFloat(el.value) || 0;
-    });
-    if (Math.round(soma) !== 100) return alert("O Share total deve somar 100%!");
-    
-    const fatEl = document.getElementById("faturamento");
-    let f = fatEl ? parseFloat(fatEl.value) || 0 : 0;
-    if(f <= 0) return alert("Informe o faturamento mensal.");
-
-    const pDemaisEl = document.getElementById("perc_demais_bandeiras");
-    let pDemaisGeral = pDemaisEl ? parseFloat(pDemaisEl.value) || 0 : 10;
-    if (isNaN(pDemaisGeral) || pDemaisGeral < 0) pDemaisGeral = 0;
-
-    const getTaxaEl = (p, tipo, subTipo = 'manual') => {
-        let sufixo = (subTipo === 'demais') ? '_demais' : '_manual';
-        let id = (tipo === 'mp') ? (p === 'pix' ? 'mp_pix' : p === 'debito' ? 'mp_debito' : 'mp' + p) : 
-                                  (p === 'pix' ? 'out_pix' + sufixo : p === 'debito' ? 'out_debito' + sufixo : 'out' + p + sufixo);
-        return document.getElementById(id);
-    };
-
-    let custoMP = 0; let custoConc = 0;
-    const shareMap = { pix: 'share_pix', debito: 'share_debito', 1: 'share_1x', 2: 'share_2x', 3: 'share_3x', 4: 'share_4x', 6: 'share_6x', 10: 'share_10x' };
-    
-    Object.keys(shareMap).forEach(p => {
-        const elShare = document.getElementById(shareMap[p]);
-        let percShare = elShare ? parseFloat(elShare.value) || 0 : 0;
-        let valorFatia = f * (percShare / 100);
         
-        let elMP = getTaxaEl(p, 'mp');
-        let tMP = elMP ? parseFloat(elMP.value) || 0 : 0;
-        custoMP += valorFatia * (tMP / 100);
+
+        .chk-container { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0px 0 10px; margin-top: 5px !important; font-size: 14px; font-weight: bold; color: #555; cursor: pointer; }
+
+        .chk-container input { width: 20px; height: 20px; margin: 0; }
+
         
-        let elOutManual = getTaxaEl(p, 'out', 'manual');
-        let elOutDemais = getTaxaEl(p, 'out', 'demais');
+
+        .box-calculadora { display: none; background: #fff; border: 2px solid #333; border-radius: 15px; padding: 20px; margin-top: 10px; position: relative; }
+
+        .display-calculadora { background: #f4f4f4; border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px; border: 1px solid #ddd; }
+
         
-        let tOutManual = elOutManual ? parseFloat(elOutManual.value) || 0 : 0;
-        let tOutDemais = elOutDemais ? parseFloat(elOutDemais.value) || 0 : 0;
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+
+        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 550px; width: 100%; border-top: 10px solid #FFE600; text-align: justify; }
+
         
-        let pDemaisDoPlano = pDemaisGeral;
-        if (tOutDemais === 0) pDemaisDoPlano = 0;
-        let pVisaMasterDoPlano = 100 - pDemaisDoPlano;
 
-        let valorVisaMaster = valorFatia * (pVisaMasterDoPlano / 100);
-        let valorDemais = valorFatia * (pDemaisDoPlano / 100);
+        .manutencao-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #FFE600; z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; box-sizing: border-box; color: #333; }
+
+
+
+        #areaRelatorio { position: absolute; left: -9999px; width: 750px; background: white; padding: 50px; color: #333; }
+
+        .info-cli-rel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; background: #f9f9f9; padding: 25px; border-radius: 15px; border: 1px solid #eee; }
+
+        .footer-contador { text-align: center; padding: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 20px; }
+
         
-        custoConc += (valorVisaMaster * (tOutManual / 100)) + (valorDemais * (tOutDemais / 100));
-    });
 
-    let cSoftware = parseFloat(document.getElementById("fixo_sistema").value) || 0;
-    let cMaquina = parseFloat(document.getElementById("fixo_maquina").value) || 0;
-    let cCesta = parseFloat(document.getElementById("fixo_cesta").value) || 0;
-    let cManutencao = parseFloat(document.getElementById("fixo_manutencao").value) || 0;
-    let volPixApp = parseFloat(document.getElementById("vol_pix_app").value) || 0;
-    let taxaPixApp = parseFloat(document.getElementById("taxa_pix_app").value) || 0;
-    let cPixApp = volPixApp * (taxaPixApp / 100);
+        .btn-link-admin { background: none; border: none; color: #bbb; font-size: 11px; cursor: pointer; text-transform: none; font-weight: normal; padding: 5px; width: auto; margin-top: 10px; }
 
-    let totalFixos = cSoftware + cMaquina + cCesta + cManutencao + cPixApp;
-    custoConc += totalFixos;
+        .btn-link-admin:hover { color: #888; text-decoration: underline; }
 
-    let ecoMes = custoConc - custoMP;
-    
-    const resMesalEl = document.getElementById("cofrinho_reserva");
-    let resMensal = resMesalEl ? parseFloat(resMesalEl.value) || 0 : 0;
-    
-    const cdiAlvoEl = document.getElementById("cofrinho_cdi_alvo");
-    let cdiAlvoVal = cdiAlvoEl ? parseFloat(cdiAlvoEl.value) || 115 : 115;
-    
-    let cdiAnual = (window.selicAtual || 10.75) - 0.10;
-    let alvoPerc = cdiAlvoVal / 100;
-
-    const calcInvestimento = (meses) => {
-        let saldoAtual = 0; let lucro BrutoAcumulado = 0;
-        let taxaMensalBase = Math.pow((1 + (cdiAnual / 100)), (1/12)) - 1;
-        for(let i=1; i<=meses; i++){
-            let taxaAplicada = (saldoAtual <= 10000) ? (taxaMensalBase * alvoPerc) : (saldoAtual <= 100000 ? taxaMensalBase : 0);
-            let rendimentoDoMes = saldoAtual * taxaAplicada;
-            lucroBrutoAcumulado += rendimentoDoMes;
-            saldoAtual += rendimentoDoMes + resMensal;
-        }
-        let aliquotaIR = meses <= 6 ? 0.225 : (meses <= 12 ? 0.20 : (meses <= 24 ? 0.175 : 0.15));
-        return saldoAtual - (lucroBrutoAcumulado * aliquotaIR);
-    };
-
-    window.dadosRelatorioAnalitico = {
-        faturamento: f, aporte: resMensal, cdiAlvo: cdiAlvoVal, ecoMes: ecoMes,
-        investimento1Ano: calcInvestimento(12), investimento5Anos: calcInvestimento(60),
-        itensOcultos: { "Software": cSoftware, "Aluguel": cMaquina, "Cesta Bancária": cCesta, "Manutenção": cManutencao, "Pix App Bancário": cPixApp }
-    };
-
-    document.getElementById("resultadoFaturamento").innerHTML = `
-        <div class="resumo-financeiro" style="background:#f8fafc; padding:18px; border-radius:12px; border:1px solid #e2e8f0; margin-top:15px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);">
-            <h4 style="margin-top:0; color:#1e293b; font-weight:800;">💰 Rentabilidade Real Individualizada</h4>
-            <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#2563eb' : '#dc2626'}; font-size:17px; font-weight:900">R$ ${ecoMes.toFixed(2)}</span><br>
-            <b>Economia em 1 Ano:</b> R$ ${(ecoMes * 12).toFixed(2)}<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 12px 0;">
-            <h4 style="margin:0 0 8px 0; color:#1e293b; font-weight:800;">📈 Projeção Cofrinho (Líquido)</h4>
-            <b>Aporte Mapeado:</b> R$ ${resMensal.toFixed(2)} / mês<br>
-            <b>Saldo Acumulado 1 Ano:</b> R$ ${calcInvestimento(12).toFixed(2)}<br>
-            <b>Saldo Acumulado 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
-        </div>`;
-
-    const chartBox = document.getElementById("cont_grafico");
-    if(chartBox) chartBox.style.display = "block";
-
-    if (window.g) window.g.destroy();
-    window.g = new Chart(document.getElementById("graficoEconomia"), {
-        type: 'bar',
-        data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#ffea2b','#3b82f6'] }] },
-        options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
-    });
-}
-
-function salvarNoHistorico() {
-    const inputs = document.querySelectorAll("input");
-    const snapshot = {};
-    inputs.forEach(i => { if(i.id) snapshot[i.id] = i.value; });
-    const dados = { id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", cnpj: document.getElementById("input_cnpj").value || "", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot };
-    let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-    historico.push(dados);
-    localStorage.setItem("historico_simulacoes", JSON.stringify(historico));
-    alert("Simulação arquivada com sucesso!");
-}
-
-function consultarHistorico() {
-    const termoOriginal = prompt("Busque por Seller, CNPJ, Responsável ou Data:");
-    if (termoOriginal === null) return;
-    
-    const termo = termoOriginal.toLowerCase().trim();
-    const termoSomenteNumeros = termo.replace(/\D/g, "");
-    let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-    
-    let filtrados = historico.filter(h => {
-        const cnpjGuardadoNumeros = h.cnpj ? h.cnpj.replace(/\D/g, "") : "";
-        return (termoSomenteNumeros !== "" && cnpjGuardadoNumeros.includes(termoSomenteNumeros)) || h.seller.toLowerCase().includes(termo) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo);
-    });
-
-    if (filtrados.length === 0) return alert("Nenhum registro encontrado.");
-    
-    let msg = "Registros encontrados (digite o número para recuperar):\n\n";
-    filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} ${f.cnpj ? '['+f.cnpj+']' : ''} (${f.data})\n`);
-    
-    const choice = prompt(msg);
-    if (choice > 0 && choice <= filtrados.length) {
-        const item = filtrados[choice-1].snapshot;
-        for (let id in item) { 
-            let el = document.getElementById(id); 
-            if (el) el.value = item[id]; 
-        }
-        atualizarBarra();
-        alert("Dados carregados!");
-    }
-}
-
-function exportarBackupJSON() {
-    let historico = localStorage.getItem("historico_simulacoes");
-    if (!historico || historico === "[]") return alert("Seu histórico local está vazio.");
-    
-    let blob = new Blob([historico], { type: "application/json" });
-    let url = URL.createObjectURL(blob);
-    let linkLink = document.createElement("a");
-    linkLink.href = url;
-    linkLink.download = `BACKUP_PROPOSTAS_BA21_${new Date().toISOString().slice(0,10)}.json`;
-    linkLink.click();
-    alert("Arquivo de backup geral baixado com sucesso!");
-}
-
-function importarBackupJSON(event) {
-    const file = event.target.files[0]; if (!file) return;
-    const leitor = new FileReader();
-    leitor.onload = function(e) {
-        try {
-            let dadosImportados = JSON.parse(e.target.result);
-            if (!Array.isArray(dadosImportados)) throw new Error();
-            let historicoLocal = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-            let idsExistentes = new Set(historicoLocal.map(item => item.id));
-            let novosItensContador = 0;
-
-            dadosImportados.forEach(item => {
-                if (!idsExistentes.has(item.id)) { historicoLocal.push(item); novosItensContador++; }
-            });
-
-            localStorage.setItem("historico_simulacoes", JSON.stringify(historicoLocal));
-            alert(`Sucesso! ${novosItensContador} novas propostas foram mescladas ao seu histórico.`);
-            location.reload();
-        } catch (erro) { alert("Erro ao ler o arquivo. Use um arquivo .json válido gerado pelo app."); }
-    };
-    leitor.readAsText(file);
-}
-
-function exportarRelatorio(apenasTaxas) {
-    document.getElementById("rel_loja").innerText = document.getElementById("input_loja").value || "---";
-    document.getElementById("rel_cliente").innerText = document.getElementById("input_cliente").value || "---";
-    document.getElementById("rel_executivo").innerText = document.getElementById("input_executivo").value || "---";
-    document.getElementById("rel_data").innerText = document.getElementById("input_data").value;
-    
-    // Injeta a tabela estilizada
-    document.getElementById("rel_tabela_taxas").innerHTML = document.getElementById("resultado").innerHTML;
-    
-    let boxCorpo = document.getElementById("rel_share_cofrinho");
-    let boxGrafico = document.getElementById("rel_grafico_box");
-    let boxInfoAdicional = document.getElementById("rel_info_adicional");
-    
-    // ESTRUTURAÇÃO DO DESIGN DE DUAS COLUNAS EM FORMATO CARD DE ALTO IMPACTO
-    const itensAdicionais = [
-        "Máquina sem custo de aluguel mensal",
-        "Opção integrada de automação via TEF",
-        "Mesma taxa transparente para todas as bandeiras",
-        "CONTA NEGÓCIO: PJ sem anuidade e sem tarifas de manutenção",
-        "Parcelamento exclusivo em até 18x na Point",
-        "Link de pagamento com recebimento na hora (mesma taxa da máquina)",
-        "Rendimentos diários automatizados no cofrinho (até 120% do CDI)",
-        "Passou o cartão, o recebimento é imediato (finais de semana e feriados)",
-        "Acesso ágil, intuitivo e seguro pelo App corporativo",
-        "Taxas finais líquidas e sem surpresas (antecipação inclusa)",
-        "Consultoria de vendas no Mercado Livre e Sistema de Gestão completo"
-    ];
-
-    let htmlAdicionais = "";
-    itensAdicionais.forEach(texto => {
-        htmlAdicionais += `<div class="rel-adicional-item"><span class="rel-adicional-icon">✔</span><span>${texto}</span></div>`;
-    });
-    if(boxInfoAdicional) boxInfoAdicional.innerHTML = htmlAdicionais;
-
-    if (!apenasTaxas) {
-        if(boxCorpo) boxCorpo.style.display = "block"; 
-        if(boxGrafico) boxGrafico.style.display = "block";
-        let v = window.dadosRelatorioAnalitico;
-        if(v) {
-            let htmlCustos = "";
-            for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
-            
-            boxCorpo.innerHTML = `
-                <div style="background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 14px; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02)">
-                    <div class="rel-secao-titulo" style="margin-bottom: 16px;">📋 Diagnóstico de Custos Operacionais</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div style="border-left: 3.5px solid #64748b; padding-left: 12px;">
-                            <div class="rel-info-label">Volume Mensal Analisado</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 2px;">R$ ${v.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        </div>
-                        <div style="border-left: 3.5px solid #ef4444; padding-left: 12px;">
-                            <div class="rel-info-label">Taxas Ocultas Concorrência Mapeadas</div>
-                            <div style="font-size: 13px; font-weight: 600; color: #475569; margin-top: 4px; line-height: 1.4;">${htmlCustos || "• Nenhuma taxa fixa ou custo oculto adicionado."}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="rel-secao-titulo">💰 Análise Quantitativa de Impacto Financeiro</div>
-                <div class="rel-dashboard-faturamento">
-                    <div class="rel-dash-card economia">
-                        <div class="rel-dash-title">Economia Líquida Estimada</div>
-                        <div class="rel-dash-value">R$ ${v.ecoMes.toFixed(2)} <span style="font-size: 13px; font-weight: 500; color: #64748b;">/mês</span></div>
-                        <div class="rel-dash-sub">Retorno Anual de R$ ${(v.ecoMes * 12).toFixed(2)}</div>
-                    </div>
-                    <div class="rel-dash-card cofrinho">
-                        <div class="rel-dash-title">Projeção Cofrinho Corporativo</div>
-                        <div class="rel-dash-value green">R$ ${v.investimento1Ano.toFixed(2)}</div>
-                        <div class="rel-dash-sub">Acumulado líquido em 1 ano de aplicação</div>
-                    </div>
-                </div>`;
-        }
-        if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
-    } else { 
-        if(boxCorpo) boxCorpo.style.display = "none"; 
-        if(boxGrafico) boxGrafico.style.display = "none"; 
-    }
-    
-    // Dispara a captura limpa e em alta escala
-    setTimeout(() => { 
-        html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#f8fafc" }).then(canvas => { 
-            let link = document.createElement("a"); 
-            link.download = `PROPOSTA_PREMIUM_${document.getElementById("input_loja").value.toUpperCase()}.png`; 
-            link.href = canvas.toDataURL("image/png", 1.0); 
-            link.click(); 
-        }); 
-    }, 800);
-}
-
-function toggleDescobreTaxa() {
-    const box = document.getElementById("boxDescobreTaxa");
-    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
-}
-
-function calcularDescobreTaxa(origem) {
-    let valorOp = parseFloat(document.getElementById("calc_valor_op").value) || 0;
-    let valorRec = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
-    let taxaPercent = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
-    const resTaxa = document.getElementById("res_taxa_percent");
-    const resFinal = document.getElementById("res_valor_final");
-
-    if (origem === 'valor' || origem === 'recebido') {
-        if (valorOp > 0 && valorRec > 0) {
-            let taxa = ((valorOp - valorRec) / valorOp) * 100;
-            resTaxa.innerText = `${taxa.toFixed(2)}%`;
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)}`;
-            document.getElementById("calc_taxa_perc").value = taxa.toFixed(2);
-        }
-    } 
-    if (origem === 'taxa') {
-        if (valorOp > 0 && taxaPercent > 0) {
-            let liquido = valorOp - (valorOp * (taxaPercent / 100));
-            resFinal.innerText = `R$ ${liquido.toFixed(2)}`;
-            resTaxa.innerText = `${taxaPercent.toFixed(2)}%`;
-            document.getElementById("calc_valor_rec").value = liquido.toFixed(2);
-        } else if (valorRec > 0 && taxaPercent > 0) {
-            let brutoNecessario = valorRec / (1 - (taxaPercent / 100));
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)} (Liq)`;
-            resTaxa.innerText = `Cobrar: R$ ${brutoNecessario.toFixed(2)}`;
-            document.getElementById("calc_valor_op").value = brutoNecessario.toFixed(2);
-        }
-    }
-}
-
-async function processarOCR(event, pref) {
-    const file = event.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const worker = await Tesseract.createWorker('por');
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789xX,.-% ' });
-        const res = await worker.recognize(e.target.result);
-        let workerLetras = await Tesseract.createWorker('por');
-        let resCompleto = await workerLetras.recognize(e.target.result);
-        let textoNum = res.data.text.replace(/,/g, ".");
         
-        if (pref === 'mp') {
-            let regex = /(\d{1,2})x\s*([\d.]+)/g; let match;
-            while ((match = regex.exec(textoNum)) !== null) {
-                let p = parseInt(match[1]), t = parseFloat(match[2]);
-                if (p >= 1 && p <= 18) {
-                    let id = (p === 1) ? "mp1" : ("mp" + p);
-                    if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
-                }
-            }
-            let lines = textoNum.split('\n');
-            for(let i=0; i<lines.length; i++){
-                if(lines[i].toLowerCase().includes("déb") || lines[i].toLowerCase().includes("deb")){
-                    let m = lines[i].match(/[\d.]+/);
-                    if(m) document.getElementById("mp_debito").value = parseFloat(m[0]).toFixed(2);
-                }
-                if(lines[i].toLowerCase().includes("pix")){
-                    let m = lines[i].match(/[\d.]+/);
-                    if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
-                }
-            }
-            await worker.terminate(); await workerLetras.terminate(); return; 
-        }
 
-        const palavras = resCompleto.data.words;
-        palavras.forEach(w => {
-            let textoPalavra = w.text.toLowerCase().replace(/,/g, ".");
-            if(/^[0-9]+(\.[0-9]+)?%?$/.test(textoPalavra)){
-                let valorTaxa = parseFloat(textoPalavra.replace('%', ''));
-                let centroX = w.bbox.x0 + ((w.bbox.x1 - w.bbox.x0) / 2);
-                let larguraImagemTotal = resCompleto.data.image ? resCompleto.data.image.width : 1000;
-                let subCampo = (centroX < (larguraImagemTotal / 2)) ? 'manual' : 'demais';
-                let linhaTextoProxima = w.line ? w.line.text.toLowerCase() : '';
-                
-                if (linhaTextoProxima.includes('déb') || linhaTextoProxima.includes('deb')) {
-                    if(document.getElementById('out_debito_' + subCampo)) document.getElementById('out_debito_' + subCampo).value = valorTaxa.toFixed(2);
-                } else if (linhaTextoProxima.includes('1x')) {
-                    if(document.getElementById('out1_' + subCampo)) document.getElementById('out1_' + subCampo).value = valorTaxa.toFixed(2);
-                } else if (linhaTextoProxima.includes('pix')) {
-                    if(document.getElementById('out_pix_' + subCampo)) document.getElementById('out_pix_' + subCampo).value = valorTaxa.toFixed(2);
-                } else {
-                    let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
-                    if(matchParcela){
-                        let p = parseInt(matchParcela[1]);
-                        if(p >= 2 && p <= 18){
-                            if(document.getElementById('out' + p + '_' + subCampo)) document.getElementById('out' + p + '_' + subCampo).value = valorTaxa.toFixed(2);
-                        }
-                    }
-                }
-            }
-        });
-        await worker.terminate(); await workerLetras.terminate();
-    };
-    reader.readAsDataURL(file);
-}
+        .concorrencia-linha { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 8px 0; gap: 15px; }
+
+        .concorrencia-label { width: 120px; font-weight: bold; font-size: 14px; color: #333; display: flex; align-items: center; }
+
+        .concorrencia-inputs-box { display: flex; gap: 10px; flex: 1; }
+
+        .concorrencia-subbox { flex: 1; }
+
+        .concorrencia-txt-topo { text-align: center; font-size: 11px; color: #777; font-weight: bold; display: block; margin-bottom: 2px; }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+<div id="telaManutencao" class="manutencao-screen">
+
+    <span style="font-size: 60px; margin-bottom: 10px;">⚙️</span>
+
+    <h1 style="font-size: 28px; font-weight: 800; margin: 0; text-transform: uppercase;">Atualização de Sistema</h1>
+
+    <p style="font-size: 17px; font-weight: 600; margin: 15px 0 25px 0; max-width: 500px; line-height: 1.5;">O Simulador Premium BA21 está passando por uma manutenção programada e estratégica de segurança. Voltamos em breve!</p>
+
+    <div style="background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">🛠️ STATUS: ATUALIZAÇÃO RESTRITA</div>
+
+    <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()" style="color: #666; margin-top: 40px; border: 1px solid rgba(0,0,0,0.1); padding: 8px 15px; border-radius: 8px; background: rgba(255,255,255,0.3)">⚙️ Desativar Manutenção</button>
+
+</div>
+
+
+
+<header>Compara taxa - Simulador Premium</header>
+
+
+
+<div class="container">
+
+    <div class="card">
+
+        <h3>Atendimento <button type="button" class="btn-limpar" onclick="location.reload()">Resetar</button></h3>
+
+        <div class="grid-taxas">
+
+            <span><label>Seller</label><input id="input_loja" type="text" placeholder="Loja"></span>
+
+            <span><label>CNPJ (Opcional)</label><input id="input_cnpj" type="text" placeholder="00.000.000/0000-00" maxlength="18"></span>
+
+        </div>
+
+        <div class="grid-taxas">
+
+            <span><label>Responsável</label><input id="input_cliente" type="text" placeholder="Cliente"></span>
+
+            <span><label>Executivo</label><input id="input_executivo" type="text" placeholder="Executivo"></span>
+
+        </div>
+
+        <div class="grid-taxas" style="align-items: end;">
+
+            <div>
+
+                <label style="margin-bottom: 5px;">Data</label>
+
+                <input id="input_data" type="text" readonly style="background:#f9f9f9; margin: 0;">
+
+            </div>
+
+            <div>
+
+                <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; width:100%; height:46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">🔍 CARREGAR PROPOSTA</button>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="grid-taxas" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 15px;">
+
+            <div>
+
+                <button onclick="exportarBackupJSON()" class="btn-backup">📥 EXPORTAR BACKUP GERAL</button>
+
+            </div>
+
+            <div>
+
+                <label class="btn-restaurar">
+
+                    📤 RESTAURAR HISTÓRICO
+
+                    <input type="file" accept=".json" onchange="importarBackupJSON(event)" style="display: none;">
+
+                </label>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>Mercado Pago <button type="button" class="btn-limpar" onclick="limparSecao('mp')">Limpar</button></h3>
+
+        <div class="grid-taxas">
+
+            <span><label>Pix (%)</label> <input id="mp_pix" type="number" value="0.49"></span>
+
+            <span><label>Débito (%)</label> <input id="mp_debito" type="number" value="0.99"></span>
+
+            <span><label>Crédito 1x (%)</label> <input id="mp1" type="number" value="3.05"></span>
+
+        </div>
+
+        <div class="grid-taxas" style="margin-top:10px">
+
+            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'mp')">📷 Câmera</label>
+
+            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'mp')">📁 Arquivo</label>
+
+        </div>
+
+        <div id="mpParcelas" class="grid-taxas" style="margin-top:12px"></div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>Concorrência <button type="button" class="btn-limpar" onclick="limparSecao('out')">Limpar</button></h3>
+
+        <div class="grid-taxas" style="margin-bottom:15px">
+
+            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'out')">📷 Câmera</label>
+
+            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Arquivo</label>
+
+        </div>
+
+
+
+        <div style="display: flex; flex-direction: column;">
+
+             <div class="concorrencia-linha">
+
+                 <div class="concorrencia-label">⚡ PIX</div>
+
+                 <div class="concorrencia-inputs-box">
+
+                      <div class="concorrencia-subbox">
+
+                          <span class="concorrencia-txt-topo">Visa/Master</span>
+
+                          <input id="out_pix_manual" type="number" style="margin:0;">
+
+                      </div>
+
+                      <div class="concorrencia-subbox">
+
+                          <span class="concorrencia-txt-topo">Demais Band.</span>
+
+                          <input id="out_pix_demais" type="number" style="margin:0;">
+
+                      </div>
+
+                 </div>
+
+             </div>
+
+             <div class="concorrencia-linha">
+
+                 <div class="concorrencia-label">💳 DÉBITO</div>
+
+                 <div class="concorrencia-inputs-box">
+
+                      <div class="concorrencia-subbox">
+
+                          <span class="concorrencia-txt-topo">Visa/Master</span>
+
+                          <input id="out_debito_manual" type="number" style="margin:0;">
+
+                      </div>
+
+                      <div class="concorrencia-subbox">
+
+                          <span class="concorrencia-txt-topo">Demais Band.</span>
+
+                          <input id="out_debito_demais" type="number" style="margin:0;">
+
+                      </div>
+
+                 </div>
+
+             </div>
+
+             <div class="concorrencia-linha" style="border-bottom: none;">
+
+                 <div class="concorrencia-label">🛍️ CRÉDITO 1X</div>
+
+                 <div class="concorrencia-inputs-box">
+
+                      <div class="concorrencia-subbox">
+
+                          <span class="concorrencia-txt-topo">Visa/Master</span>
+
+                          <input id="out1_manual" type="number" style="margin:0;">
+
+                      </div>
+
+                      <div class="concorrencia-subbox">
+
+                          <span class="concorrencia-txt-topo">Demais Band.</span>
+
+                          <input id="out1_demais" type="number" style="margin:0;">
+
+                      </div>
+
+                 </div>
+
+             </div>
+
+        </div>
+
+        <div id="outrasParcelas" class="grid-taxas" style="margin-top:12px; border-top: 1px solid #eee; padding-top: 10px;"></div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <button onclick="simular()">Comparar Taxas</button>
+
+        <div id="resultado"></div>
+
+        <button id="btnExportarSimples" class="btn-exportar" onclick="exportarRelatorio(true)" style="display:none;">Exportar Apenas Taxas</button>
+
+    </div>
+
+
+
+    <div class="card" style="padding-bottom: 15px; margin-bottom: 25px;">
+
+        <h3>Rentabilidade 🪙 <button type="button" class="btn-limpar" onclick="limparSecao('share')">Limpar</button></h3>
+
+        <div class="barraContainer"><div class="barraProgresso" id="barra"></div></div>
+
+        <div style="text-align:right; font-size:12px">Meta 100%: <span id="contador">0%</span></div>
+
+        <label>Faturamento Mensal (R$)</label><input id="faturamento" type="number">
+
+        <div class="grid-taxas">
+
+            <span>Pix %: <input id="share_pix" oninput="atualizarBarra()" type="number"></span>
+
+            <span>Débito %: <input id="share_debito" oninput="atualizarBarra()" type="number"></span>
+
+            <span>1x %: <input id="share_1x" oninput="atualizarBarra()" type="number"></span>
+
+            <span>2x %: <input id="share_2x" oninput="atualizarBarra()" type="number"></span>
+
+            <span>3x %: <input id="share_3x" oninput="atualizarBarra()" type="number"></span>
+
+            <span>4x %: <input id="share_4x" oninput="atualizarBarra()" type="number"></span>
+
+            <span>6x %: <input id="share_6x" oninput="atualizarBarra()" type="number"></span>
+
+            <span>10x %: <input id="share_10x" oninput="atualizarBarra()" type="number"></span>
+
+        </div>
+
+
+
+        <div style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:12px; border:1px solid #ffeeba;">
+
+            <label style="color:#856404; font-weight:bold;">📈 Participação de Demais Bandeiras na Concorrência (%)</label>
+
+            <input id="perc_demais_bandeiras" type="number" value="10" style="margin-bottom:0;">
+
+        </div>
+
+
+
+        <h3 style="margin-top:25px">Custos Ocultos <button type="button" class="btn-limpar" onclick="limparSecao('fixos')">Limpar</button></h3>
+
+        <div class="grid-taxas">
+
+            <span><label class="lbl-custos-ocultos">💻 Software</label><input id="fixo_sistema" type="number"></span>
+
+            <span><label class="lbl-custos-ocultos">📟 Aluguel de Máquina</label><input id="fixo_maquina" type="number"></span>
+
+            <span><label class="lbl-custos-ocultos">🧺 Cesta de Serviços</label><input id="fixo_cesta" type="number"></span>
+
+            <span><label class="lbl-custos-ocultos">🔧 Manutenção da Conta</label><input id="fixo_manutencao" type="number"></span>
+
+        </div>
+
+        <div style="background:#f6fff6; padding:15px; border-radius:12px; border:1px dashed #4caf50; margin-top:15px">
+
+            <h4 style="margin:0; color:#4caf50;">📊 Pix App Bancário</h4>
+
+            <div class="grid-taxas">
+
+                <span><label class="lbl-custos-ocultos">Volume</label><input id="vol_pix_app" type="number"></span>
+
+                <span><label class="lbl-custos-ocultos">Taxa %</label><input id="taxa_pix_app" type="number"></span>
+
+            </div>
+
+        </div>
+
+
+
+        <h3 style="margin-top:25px">Cofrinho <button type="button" class="btn-limpar" onclick="limparSecao('cofrinho')">Limpar</button></h3>
+
+        <div class="grid-taxas">
+
+            <span><label class="lbl-cofrinho">💰 Aporte Mensal</label><input id="cofrinho_reserva" type="number"></span>
+
+            <span><label class="lbl-cofrinho">📈 % CDI Alvo</label><input id="cofrinho_cdi_alvo" type="number" value="115"></span>
+
+        </div>
+
+        <button onclick="simularFaturamento()" style="margin-bottom: 0px;">Gerar Estudo</button>
+
+        <div id="resultadoFaturamento"></div>
+
+        <div id="cont_grafico" class="chart-box-wrapper"><canvas id="graficoEconomia"></canvas></div>
+
+    </div>
+
+
+
+    <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
+
+    <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
+
+    <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa</button>
+
+    
+
+    <div id="boxDescobreTaxa" class="box-calculadora">
+
+        <h3>Calculadora Reversa <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑</button></h3>
+
+        <div class="display-calculadora">
+
+            <span style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase">Resultado Principal</span><br>
+
+            <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800">R$ 0,00</span><br>
+
+            <span id="res_taxa_percent" style="font-size:18px; color:#d32f2f; font-weight:800">0.00%</span>
+
+        </div>
+
+        <div class="grid-taxas" style="grid-template-columns: 1fr;">
+
+            <span><label>Valor Bruto</label> <input id="calc_valor_op" type="number" oninput="calcularDescobreTaxa('valor')"></span>
+
+            <span><label>Valor Líquido</label> <input id="calc_valor_rec" type="number" oninput="calcularDescobreTaxa('recebido')"></span>
+
+            <span><label>Taxa Direta (%)</label> <input id="calc_taxa_perc" type="number" oninput="calcularDescobreTaxa('taxa')"></span>
+
+        </div>
+
+    </div>
+
+    
+
+    <div class="footer-contador">
+
+        Visitas à aplicação: <span id="num_visitas">0</span><br>
+
+        <p><b>Desenvolvido por Marcos Daniel.</b></p>
+
+        <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()">⚙️ Painel Admin</button>
+
+    </div>
+
+</div>
+
+
+
+<div id="modalTermos" class="modal-overlay">
+
+    <div class="modal-content">
+
+        <h2 style="margin-top:0; text-align:center; color:#333">⚠️ Termos e Isenção</h2>
+
+        <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda que:</p>
+
+        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial com o Mercado Pago.</p>
+
+        <p>2. <b>Responsabilidade:</b> Todas as taxas inseridas são de inteira responsabilidade do usuário.</p>
+
+        <p>3. <b>Precisão:</b> Os dados gerados são estimativas e não garantem rentabilidade futura.</p>
+
+        <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0">
+
+            <input type="checkbox" id="chk_termos_uso"> Estou de acordo com os termos
+
+        </label>
+
+        <button type="button" onclick="confirmarTermos()" style="background:#333; color:white;">Acessar Sistema</button>
+
+    </div>
+
+</div>
+
+
+
+<div id="areaRelatorio">
+
+    <div style="text-align:center; border-bottom:5px solid #FFE600; padding-bottom:30px">
+
+        <h1>Compara taxa - Simulador Premium</h1>
+
+        <p style="font-size:18px; font-weight:bold; color:#666">Proposta Estratégica de Rentabilidade</p>
+
+    </div>
+
+    <div class="info-cli-rel">
+
+        <div><b>Seller:</b> <br><span id="rel_loja" style="font-size:18px; color:#3483FA; font-weight:800"></span></div>
+
+        <div><b>Data:</b> <br><span id="rel_data"></span></div>
+
+        <div><b>Responsável:</b> <br><span id="rel_cliente"></span></div>
+
+        <div><b>Executivo:</b> <br><span id="rel_executivo"></span></div>
+
+    </div>
+
+    <div id="rel_tabela_taxas"></div>
+
+    <div id="rel_share_cofrinho" style="margin-top:25px"></div>
+
+    <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
+
+    <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
+
+    <div style="font-size:12px; color:#777; margin-top:40px; border-top:1px solid #eee; padding-top:20px; text-align:justify">
+
+        <p><b>Sobre o Cofrinho:</b> Projeção baseada em aportes mensais fixos. Até R$ 10.000,00 rende o percentual alvo do CDI. De R$ 10.000,01 até R$ 100.000,00, rende 100% do CDI. Acima desse valor, não tem rendimento.</p>
+
+        <p><b>Nota Importante:</b> Esta simulação é uma ferramenta de apoio baseada nas taxas informadas e nas tabelas vigentes. Sujeito a análise de perfil e alterações sem aviso prévio.</p>
+
+        <p><b>Aviso de Isenção: Os dados e simulações constantes neste relatório são de responsabilidade exclusiva do emissor e não representam a opinião, propriedade ou responsabilidade do Mercado Pago ou de qualquer empresa do grupo Mercado Livre, que fica inteiramente isenta de qualquer pleito judicial ou administrativo relacionado a este documento.</b></p>
+
+        <p><b>Desenvolvido por Marcos Daniel.</b></p>
+
+    </div>
+
+</div>
+
+
+
+</body>
+
+</html> 
