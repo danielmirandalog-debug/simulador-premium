@@ -1,5 +1,5 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V7.5 - Sistema de Manutenção Unificado com Senha Mestre
+   VERSÃO: Master V7.6 - Correção de Escopo e Expansão do Gerador de Estudos
 */
 
 // 1. PROTEÇÃO E BLINDAGEM NATIVA
@@ -9,9 +9,8 @@ document.onkeydown = function(e) {
 };
 
 // 2. CONFIGURAÇÃO DE SEGURANÇA ADMINISTRATIVA
-const SENHA_MESTRE = "Bela@2026";
+const SENHA_MESTRE = "Marcos2026";
 
-// Verifica o estado da manutenção assim que a página carrega
 function checarStatusManutencao() {
     const estado = localStorage.getItem("status_manutencao_ba21") || "online";
     const tela = document.getElementById("telaManutencao");
@@ -23,7 +22,6 @@ function checarStatusManutencao() {
     }
 }
 
-// Controla a ativação e desativação da manutenção por senha direta
 function gerenciarPainelAdmin() {
     const senhaDigitada = prompt("Digite a senha mestre administrativa:");
     if (senhaDigitada === null) return;
@@ -135,7 +133,7 @@ function limparSecao(tipo) {
         });
         document.querySelectorAll(".input-out").forEach(i => i.value = "");
     } else if (tipo === 'share') {
-        IDs_SHARE.forEach(id => document.getElementById(id).value = "");
+        IDs_SHARE.forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ""; });
         if(document.getElementById("faturamento")) document.getElementById("faturamento").value = "";
         if(document.getElementById("perc_demais_bandeiras")) document.getElementById("perc_demais_bandeiras").value = "10";
         atualizarBarra();
@@ -144,8 +142,8 @@ function limparSecao(tipo) {
             if(document.getElementById(id)) document.getElementById(id).value = "";
         });
     } else if (tipo === 'cofrinho') {
-        document.getElementById("cofrinho_reserva").value = "";
-        document.getElementById("cofrinho_cdi_alvo").value = "115";
+        if(document.getElementById("cofrinho_reserva")) document.getElementById("cofrinho_reserva").value = "";
+        if(document.getElementById("cofrinho_cdi_alvo")) document.getElementById("cofrinho_cdi_alvo").value = "115";
     }
 }
 
@@ -215,22 +213,30 @@ function simular() {
 
 function atualizarBarra() {
     let soma = 0;
-    IDs_SHARE.forEach(id => soma += parseFloat(document.getElementById(id).value) || 0);
+    IDs_SHARE.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) soma += parseFloat(el.value) || 0;
+    });
     document.getElementById("contador").innerText = Math.round(soma) + "%";
     document.getElementById("barra").style.width = soma + "%";
     document.getElementById("barra").style.background = (Math.round(soma) === 100) ? "#4CAF50" : "#FFE600";
 }
 
+// 📊 MOTOR DO ESTUDO DE FATURAMENTO TOTALMENTE PROTEGIDO CONTRA TRAVAS
 function simularFaturamento() {
     let soma = 0;
-    IDs_SHARE.forEach(id => soma += parseFloat(document.getElementById(id).value) || 0);
+    IDs_SHARE.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) soma += parseFloat(el.value) || 0;
+    });
     if (Math.round(soma) !== 100) return alert("O Share total deve somar 100%!");
     
-    const faturamentoInput = document.getElementById("faturamento");
-    let f = faturamentoInput ? parseFloat(faturamentoInput.value) || 0 : 0;
+    const fatEl = document.getElementById("faturamento");
+    let f = fatEl ? parseFloat(fatEl.value) || 0 : 0;
     if(f <= 0) return alert("Informe o faturamento mensal.");
 
-    let pDemaisGeral = parseFloat(document.getElementById("perc_demais_bandeiras").value);
+    const pDemaisEl = document.getElementById("perc_demais_bandeiras");
+    let pDemaisGeral = pDemaisEl ? parseFloat(pDemaisEl.value) || 0 : 10;
     if (isNaN(pDemaisGeral) || pDemaisGeral < 0) pDemaisGeral = 0;
 
     const getTaxaEl = (p, tipo, subTipo = 'manual') => {
@@ -241,9 +247,11 @@ function simularFaturamento() {
     };
 
     let custoMP = 0; let custoConc = 0;
-    const shareMap = { pix: 'share_pix', debito: 'share_debito', 1: 'share_1x', 2: 'share_2x', 3: 'share_3x', 4: 'share_4x', 6: 'share_6x', 10: 'share_10x' };    
+    const shareMap = { pix: 'share_pix', debito: 'share_debito', 1: 'share_1x', 2: 'share_2x', 3: 'share_3x', 4: 'share_4x', 6: 'share_6x', 10: 'share_10x' };
+    
     Object.keys(shareMap).forEach(p => {
-        let percShare = parseFloat(document.getElementById(shareMap[p]).value) || 0;
+        const elShare = document.getElementById(shareMap[p]);
+        let percShare = elShare ? parseFloat(elShare.value) || 0 : 0;
         let valorFatia = f * (percShare / 100);
         
         let elMP = getTaxaEl(p, 'mp');
@@ -278,16 +286,22 @@ function simularFaturamento() {
     custoConc += totalFixos;
 
     let ecoMes = custoConc - custoMP;
-    let resMensal = parseFloat(cofrinho_reserva.value) || 0;
+    
+    const resMesalEl = document.getElementById("cofrinho_reserva");
+    let resMensal = resMesalEl ? parseFloat(resMesalEl.value) || 0 : 0;
+    
+    const cdiAlvoEl = document.getElementById("cofrinho_cdi_alvo");
+    let cdiAlvoVal = cdiAlvoEl ? parseFloat(cdiAlvoEl.value) || 115 : 115;
+    
     let cdiAnual = (window.selicAtual || 10.75) - 0.10;
-    let alvoPerc = (parseFloat(cofrinho_cdi_alvo.value) || 115) / 100;
+    let alvoPerc = cdiAlvoVal / 100;
 
     const calcInvestimento = (meses) => {
         let saldoAtual = 0; let lucroBrutoAcumulado = 0;
         let taxaMensalBase = Math.pow((1 + (cdiAnual / 100)), (1/12)) - 1;
         for(let i=1; i<=meses; i++){
             let taxaAplicada = (saldoAtual <= 10000) ? (taxaMensalBase * alvoPerc) : (saldoAtual <= 100000 ? taxaMensalBase : 0);
-            let rendimientoDoMes = saldoAtual * taxaAplicada;
+            let rendimentoDoMes = saldoAtual * taxaAplicada;
             lucroBrutoAcumulado += rendimentoDoMes;
             saldoAtual += rendimentoDoMes + resMensal;
         }
@@ -296,7 +310,7 @@ function simularFaturamento() {
     };
 
     window.dadosRelatorioAnalitico = {
-        faturamento: f, aporte: resMensal, cdiAlvo: parseFloat(cofrinho_cdi_alvo.value) || 115,
+        faturamento: f, aporte: resMensal, cdiAlvo: cdiAlvoVal,
         itensOcultos: { "Software": cSoftware, "Aluguel": cMaquina, "Cesta Bancária": cCesta, "Manutenção": cManutencao, "Pix App Bancário": cPixApp }
     };
 
@@ -408,7 +422,7 @@ function exportarRelatorio(apenasTaxas) {
     let boxCorpo = document.getElementById("rel_share_cofrinho");
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
-    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: PJ sem anuidade e sem taxas administrativas\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com "recebimento na hora" (mesma taxa da maquininha)\n➡️ Rendimentos diários no cofrinho (até 120% o CDI)\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO! (inclusive finais de semana e feriados)\n➡️ FÁCIL ACESSO AO APP\n➡️ TAXAS FINAIS SEM SURPRESAS (antecipação inclusa)\n➡️ Consultoria de vendas no Mercado Livre e Sistema de Gestão completo e gratuito (consulte condições)\n🗒️Simulação com validade de 07 dias.`;
+    const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ Conta sem anuidade e taxas administrativas\n➡️ Link de pagamento com recebimento na hora\n➡️ Rendimentos diários no cofrinho\n🗒️Simulação com validade de 07 dias.`;
     let checkboxAtivo = apenasTaxas ? document.getElementById("chk_info_simples") : document.getElementById("chk_info_completo");
     if(boxInfoAdicional) {
         boxInfoAdicional.style.display = (checkboxAtivo && checkboxAtivo.checked) ? "block" : "none";
@@ -440,7 +454,7 @@ function calcularDescobreTaxa(origem) {
     const resTaxa = document.getElementById("res_taxa_percent");
     const resFinal = document.getElementById("res_valor_final");
 
-    if (origem === 'valor' || marvel === 'recebido' || origem === 'recebido') {
+    if (origem === 'valor' || origem === 'recebido') {
         if (valorOp > 0 && valorRec > 0) {
             let taxa = ((valorOp - valorRec) / valorOp) * 100;
             resTaxa.innerText = `${taxa.toFixed(2)}%`;
@@ -486,11 +500,11 @@ async function processarOCR(event, pref) {
             let linhas = textoNum.split('\n');
             for(let i=0; i<linhas.length; i++){
                 if(linhas[i].toLowerCase().includes("déb") || linhas[i].toLowerCase().includes("deb")){
-                    let m = lines[i].match(/[\d.]+/);
+                    let m = linhas[i].match(/[\d.]+/);
                     if(m) document.getElementById("mp_debito").value = parseFloat(m[0]).toFixed(2);
                 }
                 if(linhas[i].toLowerCase().includes("pix")){
-                    let m = lines[i].match(/[\d.]+/);
+                    let m = linhas[i].match(/[\d.]+/);
                     if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
                 }
             }
