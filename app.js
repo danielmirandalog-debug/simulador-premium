@@ -335,13 +335,12 @@ const chartBox = document.getElementById("cont_grafico");
     });
 
     // ==================================================================
-    // 💎 MODO BLINDADO: INSTÂNCIAS DOS GRÁFICOS DE PIZZA (SHARE)
+    // 💎 MODO BLINDADO: INSTÂNCIAS DOS GRÁFICOS DE PIZZA (SHARE COM %)
     // ==================================================================
     const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
     const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
     const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
     
-    // Soma automatizada e limpa de todas as parcelas reais informadas (2x até 10x)
     const shareParcelado = (
         (parseFloat(document.getElementById('share_2x').value) || 0) +
         (parseFloat(document.getElementById('share_3x').value) || 0) +
@@ -353,11 +352,10 @@ const chartBox = document.getElementById("cont_grafico");
     const percDemaisBandeiras = parseFloat(document.getElementById('perc_demais_bandeiras').value) || 0;
     const percVisaMaster = 100 - percDemaisBandeiras;
 
-    // Destruição preventiva para evitar conflito de renderização na re-simulação
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
     if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
 
-    // Renderização do gráfico: Destinação do faturamento (Share Parcelamento)
+    // Renderização do gráfico: Destinação do faturamento (Share Parcelamento) com % na Legenda
     const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
@@ -372,12 +370,35 @@ const chartBox = document.getElementById("cont_grafico");
         options: {
             responsive: true,
             plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        boxWidth: 12, 
+                        font: { size: 11 },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map(function(label, i) {
+                                    const value = data.datasets[0].data[i];
+                                    return {
+                                        text: `${label}: ${value.toFixed(1)}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        lineWidth: 0,
+                                        hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    } 
+                }
             }
         }
     });
 
-    // Renderização do gráfico: Mix de Marcas (Share Bandeiras)
+    // Renderização do gráfico: Mix de Marcas (Share Bandeiras) com % na Legenda
     const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
@@ -392,12 +413,34 @@ const chartBox = document.getElementById("cont_grafico");
         options: {
             responsive: true,
             plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        boxWidth: 12, 
+                        font: { size: 11 },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map(function(label, i) {
+                                    const value = data.datasets[0].data[i];
+                                    return {
+                                        text: `${label}: ${value.toFixed(1)}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        lineWidth: 0,
+                                        hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    } 
+                }
             }
         }
     });
-}
-function salvarNoHistorico() {
+}function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
     inputs.forEach(i => { if(i.id) snapshot[i.id] = i.value; });
