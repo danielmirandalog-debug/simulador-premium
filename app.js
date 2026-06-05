@@ -324,7 +324,7 @@ function simularFaturamento() {
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
-    const chartBox = document.getElementById("cont_grafico");
+const chartBox = document.getElementById("cont_grafico");
     if(chartBox) chartBox.style.display = "block";
 
     if (window.g) window.g.destroy();
@@ -333,8 +333,70 @@ function simularFaturamento() {
         data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
         options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
     });
-}
 
+    // ==================================================================
+    // 💎 MODO BLINDADO: INSTÂNCIAS DOS GRÁFICOS DE PIZZA (SHARE)
+    // ==================================================================
+    const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
+    const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
+    const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
+    
+    // Soma automatizada e limpa de todas as parcelas reais informadas (2x até 10x)
+    const shareParcelado = (
+        (parseFloat(document.getElementById('share_2x').value) || 0) +
+        (parseFloat(document.getElementById('share_3x').value) || 0) +
+        (parseFloat(document.getElementById('share_4x').value) || 0) +
+        (parseFloat(document.getElementById('share_6x').value) || 0) +
+        (parseFloat(document.getElementById('share_10x').value) || 0)
+    );
+
+    const percDemaisBandeiras = parseFloat(document.getElementById('perc_demais_bandeiras').value) || 0;
+    const percVisaMaster = 100 - percDemaisBandeiras;
+
+    // Destruição preventiva para evitar conflito de renderização na re-simulação
+    if (window.chartShareParcelado) window.chartShareParcelado.destroy();
+    if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
+
+    // Renderização do gráfico: Destinação do faturamento (Share Parcelamento)
+    const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
+    window.chartShareParcelado = new Chart(ctxParcelado, {
+        type: 'pie',
+        data: {
+            labels: ['Pix', 'Débito', 'Crédito 1x', 'Parcelado (2x-10x)'],
+            datasets: [{
+                data: [sharePix, shareDebito, share1x, shareParcelado],
+                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            }
+        }
+    });
+
+    // Renderização do gráfico: Mix de Marcas (Share Bandeiras)
+    const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
+    window.chartShareBandeiras = new Chart(ctxBandeiras, {
+        type: 'pie',
+        data: {
+            labels: ['Visa / Master', 'Outras Bandeiras'],
+            datasets: [{
+                data: [percVisaMaster, percDemaisBandeiras],
+                backgroundColor: ['#0056b3', '#FFE600'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            }
+        }
+    });
+}
 function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
