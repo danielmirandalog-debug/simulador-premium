@@ -262,21 +262,23 @@
         </div>
     </div>
 
-    <div class="card">
+<div class="card">
         <h3>Mercado Pago <button type="button" class="btn-limpar" onclick="limparSecao('mp')">Limpar</button></h3>
         <div class="grid-taxas">
             <span><label>Pix (%)</label> <input id="mp_pix" type="number" value="0.49"></span>
             <span><label>Débito (%)</label> <input id="mp_debito" type="number" value="0.99"></span>
             <span><label>Crédito 1x (%)</label> <input id="mp1" type="number" value="3.05"></span>
         </div>
-<div style="margin-top:10px">
-            <label style="display:block; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'mp')">📁 Importar Documento/Arquivo</label>
+        <div style="margin-top:10px">
+            <label style="display:block; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'mp')">📁 Importar Documento / Arquivo</label>
         </div>
+        <div id="mpParcelas" class="grid-taxas" style="margin-top:12px"></div>
+    </div>
 
     <div class="card">
         <h3>Concorrência <button type="button" class="btn-limpar" onclick="limparSecao('out')">Limpar</button></h3>
-<div style="margin-bottom:15px">
-            <label style="display:block; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Importar Documento/Arquivo</label>
+        <div style="margin-bottom:15px">
+            <label style="display:block; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Importar Documento / Arquivo</label>
         </div>
 
         <div style="display: flex; flex-direction: column;">
@@ -328,7 +330,6 @@
         <div id="resultado"></div>
         <button id="btnExportarSimples" class="btn-exportar" onclick="exportarRelatorio(true)" style="display:none;">Exportar Apenas Taxas</button>
     </div>
-
     <div class="card" style="padding-bottom: 15px; margin-bottom: 25px;">
         <h3>Rentabilidade 🪙 <button type="button" class="btn-limpar" onclick="limparSecao('share')">Limpar</button></h3>
         <div class="barraContainer"><div class="barraProgresso" id="barra"></div></div>
