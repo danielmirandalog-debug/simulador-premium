@@ -352,15 +352,21 @@ const chartBox = document.getElementById("cont_grafico");
     const percDemaisBandeiras = parseFloat(document.getElementById('perc_demais_bandeiras').value) || 0;
     const percVisaMaster = 100 - percDemaisBandeiras;
 
-    if (window.chartShareParcelado) window.chartShareParcelado.destroy();
-    if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
+// Destruição rigorosa das instâncias antigas na memória
+    if (window.piz1) window.piz1.destroy();
+    if (window.piz2) window.piz2.destroy();
 
-    // Renderização do gráfico: Destinação do faturamento (Share Parcelamento) com % na Legenda
+    // 1. Gráfico de Parcelados com Porcentagem Direta nas Legendas
     const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
-    window.chartShareParcelado = new Chart(ctxParcelado, {
+    window.piz1 = new Chart(ctxParcelado, {
         type: 'pie',
         data: {
-            labels: ['Pix', 'Débito', 'Crédito 1x', 'Parcelado (2x-10x)'],
+            labels: [
+                `Pix: ${sharePix.toFixed(1)}%`, 
+                `Débito: ${shareDebito.toFixed(1)}%`, 
+                `Crédito 1x: ${share1x.toFixed(1)}%`, 
+                `Parcelado (2x-10x): ${shareParcelado.toFixed(1)}%`
+            ],
             datasets: [{
                 data: [sharePix, shareDebito, share1x, shareParcelado],
                 backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
@@ -369,41 +375,22 @@ const chartBox = document.getElementById("cont_grafico");
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { 
-                    position: 'bottom', 
-                    labels: { 
-                        boxWidth: 12, 
-                        font: { size: 11 },
-                        generateLabels: function(chart) {
-                            const data = chart.data;
-                            if (data.labels.length && data.datasets.length) {
-                                return data.labels.map(function(label, i) {
-                                    const value = data.datasets[0].data[i];
-                                    return {
-                                        text: `${label}: ${value.toFixed(1)}%`,
-                                        fillStyle: data.datasets[0].backgroundColor[i],
-                                        strokeStyle: data.datasets[0].backgroundColor[i],
-                                        lineWidth: 0,
-                                        hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
-                                        index: i
-                                    };
-                                });
-                            }
-                            return [];
-                        }
-                    } 
-                }
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
             }
         }
     });
 
-    // Renderização do gráfico: Mix de Marcas (Share Bandeiras) com % na Legenda
+    // 2. Gráfico de Bandeiras com Porcentagem Direta nas Legendas
     const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
-    window.chartShareBandeiras = new Chart(ctxBandeiras, {
+    window.piz2 = new Chart(ctxBandeiras, {
         type: 'pie',
         data: {
-            labels: ['Visa / Master', 'Outras Bandeiras'],
+            labels: [
+                `Visa / Master: ${percVisaMaster.toFixed(1)}%`, 
+                `Outras Bandeiras: ${percDemaisBandeiras.toFixed(1)}%`
+            ],
             datasets: [{
                 data: [percVisaMaster, percDemaisBandeiras],
                 backgroundColor: ['#0056b3', '#FFE600'],
@@ -412,35 +399,14 @@ const chartBox = document.getElementById("cont_grafico");
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { 
-                    position: 'bottom', 
-                    labels: { 
-                        boxWidth: 12, 
-                        font: { size: 11 },
-                        generateLabels: function(chart) {
-                            const data = chart.data;
-                            if (data.labels.length && data.datasets.length) {
-                                return data.labels.map(function(label, i) {
-                                    const value = data.datasets[0].data[i];
-                                    return {
-                                        text: `${label}: ${value.toFixed(1)}%`,
-                                        fillStyle: data.datasets[0].backgroundColor[i],
-                                        strokeStyle: data.datasets[0].backgroundColor[i],
-                                        lineWidth: 0,
-                                        hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
-                                        index: i
-                                    };
-                                });
-                            }
-                            return [];
-                        }
-                    } 
-                }
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
             }
         }
     });
-}function salvarNoHistorico() {
+}
+function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
     inputs.forEach(i => { if(i.id) snapshot[i.id] = i.value; });
@@ -547,10 +513,10 @@ function exportarRelatorio(apenasTaxas) {
         if (window.g && document.getElementById("img_grafico")) {
             document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
         }
-        if (window.chartShareParcelado && document.getElementById("img_grafico_parcelado")) {
+        if (window.piz1 && document.getElementById("img_grafico_parcelado")) {
             document.getElementById("img_grafico_parcelado").src = document.getElementById("graficoShareParcelado").toDataURL();
         }
-        if (window.chartShareBandeiras && document.getElementById("img_grafico_bandeiras")) {
+        if (window.piz2 && document.getElementById("img_grafico_bandeiras")) {
             document.getElementById("img_grafico_bandeiras").src = document.getElementById("graficoShareBandeiras").toDataURL();
         }
     } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }
