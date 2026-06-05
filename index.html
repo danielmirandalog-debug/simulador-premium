@@ -47,7 +47,7 @@
         .chart-box-wrapper { display: none; margin-top: 15px !important; width: 100%; overflow: hidden; }
 .row-graficos-pizza { display: flex; gap: 15px; margin-top: 20px; width: 100%; }
 .card-pizza-wrapper { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; }
-#graficoShareParcelado, #graficoShareBandeiras { max-height: 200px !important; width: 100% !important; }
+#graficoShareParcelado, #graficoShareBandeiras { height: 220px !important; max-height: 220px !important; width: 100% !important; display: block !important; }
         #graficoEconomia { width: 100% !important; max-height: 220px !important; }
 
         .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
@@ -445,7 +445,18 @@
     </div>
     <div id="rel_tabela_taxas"></div>
     <div id="rel_share_cofrinho" style="margin-top:25px"></div>
-    <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
+<div id="rel_grafico_box" style="text-align:center; margin-top:25px">
+    <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 15px;">
+    
+    <div style="display: flex; gap: 15px; width: 100%; justify-content: center;">
+        <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
+            <img id="img_grafico_parcelado" style="max-width:100%; height: auto;">
+        </div>
+        <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
+            <img id="img_grafico_bandeiras" style="max-width:100%; height: auto;">
+        </div>
+    </div>
+</div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
     <div style="font-size:12px; color:#777; margin-top:40px; border-top:1px solid #eee; padding-top:20px; text-align:justify">
         <p><b>Sobre o Cofrinho:</b> Projeção baseada em aportes mensais fixos. Até R$ 10.000,00 rende o percentual alvo do CDI. De R$ 10.000,01 até R$ 100.000,00, rende 100% do CDI. Acima desse valor, não tem rendimento.</p>
