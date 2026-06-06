@@ -523,41 +523,133 @@ function exportarRelatorio(apenasTaxas) {
     setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
 }
 
-function toggleDescobreTaxa() {
-    const box = document.getElementById("boxDescobreTaxa");
-    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+// ==================================================================
+// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS V2 (MODO BLINDADO)
+// ==================================================================
+
+function abrirCalculadoraPremium() {
+    const box = document.getElementById('boxDescobreTaxa');
+    if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        document.getElementById('chaveCalculadora').checked = false;
+        alternarModoCalculadora();
+    } else {
+        box.style.display = 'none';
+    }
 }
 
-function calcularDescobreTaxa(origem) {
-    let valorOp = parseFloat(document.getElementById("calc_valor_op").value) || 0;
-    let valorRec = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
-    let taxaPercent = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
-    const resTaxa = document.getElementById("res_taxa_percent");
-    const resFinal = document.getElementById("res_valor_final");
+function alternarModoCalculadora() {
+    const chave = document.getElementById('chaveCalculadora');
+    const labelCobrar = document.getElementById('labelModoCobrar');
+    const labelReceber = document.getElementById('labelModoReceber');
+    const labelValorPrincipal = document.getElementById('labelValorPrincipal');
+    const containerLiquidoCobrar = document.getElementById('containerLiquidoCobrar');
+    const containerTaxa = document.getElementById('containerTaxa');
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    const resultadoBox = document.getElementById('resultadoCalculadoraBox');
+    
+    const sliderBack = document.getElementById('sliderBack');
+    const sliderBall = document.getElementById('sliderBall');
 
-    if (origem === 'valor' || origem === 'recebido') {
-        if (valorOp > 0 && valorRec > 0) {
-            let taxa = ((valorOp - valorRec) / valorOp) * 100;
-            resTaxa.innerText = `${taxa.toFixed(2)}%`;
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)}`;
-            document.getElementById("calc_taxa_perc").value = taxa.toFixed(2);
+    limparCamposCalculadora();
+
+    if (chave.checked) {
+        // 💰 MODO RECEBER (Reverso)
+        labelCobrar.style.color = '#94a3b8';
+        labelReceber.style.color = '#10b981';
+        sliderBack.style.backgroundColor = '#10b981';
+        sliderBall.style.transform = 'translateX(24px)';
+        
+        labelValorPrincipal.innerText = 'Quanto quer Receber Líquido (R$)';
+        containerLiquidoCobrar.style.display = 'none'; 
+        containerTaxa.style.display = 'block';
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+        textoResultadoTopo.style.color = '#065f46';
+        
+        resultadoBox.style.backgroundColor = '#ecfdf5';
+        resultadoBox.style.borderColor = '#a7f3d0';
+        document.getElementById('valorResultadoFinal').style.color = '#047857';
+    } else {
+        // 🛒 MODO COBRAR (Direto)
+        labelCobrar.style.color = '#0056b3';
+        labelReceber.style.color = '#94a3b8';
+        sliderBack.style.backgroundColor = '#0056b3';
+        sliderBall.style.transform = 'translateX(0px)';
+        
+        labelValorPrincipal.innerText = 'Valor Bruto / Operação (R$)';
+        containerLiquidoCobrar.style.display = 'block'; 
+        containerTaxa.style.display = 'block';
+        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+        textoResultadoTopo.style.color = '#1e40af';
+        
+        resultadoBox.style.backgroundColor = '#eff6ff';
+        resultadoBox.style.borderColor = '#bfdbfe';
+        document.getElementById('valorResultadoFinal').style.color = '#1d4ed8';
+    }
+}
+
+function executarCalculoCalculadora() {
+    const chave = document.getElementById('chaveCalculadora').checked;
+    const brutoInput = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
+    const taxaInput = parseFloat(document.getElementById('calc_taxa_aplicada').value) || 0;
+    const liquidoInput = parseFloat(document.getElementById('calc_liquido_cobrar').value) || 0;
+    
+    const containerTaxa = document.getElementById('containerTaxa');
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
+
+    if (brutoInput <= 0) {
+        valorResultadoFinal.innerText = 'R$ 0,00';
+        return;
+    }
+
+    if (chave) {
+        // MODO RECEBER: Descobrir o Bruto
+        if (taxaInput >= 100) {
+            valorResultadoFinal.innerText = 'Taxa Inválida';
+            return;
         }
-    } 
-    if (origem === 'taxa') {
-        if (valorOp > 0 && taxaPercent > 0) {
-            let liquido = valorOp - (valorOp * (taxaPercent / 100));
-            resFinal.innerText = `R$ ${liquido.toFixed(2)}`;
-            resTaxa.innerText = `${taxaPercent.toFixed(2)}%`;
-            document.getElementById("calc_valor_rec").value = liquido.toFixed(2);
-        } else if (valorRec > 0 && taxaPercent > 0) {
-            let brutoNecessario = valorRec / (1 - (taxaPercent / 100));
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)} (Liq)`;
-            resTaxa.innerText = `Cobrar: R$ ${brutoNecessario.toFixed(2)}`;
-            document.getElementById("calc_valor_op").value = brutoNecessario.toFixed(2);
+        const valorBrutoNecessario = brutoInput / (1 - (taxaInput / 100));
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+        valorResultadoFinal.innerText = valorBrutoNecessario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    } else {
+        // MODO COBRAR: Inteligência Dupla
+        if (liquidoInput > 0) {
+            // Se informou Bruto e Líquido -> Oculta o campo de taxa e faz a descoberta
+            containerTaxa.style.display = 'none';
+            if (liquidoInput >= brutoInput) {
+                valorResultadoFinal.innerText = 'Líquido inválido';
+                return;
+            }
+            const taxaCalculada = ((brutoInput - liquidoInput) / brutoInput) * 100;
+            textoResultadoTopo.innerText = 'Taxa de Juros Descoberta:';
+            valorResultadoFinal.innerText = taxaCalculada.toFixed(2) + '%';
+        } else {
+            // Se não tem líquido, garante que o campo taxa reapareça e faz a conta padrão
+            containerTaxa.style.display = 'block';
+            const valorLiquidoRestante = brutoInput - (brutoInput * (taxaInput / 100));
+            textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+            valorResultadoFinal.innerText = valorLiquidoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
     }
 }
 
+function limparCamposCalculadora() {
+    document.getElementById('calc_valor_principal').value = '';
+    document.getElementById('calc_taxa_aplicada').value = '';
+    document.getElementById('calc_liquido_cobrar').value = '';
+    document.getElementById('containerTaxa').style.display = 'block';
+    
+    const chave = document.getElementById('chaveCalculadora').checked;
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    
+    if (chave) {
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+    } else {
+        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+    }
+    document.getElementById('valorResultadoFinal').innerText = 'R$ 0,00';
+}
 async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
