@@ -1,11 +1,4 @@
 <!DOCTYPE html>
-
-<html lang="pt-BR">
-
-<head>
-
-    <meta charset="UTF-8">
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +28,7 @@
         .btn-exportar { background: #333 !important; color: white !important; margin-bottom: 5px; }
         .btn-arquivar { background: #17a2b8 !important; color: white !important; font-size: 17px; margin-top: 5px; }
         .btn-tips { background: #343a40 !important; color: #FFE600 !important; font-size: 12px; width: 100%; height: 46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; text-decoration: none; border: 1px solid #212529; }
-.btn-tips:hover { background: #212529 !important; }
+        .btn-tips:hover { background: #212529 !important; }
         .btn-backup { background: #28a745 !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; }
         .btn-restaurar { background: #6c757d !important; color: white !important; font-size: 13px; height: 46px; border-radius: 10px; margin: 0; font-weight: bold; display: flex; align-items: center; justify-content: center; text-transform: none; padding: 0 10px; cursor: pointer; text-align: center; }
         .btn-limpar { width: auto; padding: 6px 12px; font-size: 11px; background: #fcfcfc; color: #d32f2f; border: 1px solid #eee; border-radius: 6px; }
@@ -45,9 +38,9 @@
         .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
         
         .chart-box-wrapper { display: none; margin-top: 15px !important; width: 100%; overflow: hidden; }
-.row-graficos-pizza { display: flex; gap: 15px; margin-top: 20px; width: 100%; }
-.card-pizza-wrapper { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; }
-#graficoShareParcelado, #graficoShareBandeiras { height: 220px !important; max-height: 220px !important; width: 100% !important; display: block !important; }
+        .row-graficos-pizza { display: flex; gap: 15px; margin-top: 20px; width: 100%; }
+        .card-pizza-wrapper { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; }
+        #graficoShareParcelado, #graficoShareBandeiras { height: 220px !important; max-height: 220px !important; width: 100% !important; display: block !important; }
         #graficoEconomia { width: 100% !important; max-height: 220px !important; }
 
         .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
@@ -70,147 +63,45 @@
         
         .manutencao-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #FFE600; z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; box-sizing: border-box; color: #333; }
 
-/* ==================================================================
-   💎 INTERFACE PREMIUM: ESTILIZAÇÃO COMPLETA DO RELATÓRIO (PNG)
-   ================================================================== */
-#areaRelatorio { 
-    position: absolute; 
-    left: -9999px; 
-    width: 760px; 
-    background: #ffffff; 
-    padding: 40px; 
-    color: #2d3748; 
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-}
+        #areaRelatorio { 
+            position: absolute; 
+            left: -9999px; 
+            width: 760px; 
+            background: #ffffff; 
+            padding: 40px; 
+            color: #2d3748; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+        }
 
-/* Cabeçalho Limpo e Moderno Corporativo */
-#areaRelatorio > div:first-child {
-    text-align: center;
-    padding-bottom: 25px;
-    border-bottom: 4px solid #FFE600 !important;
-    margin-bottom: 30px;
-}
-#areaRelatorio h1 { 
-    margin: 0; 
-    font-size: 26px; 
-    font-weight: 800; 
-    color: #1a202c; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-}
-#areaRelatorio p { 
-    margin: 6px 0 0 0; 
-    font-size: 13px; 
-    font-weight: 700; 
-    color: #718096; 
-    text-transform: uppercase; 
-    letter-spacing: 1.5px; 
-}
+        #areaRelatorio > div:first-child { text-align: center; padding-bottom: 25px; border-bottom: 4px solid #FFE600 !important; margin-bottom: 30px; }
+        #areaRelatorio h1 { margin: 0; font-size: 26px; font-weight: 800; color: #1a202c; text-transform: uppercase; letter-spacing: 0.5px; }
+        #areaRelatorio p { margin: 6px 0 0 0; font-size: 13px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 1.5px; }
 
-/* Cartão de Informações de Atendimento (Visual Carteira Premium) */
-.info-cli-rel { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 16px; 
-    margin-top: 0px; 
-    margin-bottom: 30px;
-    background: #f7fafc; 
-    padding: 20px; 
-    border-radius: 12px; 
-    border: 1px solid #e2e8f0; 
-}
-.info-cli-rel > div { 
-    font-size: 11px; 
-    color: #718096; 
-    font-weight: 800; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-    border-left: 3px solid #cbd5e1; 
-    padding-left: 10px; 
-}
-.info-cli-rel > div:first-child {
-    border-left-color: #2b6cb0; /* Destaque azul institucional no Seller */
-}
-.info-cli-rel span { 
-    display: block; 
-    font-size: 15px; 
-    color: #1a202c; 
-    font-weight: 700; 
-    margin-top: 2px; 
-}
+        .info-cli-rel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 0px; margin-bottom: 30px; background: #f7fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .info-cli-rel > div { font-size: 11px; color: #718096; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-left: 3px solid #cbd5e1; padding-left: 10px; }
+        .info-cli-rel > div:first-child { border-left-color: #2b6cb0; }
+        .info-cli-rel span { display: block; font-size: 15px; color: #1a202c; font-weight: 700; margin-top: 2px; }
 
-/* Títulos das Seções Internas do Relatório */
-#rel_tabela_taxas h3, #rel_share_cofrinho h3 {
-    font-size: 15px;
-    font-weight: 800;
-    color: #1a202c;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 30px;
-    margin-bottom: 12px;
-    border-bottom: 2px solid #edf2f7;
-    padding-bottom: 6px;
-}
+        #rel_tabela_taxas h3, #rel_share_cofrinho h3 { font-size: 15px; font-weight: 800; color: #1a202c; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 30px; margin-bottom: 12px; border-bottom: 2px solid #edf2f7; padding-bottom: 6px; }
 
-/* Alinhamento de Linhas Finas e Preenchimento da Tabela Analítica */
-#rel_tabela_taxas table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 5px;
-}
-#rel_tabela_taxas th {
-    background: #f7fafc;
-    color: #4a5568;
-    font-weight: 700;
-    padding: 10px;
-    border-bottom: 2px solid #cbd5e1;
-    font-size: 13px;
-}
-#rel_tabela_taxas td {
-    padding: 11px 10px;
-    border-bottom: 1px solid #edf2f7;
-    font-size: 14px;
-}
+        #rel_tabela_taxas table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        #rel_tabela_taxas th { background: #f7fafc; color: #4a5568; font-weight: 700; padding: 10px; border-bottom: 2px solid #cbd5e1; font-size: 13px; }
+        #rel_tabela_taxas td { padding: 11px 10px; border-bottom: 1px solid #edf2f7; font-size: 14px; }
 
-/* Box do Gráfico e Elementos Visuais */
-#rel_grafico_box { 
-    text-align: center; 
-    margin-top: 30px; 
-    background: #ffffff; 
-    border: 1px solid #e2e8f0; 
-    border-radius: 12px; 
-    padding: 15px; 
-}
-#img_grafico { 
-    max-width: 100%; 
-    border-radius: 8px; 
-}
+        #rel_grafico_box { text-align: center; margin-top: 30px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; }
+        #img_grafico { max-width: 100%; border-radius: 8px; }
 
-/* Transformação Automática das Vantagens do Rodapé em Duas Colunas Alinhadas */
-#rel_info_adicional { 
-    margin-top: 15px; 
-    font-size: 12.5px; 
-    font-weight: 600; 
-    color: #2d3748; 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 12px; 
-    background: #ffffff; 
-    border: 1px solid #e2e8f0; 
-    border-radius: 12px; 
-    padding: 18px; 
-    line-height: 1.4; 
-}
+        #rel_info_adicional { margin-top: 15px; font-size: 12.5px; font-weight: 600; color: #2d3748; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; line-height: 1.4; }
 
-/* Elementos Globais do Painel e Rodapé Preservados */
-.footer-contador { text-align: center; padding: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 20px; }
-.btn-link-admin { background: none; border: none; color: #bbb; font-size: 11px; cursor: pointer; text-transform: none; font-weight: normal; padding: 5px; width: auto; margin-top: 10px; }
-.btn-link-admin:hover { color: #888; text-decoration: underline; }
-.concorrencia-linha { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 8px 0; gap: 15px; }
-.concorrencia-label { width: 120px; font-weight: bold; font-size: 14px; color: #333; display: flex; align-items: center; }
-.concorrencia-inputs-box { display: flex; gap: 10px; flex: 1; }
-.concorrencia-subbox { flex: 1; }
-.concorrencia-txt-topo { text-align: center; font-size: 11px; color: #777; font-weight: bold; display: block; margin-bottom: 2px; }    </style>
+        .footer-contador { text-align: center; padding: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 20px; }
+        .btn-link-admin { background: none; border: none; color: #bbb; font-size: 11px; cursor: pointer; text-transform: none; font-weight: normal; padding: 5px; width: auto; margin-top: 10px; }
+        .btn-link-admin:hover { color: #888; text-decoration: underline; }
+        .concorrencia-linha { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 8px 0; gap: 15px; }
+        .concorrencia-label { width: 120px; font-weight: bold; font-size: 14px; color: #333; display: flex; align-items: center; }
+        .concorrencia-inputs-box { display: flex; gap: 10px; flex: 1; }
+        .concorrencia-subbox { flex: 1; }
+        .concorrencia-txt-topo { text-align: center; font-size: 11px; color: #777; font-weight: bold; display: block; margin-bottom: 2px; }
+    </style>
 </head>
 <body>
 
@@ -226,13 +117,13 @@
 
 <div class="container">
     <div class="card">
-<h3>
-    Atendimento 
-    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
-        <a href="https://danielmirandalog-debug.github.io/Dicas_Simulador_Premium/" target="_blank" class="btn-tips" style="width: auto; height: auto; padding: 4px 10px; font-size: 11px; border-radius: 6px; text-decoration: none; margin: 0;">💡 Dicas App</a>
-        <button type="button" class="btn-limpar" onclick="location.reload()" style="margin: 0;">Resetar</button>
-    </div>
-</h3>
+        <h3>
+            Atendimento 
+            <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+                <a href="https://danielmirandalog-debug.github.io/Dicas_Simulador_Premium/" target="_blank" class="btn-tips" style="width: auto; height: auto; padding: 4px 10px; font-size: 11px; border-radius: 6px; text-decoration: none; margin: 0;">💡 Dicas App</a>
+                <button type="button" class="btn-limpar" onclick="location.reload()" style="margin: 0;">Resetar</button>
+            </div>
+        </h3>
         <div class="grid-taxas">
             <span><label>Seller</label><input id="input_loja" type="text" placeholder="Loja"></span>
             <span><label>CNPJ (Opcional)</label><input id="input_cnpj" type="text" placeholder="00.000.000/0000-00" maxlength="18"></span>
@@ -241,7 +132,7 @@
             <span><label>Responsável</label><input id="input_cliente" type="text" placeholder="Cliente"></span>
             <span><label>Executivo</label><input id="input_executivo" type="text" placeholder="Executivo"></span>
         </div>
-<div class="grid-taxas" style="align-items: end;">
+        <div class="grid-taxas" style="align-items: end;">
             <div>
                 <label style="margin-bottom: 5px;">Data</label>
                 <input id="input_data" type="text" readonly style="background:#f9f9f9; margin: 0;">
@@ -249,7 +140,8 @@
             <div>
                 <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; width:100%; height:46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">🔍 CARREGAR PROPOSTA</button>
             </div>
-        </div>        <div class="grid-taxas" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 15px;">
+        </div>
+        <div class="grid-taxas" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 15px;">
             <div>
                 <button onclick="exportarBackupJSON()" class="btn-backup">📥 EXPORTAR BACKUP GERAL</button>
             </div>
@@ -262,7 +154,7 @@
         </div>
     </div>
 
-<div class="card">
+    <div class="card">
         <h3>Mercado Pago <button type="button" class="btn-limpar" onclick="limparSecao('mp')">Limpar</button></h3>
         <div class="grid-taxas">
             <span><label>Pix (%)</label> <input id="mp_pix" type="number" value="0.49"></span>
@@ -330,6 +222,7 @@
         <div id="resultado"></div>
         <button id="btnExportarSimples" class="btn-exportar" onclick="exportarRelatorio(true)" style="display:none;">Exportar Apenas Taxas</button>
     </div>
+
     <div class="card" style="padding-bottom: 15px; margin-bottom: 25px;">
         <h3>Rentabilidade 🪙 <button type="button" class="btn-limpar" onclick="limparSecao('share')">Limpar</button></h3>
         <div class="barraContainer"><div class="barraProgresso" id="barra"></div></div>
@@ -373,31 +266,30 @@
         </div>
         <button onclick="simularFaturamento()" style="margin-bottom: 0px;">Gerar Estudo</button>
         <div id="resultadoFaturamento"></div>
-<div id="cont_grafico" class="chart-box-wrapper">
-    <!-- Gráfico de Economia Original -->
-    <canvas id="graficoEconomia"></canvas>
-    
-    <!-- Fileira com os dois novos gráficos de Pizza lado a lado -->
-    <div class="row-graficos-pizza">
-        <div class="card-pizza-wrapper">
-            <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">📊 Share de Parcelado</h4>
-            <canvas id="graficoShareParcelado"></canvas>
+        <div id="cont_grafico" class="chart-box-wrapper">
+            <canvas id="graficoEconomia"></canvas>
+            <div class="row-graficos-pizza">
+                <div class="card-pizza-wrapper">
+                    <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">📊 Share de Parcelado</h4>
+                    <canvas id="graficoShareParcelado"></canvas>
+                </div>
+                <div class="card-pizza-wrapper">
+                    <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">💳 Share de Bandeiras</h4>
+                    <canvas id="graficoShareBandeiras"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="card-pizza-wrapper">
-            <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">💳 Share de Bandeiras</h4>
-            <canvas id="graficoShareBandeiras"></canvas>
-        </div>
-    </div>
-</div>
     </div>
 
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
-<button onclick="abrirCalculadoraPremium()" style="background:#333; color:#FFE600; margin-top:15px">🧮 Calculadora de Vendas (Direta / Reversa)</button>
     
-<div id="boxDescobreTaxa" class="box-calculadora" style="display:none; margin-top:15px; position:relative;">
+    <button onclick="abrirCalculadoraPremium()" style="background:#333; color:#FFE600; margin-top:15px">🧮 Calculadora de Vendas (Direta / Reversa)</button>
+    
+    <div id="boxDescobreTaxa" class="box-calculadora" style="display:none; margin-top:15px; position:relative;">
         <h3>Configuração do Cálculo <button type="button" class="btn-limpar" onclick="limparCamposCalculadora()" style="position:absolute; right:20px; top:18px">🗑 Limpar</button></h3>
         
+        <!-- CONTROLADOR SLIDE (TOGGLE SWITCH) -->
         <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
             <span id="labelModoCobrar" style="font-weight: bold; font-size: 12px; color: #0056b3;">🛒 MODO COBRAR (Direto)</span>
             
@@ -410,22 +302,50 @@
             <span id="labelModoReceber" style="font-weight: bold; font-size: 12px; color: #94a3b8;">💰 MODO RECEBER (Reverso)</span>
         </div>
 
-        <div class="grid-taxas" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px; gap: 10px;">
+        <!-- 3 CAMPOS DISTINTOS INDEPENDENTES -->
+        <div class="grid-taxas" style="grid-template-columns: 1fr; margin-bottom: 15px; gap: 5px;">
             <div>
-                <label id="labelValorPrincipal">Valor Bruto / Operação (R$)</label>
-                <input id="calc_valor_principal" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora()">
+                <label id="labelValorBruto">Valor Bruto / Operação (R$)</label>
+                <input id="calc_bruto" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('bruto')">
             </div>
             <div>
-                <label id="labelVariavel">Taxa (%) ou Líquido (R$)</label>
-                <input id="calc_valor_variavel" type="text" placeholder="0,00" oninput="executarCalculoCalculadora()">
+                <label id="labelValorLiquido">Valor Líquido Recebido (R$)</label>
+                <input id="calc_liquido" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('liquido')">
+            </div>
+            <div>
+                <label id="labelTaxa">Taxa Aplicada (%)</label>
+                <input id="calc_taxa" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('taxa')">
             </div>
         </div>
 
+        <!-- EXIBIÇÃO DE RESULTADO PREMIUM -->
         <div id="resultadoCalculadoraBox" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; text-align: center; transition: .3s;">
-            <span id="textoResultadoTopo" style="font-size: 11px; color: #1e40af; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">O Seller receberá Líquido:</span>
+            <span id="textoResultadoTopo" style="font-size: 11px; color: #1e40af; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resultado Principal:</span>
             <div id="valorResultadoFinal" style="font-size: 24px; font-weight: bold; color: #1d4ed8; margin-top: 5px;">R$ 0,00</div>
         </div>
     </div>
+
+    <div class="footer-contador">
+        Visitas à aplicação: <span id="num_visitas">0</span><br>
+        <p><b>Desenvolvido por Marcos Daniel.</b></p>
+        <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()">⚙️ Painel Admin</button>
+    </div>
+
+</div> 
+
+<div id="modalTermos" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="margin-top:0; text-align:center; color:#333">⚠️ Termos e Isenção</h2>
+        <p>Esta aplicação é uma ferramenta independente.</p>
+        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial com o Mercado Pago.</p>
+        <p>2. <b>Responsabilidade:</b> Todas as taxas inseridas são de inteira responsabilidade do usuário.</p>
+        <p>3. <b>Precisão:</b> Os dados gerados são estimativas e não garantem rentabilidade futura.</p>
+        <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0">
+            <input type="checkbox" id="chk_termos_uso"> Estou de acordo com os termos
+        </label>
+        <button type="button" onclick="confirmarTermos()" style="background:#333; color:white;">Acessar Sistema</button>
+    </div>
+</div>
 
 <div id="areaRelatorio">
     <div style="text-align:center; border-bottom:5px solid #FFE600; padding-bottom:30px">
@@ -440,20 +360,19 @@
     </div>
     <div id="rel_tabela_taxas"></div>
     <div id="rel_share_cofrinho" style="margin-top:25px"></div>
-<div id="rel_grafico_box" style="text-align:center; margin-top:25px">
-    <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 15px;">
-    
-    <div style="display: flex; gap: 15px; width: 100%; justify-content: center;">
-        <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
-            <img id="img_grafico_parcelado" style="max-width:100%; height: auto;">
-        </div>
-        <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
-            <img id="img_grafico_bandeiras" style="max-width:100%; height: auto;">
+    <div id="rel_grafico_box" style="text-align:center; margin-top:25px">
+        <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 15px;">
+        <div style="display: flex; gap: 15px; width: 100%; justify-content: center;">
+            <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
+                <img id="img_grafico_parcelado" style="max-width:100%; height: auto;">
+            </div>
+            <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
+                <img id="img_grafico_bandeiras" style="max-width:100%; height: auto;">
+            </div>
         </div>
     </div>
-</div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
-<div style="font-size: 8px; color: #cbd5e1; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify; line-height: 1.6; font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+    <div style="font-size: 8px; color: #cbd5e1; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify; line-height: 1.6; font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
         SOBRE O COFRINHO: PROJEÇÃO BASEADA EM APORTES MENSAIS FIXOS. ATÉ R$ 10.000,00 RENDE O PERCENTUAL ALVO DO CDI. DE R$ 10.000,01 ATÉ R$ 100.000,00, RENDE 100% DO CDI. ACIMA DESSE VALOR, NÃO POSSUI RENDIMENTO.
         <br><br>
         NOTA IMPORTANTE: ESTA SIMULAÇÃO É UMA FERRAMENTA DE APOIO ESTRITAMENTE BASEADA NAS TAXAS INFORMADAS PELO USUÁRIO E NAS TABELAS VIGENTES. SUJEITO A ANÁLISE DE PERFIL DE FATURAMENTO E ALTERAÇÕES DE MERCADO SEM AVISO PRÉVIO.
