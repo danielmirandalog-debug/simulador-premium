@@ -393,22 +393,42 @@
 
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
-    <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa</button>
+<button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🧮 Calculadora de Vendas (Direta / Reversa)</button>
     
-    <div id="boxDescobreTaxa" class="box-calculadora">
-        <h3>Calculadora Reversa <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑</button></h3>
-        <div class="display-calculadora">
-            <span style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase">Resultado Principal</span><br>
-            <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800">R$ 0,00</span><br>
-            <span id="res_taxa_percent" style="font-size:18px; color:#d32f2f; font-weight:800">0.00%</span>
+    <div id="boxDescobreTaxa" class="box-calculadora" style="display:none; margin-top:15px; position:relative;">
+        <h3>Configuração do Cálculo <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑</button></h3>
+        
+        <!-- CONTROLADOR SLIDE (TOGGLE SWITCH) -->
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <span id="labelModoCobrar" style="font-weight: bold; font-size: 12px; color: #0056b3;">🛒 MODO COBRAR (Direto)</span>
+            
+            <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+                <input type="checkbox" id="chaveCalculadora" onchange="alternarModoCalculadora()" style="opacity: 0; width: 0; height: 0;">
+                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #0056b3; transition: .4s; border-radius: 34px;" id="sliderBack"></span>
+                <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;" id="sliderBall"></span>
+            </label>
+            
+            <span id="labelModoReceber" style="font-weight: bold; font-size: 12px; color: #94a3b8;">💰 MODO RECEBER (Reverso)</span>
         </div>
-        <div class="grid-taxas" style="grid-template-columns: 1fr;">
-            <span><label>Valor Bruto</label> <input id="calc_valor_op" type="number" oninput="calcularDescobreTaxa('valor')"></span>
-            <span><label>Valor Líquido</label> <input id="calc_valor_rec" type="number" oninput="calcularDescobreTaxa('recebido')"></span>
-            <span><label>Taxa Direta (%)</label> <input id="calc_taxa_perc" type="number" oninput="calcularDescobreTaxa('taxa')"></span>
-</div>
-    </div>
-    
+
+        <!-- INPUTS DINÂMICOS -->
+        <div class="grid-taxas" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
+            <span>
+                <label id="labelValorPrincipal">Valor Bruto / Operação (R$)</label>
+                <input id="calc_valor_principal" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora()" style="margin: 5px 0 0 0;">
+            </span>
+            <span>
+                <label>Taxa Aplicada (%)</label>
+                <input id="calc_taxa_aplicada" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora()" style="margin: 5px 0 0 0;">
+            </span>
+        </div>
+
+        <!-- EXIBIÇÃO DE RESULTADO PREMIUM -->
+        <div id="resultadoCalculadoraBox" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; text-align: center; transition: .3s;">
+            <span id="textoResultadoTopo" style="font-size: 11px; color: #1e40af; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">O Seller receberá Líquido:</span>
+            <div id="valorResultadoFinal" style="font-size: 24px; font-weight: bold; color: #1d4ed8; margin-top: 5px;">R$ 0,00</div>
+        </div>
+    </div>    
     <div class="footer-contador">
         Visitas à aplicação: <span id="num_visitas">0</span><br>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
