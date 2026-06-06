@@ -524,7 +524,7 @@ function exportarRelatorio(apenasTaxas) {
 }
 
 // ==================================================================
-// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS V2 (MODO BLINDADO)
+// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS V3 (MODO BLINDADO)
 // ==================================================================
 
 function abrirCalculadoraPremium() {
@@ -543,8 +543,7 @@ function alternarModoCalculadora() {
     const labelCobrar = document.getElementById('labelModoCobrar');
     const labelReceber = document.getElementById('labelModoReceber');
     const labelValorPrincipal = document.getElementById('labelValorPrincipal');
-    const containerLiquidoCobrar = document.getElementById('containerLiquidoCobrar');
-    const containerTaxa = document.getElementById('containerTaxa');
+    const labelVariavel = document.getElementById('labelVariavel');
     const textoResultadoTopo = document.getElementById('textoResultadoTopo');
     const resultadoBox = document.getElementById('resultadoCalculadoraBox');
     
@@ -561,8 +560,8 @@ function alternarModoCalculadora() {
         sliderBall.style.transform = 'translateX(24px)';
         
         labelValorPrincipal.innerText = 'Quanto quer Receber Líquido (R$)';
-        containerLiquidoCobrar.style.display = 'none'; 
-        containerTaxa.style.display = 'block';
+        labelVariavel.innerText = 'Taxa Aplicada (%)';
+        document.getElementById('calc_valor_variavel').placeholder = '0,00';
         textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
         textoResultadoTopo.style.color = '#065f46';
         
@@ -577,188 +576,8 @@ function alternarModoCalculadora() {
         sliderBall.style.transform = 'translateX(0px)';
         
         labelValorPrincipal.innerText = 'Valor Bruto / Operação (R$)';
-        containerLiquidoCobrar.style.display = 'block'; 
-        containerTaxa.style.display = 'block';
-        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
-        textoResultadoTopo.style.color = '#1e40af';
-        
-        resultadoBox.style.backgroundColor = '#eff6ff';
-        resultadoBox.style.borderColor = '#bfdbfe';
-        document.getElementById('valorResultadoFinal').style.color = '#1d4ed8';
-    }
-}
-
-function executarCalculoCalculadora() {
-    const chave = document.getElementById('chaveCalculadora').checked;
-    const brutoInput = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
-    const taxaInput = parseFloat(document.getElementById('calc_taxa_aplicada').value) || 0;
-    const liquidoInput = parseFloat(document.getElementById('calc_liquido_cobrar').value) || 0;
-    
-    const containerTaxa = document.getElementById('containerTaxa');
-    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
-    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
-
-    if (brutoInput <= 0) {
-        valorResultadoFinal.innerText = 'R$ 0,00';
-        return;
-    }
-
-    if (chave) {
-        // MODO RECEBER: Descobrir o Bruto
-        if (taxaInput >= 100) {
-            valorResultadoFinal.innerText = 'Taxa Inválida';
-            return;
-        }
-        const valorBrutoNecessario = brutoInput / (1 - (taxaInput / 100));
-        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
-        valorResultadoFinal.innerText = valorBrutoNecessario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    } else {
-        // MODO COBRAR: Inteligência Dupla
-        if (liquidoInput > 0) {
-            // Se informou Bruto e Líquido -> Oculta o campo de taxa e faz a descoberta
-            containerTaxa.style.display = 'none';
-            if (liquidoInput >= brutoInput) {
-                valorResultadoFinal.innerText = 'Líquido inválido';
-                return;
-            }
-            const taxaCalculada = ((brutoInput - liquidoInput) / brutoInput) * 100;
-            textoResultadoTopo.innerText = 'Taxa de Juros Descoberta:';
-            valorResultadoFinal.innerText = taxaCalculada.toFixed(2) + '%';
-        } else {
-            // Se não tem líquido, garante que o campo taxa reapareça e faz a conta padrão
-            containerTaxa.style.display = 'block';
-            const valorLiquidoRestante = brutoInput - (brutoInput * (taxaInput / 100));
-            textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
-            valorResultadoFinal.innerText = valorLiquidoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-    }
-}
-
-function limparCamposCalculadora() {
-    document.getElementById('calc_valor_principal').value = '';
-    document.getElementById('calc_taxa_aplicada').value = '';
-    document.getElementById('calc_liquido_cobrar').value = '';
-    document.getElementById('containerTaxa').style.display = 'block';
-    
-    const chave = document.getElementById('chaveCalculadora').checked;
-    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
-    
-    if (chave) {
-        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
-    } else {
-        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
-    }
-    document.getElementById('valorResultadoFinal').innerText = 'R$ 0,00';
-}
-async function processarOCR(event, pref) {
-    const file = event.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const worker = await Tesseract.createWorker('por');
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789xX,.-% ' });
-        const res = await worker.recognize(e.target.result);
-        let workerLetras = await Tesseract.createWorker('por');
-        let resCompleto = await workerLetras.recognize(e.target.result);
-        let textoNum = res.data.text.replace(/,/g, ".");
-        
-        if (pref === 'mp') {
-            let regex = /(\d{1,2})x\s*([\d.]+)/g; let match;
-            while ((match = regex.exec(textoNum)) !== null) {
-                let p = parseInt(match[1]), t = parseFloat(match[2]);
-                if (p >= 1 && p <= 18) {
-                    let id = (p === 1) ? "mp1" : ("mp" + p);
-                    if(document.getElementById(id)) document.getElementById(id).value = t.toFixed(2);
-                }
-            }
-            let lines = textoNum.split('\n');
-            for(let i=0; i<lines.length; i++){
-                if(lines[i].toLowerCase().includes("déb") || lines[i].toLowerCase().includes("deb")){
-                    let m = lines[i].match(/[\d.]+/);
-                    if(m) document.getElementById("mp_debito").value = parseFloat(m[0]).toFixed(2);
-                }
-                if(lines[i].toLowerCase().includes("pix")){
-                    let m = lines[i].match(/[\d.]+/);
-                    if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
-                }
-            }
-            await worker.terminate(); await workerLetras.terminate(); return; 
-        }
-
-        const palavras = resCompleto.data.words;
-        palavras.forEach(w => {
-            let textoPalavra = w.text.toLowerCase().replace(/,/g, ".");
-            if(/^[0-9]+(\.[0-9]+)?%?$/.test(textoPalavra)){
-                let valorTaxa = parseFloat(textoPalavra.replace('%', ''));
-                let centroX = w.bbox.x0 + ((w.bbox.x1 - w.bbox.x0) / 2);
-                let larguraImagemTotal = resCompleto.data.image ? resCompleto.data.image.width : 1000;
-                let subCampo = (centroX < (larguraImagemTotal / 2)) ? 'manual' : 'demais';
-                let linhaTextoProxima = w.line ? w.line.text.toLowerCase() : '';
-                
-                if (linhaTextoProxima.includes('déb') || linhaTextoProxima.includes('deb')) {
-                    if(document.getElementById('out_debito_' + subCampo)) document.getElementById('out_debito_' + subCampo).value = valorTaxa.toFixed(2);
-                } else if (linhaTextoProxima.includes('1x')) {
-                    if(document.getElementById('out1_' + subCampo)) document.getElementById('out1_' + subCampo).value = valorTaxa.toFixed(2);
-                } else if (linhaTextoProxima.includes('pix')) {
-                    if(document.getElementById('out_pix_' + subCampo)) document.getElementById('out_pix_' + subCampo).value = valorTaxa.toFixed(2);
-                } else {
-                    let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
-                    if(matchParcela){
-                        let p = parseInt(matchParcela[1]);
-                        if(p >= 2 && p <= 18){
-                            if(document.getElementById('out' + p + '_' + subCampo)) document.getElementById('out' + p + '_' + subCampo).value = valorTaxa.toFixed(2);
-                        }
-                    }
-                }
-            }
-        });
-        await worker.terminate(); await workerLetras.terminate();
-    };
-    reader.readAsDataURL(file);
-}
-
-
-// ==================================================================
-// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS V2 (MODO BLINDADO)
-// ==================================================================
-
-function alternarModoCalculadora() {
-    const chave = document.getElementById('chaveCalculadora');
-    const labelCobrar = document.getElementById('labelModoCobrar');
-    const labelReceber = document.getElementById('labelModoReceber');
-    const labelValorPrincipal = document.getElementById('labelValorPrincipal');
-    const containerLiquidoCobrar = document.getElementById('containerLiquidoCobrar');
-    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
-    const resultadoBox = document.getElementById('resultadoCalculadoraBox');
-    
-    const sliderBack = document.getElementById('sliderBack');
-    const sliderBall = document.getElementById('sliderBall');
-
-    limparCamposCalculadora();
-
-    if (chave.checked) {
-        // 💰 MODO RECEBER (Reverso)
-        labelCobrar.style.color = '#94a3b8';
-        labelReceber.style.color = '#10b981';
-        sliderBack.style.backgroundColor = '#10b981';
-        sliderBall.style.transform = 'translateX(24px)';
-        
-        labelValorPrincipal.innerText = 'Quanto quer Receber Líquido (R$)';
-        containerLiquidoCobrar.style.display = 'none'; // Esconde campo líquido extra
-        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
-        textoResultadoTopo.style.color = '#065f46';
-        
-        resultadoBox.style.backgroundColor = '#ecfdf5';
-        resultadoBox.style.borderColor = '#a7f3d0';
-        document.getElementById('valorResultadoFinal').style.color = '#047857';
-    } else {
-        // 🛒 MODO COBRAR (Direto)
-        labelCobrar.style.color = '#0056b3';
-        labelReceber.style.color = '#94a3b8';
-        sliderBack.style.backgroundColor = '#0056b3';
-        sliderBall.style.transform = 'translateX(0px)';
-        
-        labelValorPrincipal.innerText = 'Valor Bruto / Operação (R$)';
-        containerLiquidoCobrar.style.display = 'block'; // Mostra campo líquido extra
+        labelVariavel.innerText = 'Taxa (%) OU Líquido (R$)';
+        document.getElementById('calc_valor_variavel').placeholder = 'Ex: 5% ou 950';
         textoResultadoTopo.innerText = 'Resultado Calculado:';
         textoResultadoTopo.style.color = '#1e40af';
         
@@ -770,41 +589,46 @@ function alternarModoCalculadora() {
 
 function executarCalculoCalculadora() {
     const chave = document.getElementById('chaveCalculadora').checked;
-    const brutoInput = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
-    const taxaInput = parseFloat(document.getElementById('calc_taxa_aplicada').value) || 0;
-    const liquidoInput = parseFloat(document.getElementById('calc_liquido_cobrar').value) || 0;
+    const valorPrincipal = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
+    
+    // Captura o segundo campo como texto para analisar o comportamento do vendedor
+    let campoVariavelRaw = document.getElementById('calc_valor_variavel').value.trim();
     
     const textoResultadoTopo = document.getElementById('textoResultadoTopo');
     const valorResultadoFinal = document.getElementById('valorResultadoFinal');
 
-    if (brutoInput <= 0) {
+    if (valorPrincipal <= 0 || campoVariavelRaw === '') {
         valorResultadoFinal.innerText = 'R$ 0,00';
         return;
     }
 
+    // Remove símbolo de porcentagem se o usuário digitar por costume
+    let temPorcentagem = campoVariavelRaw.includes('%');
+    let numeroVariavel = parseFloat(campoVariavelRaw.replace('%', '').replace(',', '.')) || 0;
+
     if (chave) {
-        // MODO RECEBER: Descobrir o Bruto
-        if (taxaInput >= 100) {
+        // 💰 MODO RECEBER: (Principal = Líquido desejado | Variável = Taxa)
+        if (numeroVariavel >= 100) {
             valorResultadoFinal.innerText = 'Taxa Inválida';
             return;
         }
-        const valorBrutoNecessario = brutoInput / (1 - (taxaInput / 100));
+        const valorBrutoNecessario = valorPrincipal / (1 - (numeroVariavel / 100));
         textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
         valorResultadoFinal.innerText = valorBrutoNecessario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     } else {
-        // MODO COBRAR: Inteligência Dupla
-        if (liquidoInput > 0) {
-            // Se informou Bruto e Líquido -> CALCULA A TAXA DE JUROS AUTOMATICAMENTE
-            if (liquidoInput > brutoInput) {
-                valorResultadoFinal.innerText = 'Líquido maior que Bruto';
+        // 🛒 MODO COBRAR: Inteligência de leitura de campo
+        // Se o valor digitado for maior ou igual a 100 ou se NÃO tiver %, o sistema entende que é o VALOR LÍQUIDO recebido
+        if (numeroVariavel >= 100 && !temPorcentagem) {
+            if (numeroVariavel >= valorPrincipal) {
+                valorResultadoFinal.innerText = 'Líquido inválido';
                 return;
             }
-            const taxaCalculada = ((brutoInput - liquidoInput) / brutoInput) * 100;
-            textoResultadoTopo.innerText = 'Taxa de Juros Identificada:';
+            const taxaCalculada = ((valorPrincipal - numeroVariavel) / valorPrincipal) * 100;
+            textoResultadoTopo.innerText = 'Taxa de Juros Descoberta:';
             valorResultadoFinal.innerText = taxaCalculada.toFixed(2) + '%';
         } else {
-            // Se informou Bruto e Taxa -> CALCULA O LÍQUIDO NORMAL
-            const valorLiquidoRestante = brutoInput - (brutoInput * (taxaInput / 100));
+            // Se o valor for menor que 100 ou contiver '%', entende-se que é a TAXA aplicada
+            const valorLiquidoRestante = valorPrincipal - (valorPrincipal * (numeroVariavel / 100));
             textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
             valorResultadoFinal.innerText = valorLiquidoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
@@ -813,19 +637,15 @@ function executarCalculoCalculadora() {
 
 function limparCamposCalculadora() {
     document.getElementById('calc_valor_principal').value = '';
-    document.getElementById('calc_taxa_aplicada').value = '';
-    const campoLiq = document.getElementById('calc_liquido_cobrar');
-    if(campoLiq) campoLiq.value = '';
-    document.getElementById('valorResultadoFinal').innerText = 'R$ 0,00';
-}
-
-function toggleDescobreTaxa() {
-    const box = document.getElementById('boxDescobreTaxa');
-    if (box.style.display === 'none' || box.style.display === '') {
-        box.style.display = 'block';
-        document.getElementById('chaveCalculadora').checked = false;
-        alternarModoCalculadora();
+    document.getElementById('calc_valor_variavel').value = '';
+    
+    const chave = document.getElementById('chaveCalculadora').checked;
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    
+    if (chave) {
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
     } else {
-        box.style.display = 'none';
+        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
     }
+    document.getElementById('valorResultadoFinal').innerText = 'R$ 0,00';
 }
