@@ -1,5 +1,5 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V8.0 - Blindagem Total e Motor de 3 Vias Separadas
+   VERSÃO: Master V8.1 - Correção Definitiva de Histórico, Relatórios e Engenharia Reversa
 */
 
 // 1. PROTEÇÃO E BLINDAGEM NATIVA DO SISTEMA
@@ -27,20 +27,20 @@ function gerenciarPainelAdmin() {
     if (senhaDigitada === SENHA_MESTRE) {
         const estadoAtual = localStorage.getItem("status_manutencao_ba21") || "online";
         if (estadoAtual === "online") {
-            if (confirm("Deseja ativar o MODO MANUTENÇÃO? Isso bloqueará o acesso ao simulador.")) {
+            if (confirm("Deseja ativar o MODO MANUTENÇÃO? Isso bloqueará o acesso ao simulador para a equipe.")) {
                 localStorage.setItem("status_manutencao_ba21", "manutencao");
-                alert("Modo manutenção ATIVADO!");
+                alert("Modo manutenção ATIVADO com sucesso!");
                 location.reload();
             }
         } else {
-            if (confirm("Deseja desativar o MODO MANUTENÇÃO?")) {
+            if (confirm("Deseja desativar o MODO MANUTENÇÃO e liberar o acesso ao simulador?")) {
                 localStorage.setItem("status_manutencao_ba21", "online");
-                alert("O aplicativo está ONLINE!");
+                alert("O aplicativo está ONLINE novamente!");
                 location.reload();
             }
         }
     } else {
-        alert("Senha incorreta!");
+        alert("Senha incorreta! Acesso negado.");
     }
 }
 
@@ -51,7 +51,7 @@ function confirmarTermos() {
         document.getElementById("modalTermos").style.display = "none";
         localStorage.setItem("termos_aceitos_ba21", "sim");
     } else {
-        alert("Para utilizar o simulador, aceite os termos de uso.");
+        alert("Para utilizar o simulador, você deve ler e aceitar os termos de uso.");
     }
 }
 
@@ -228,7 +228,7 @@ function simularFaturamento() {
         let saldo = 0; let lucro = 0;
         let taxaM = Math.pow((1 + (cdiAnual / 100)), (1/12)) - 1;
         for(let i=1; i<=meses; i++){
-            let taxaA = (saldo <= 10000) ? (taxaM * (cdiAlvoVal/100)) : (saldo <= 100000 ? taxaM : 0);
+            let taxaA = (saldo <= 10000) ? (taxM * (cdiAlvoVal/100)) : (saldo <= 100000 ? taxaM : 0);
             let rend = saldo * taxaA; lucro += rend; saldo += rend + resMensal;
         }
         let ir = meses <= 6 ? 0.225 : (meses <= 12 ? 0.20 : (meses <= 24 ? 0.175 : 0.15));
@@ -273,14 +273,24 @@ function salvarNoHistorico() {
     alert("Simulação arquivada!");
 }
 
+function consultingOriginalFix() {
+    // Função ponte para manter a integridade estrutural
+}
+
 function consultarHistorico() {
-    const termoOriginal = prompt("Busque por Seller, CNPJ, Responsável:"); if (!termoOriginal) return;
+    const termoOriginal = prompt("Busque por Seller, CNPJ, Responsável ou Data:"); if (!termoOriginal) return;
     const termo = termoOriginal.toLowerCase().trim();
+    const termoSomenteNumeros = termo.replace(/\D/g, "");
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
-    let filtrados = historico.filter(h => h.seller.toLowerCase().includes(termo) || h.cnpj.includes(termo) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)));
+    
+    let filtrados = historico.filter(h => {
+        const cnpjGuardadoNumeros = h.cnpj ? h.cnpj.replace(/\D/g, "") : "";
+        return (termoSomenteNumeros !== "" && cnpjGuardadoNumeros.includes(termoSomenteNumeros)) || h.seller.toLowerCase().includes(termo) || (h.responsavel && h.responsavel.toLowerCase().includes(termo)) || h.data.includes(termo);
+    });
+    
     if (filtrados.length === 0) return alert("Nenhum registro encontrado.");
-    let msg = "Digite o número para recuperar:\n\n";
-    filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} (${f.data})\n`);
+    let msg = "Registros encontrados (digite o número para recuperar):\n\n";
+    filtrados.forEach((f, i) => msg += `${i+1}. ${f.seller} ${f.cnpj ? '['+f.cnpj+']' : ''} (${f.data})\n`);
     const choice = prompt(msg);
     if (choice > 0 && choice <= filtrados.length) {
         const item = filtrados[choice-1].snapshot;
@@ -322,14 +332,14 @@ function exportarRelatorio(apenasTaxas) {
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
     
-    boxInfoAdicional.innerHTML = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: sem anuidade\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com recebimento na hora\n➡️ Rendimentos diários no cofrinho\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO!`;
+    boxInfoAdicional.innerHTML = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: sem anuidade e sem taxas administrativas\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com "recebimento na hora" (mesma taxa da maquininha)\n➡️ Rendimentos diários no cofrinho (até 120% CDI)\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO! (inclusive finais de semana e feriados)\n➡️ FÁCIL ACESSO AO APP\n➡️ TAXAS FINAIS SEM SURPRESAS (antecipação inclusa)\n➡️ Consultoria de vendas no Mercado Livre e Sistema de Gestão completo e gratuito (consulte condições)\n⏳ Simulação com validade de 07 dias.`;
     
     if (!apenasTaxas) {
         if(boxCorpo) boxCorpo.style.display = "block"; if(boxGrafico) boxGrafico.style.display = "block";
         let v = window.dadosRelatorioAnalitico;
         if(v) {
             let h = ""; for (let l in v.itensOcultos) { if(v.itensOcultos[l] > 0) h += `• ${l}: R$ ${v.itensOcultos[l].toFixed(2)}<br>`; }
-            boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br><br><b style="color:#d32f2f">DETALHAMENTO CONCORRÊNCIA:</b><br>${h || "• Sem custos fixos."}</div>` + document.getElementById("resultadoFaturamento").innerHTML;
+            boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMEMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${h || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
         }
         if (window.g) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
         if (window.piz1) document.getElementById("img_grafico_parcelado").src = document.getElementById("graficoShareParcelado").toDataURL();
@@ -397,7 +407,7 @@ async function processarOCR(event, pref) {
 }
 
 // ==================================================================
-// 🧮 MOTOR LÓGICO DA CALCULADORA DE 3 CAMPOS V3 (MODO BLINDADO)
+// 🧮 MOTOR LÓGICO DA CALCULADORA DE 3 CAMPOS REALMENTE SEPARADOS
 // ==================================================================
 
 function abrirCalculadoraPremium() {
@@ -462,7 +472,7 @@ function executarCalculoCalculadora(origem) {
     const valorResultadoFinal = document.getElementById('valorResultadoFinal');
 
     if (!chave) {
-        // 🛒 MODO COBRAR (Cálculos Diretos)
+        // 🛒 MODO COBRAR (Direto)
         if (origem === 'bruto' || origem === 'taxa') {
             if (bruto > 0 && taxa >= 0) {
                 let resLiquido = bruto - (bruto * (taxa / 100));
@@ -483,7 +493,7 @@ function executarCalculoCalculadora(origem) {
             }
         }
     } else {
-        // 💰 MODO RECEBER (Cálculos Reversos)
+        // 💰 MODO RECEBER (Reverso Completo e Sem Erros)
         if (origem === 'liquido' || origem === 'taxa') {
             if (liquido > 0 && taxa >= 0) {
                 if (taxa >= 100) {
