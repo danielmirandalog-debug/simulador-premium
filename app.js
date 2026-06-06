@@ -626,96 +626,111 @@ async function processarOCR(event, pref) {
 
 
 // ==================================================================
-// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS (DIRETA / REVERSA)
+// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS V2 (MODO BLINDADO)
 // ==================================================================
 
-// Alterna os textos e cores do layout ao arrastar o botão slide (Toggle)
 function alternarModoCalculadora() {
     const chave = document.getElementById('chaveCalculadora');
     const labelCobrar = document.getElementById('labelModoCobrar');
     const labelReceber = document.getElementById('labelModoReceber');
     const labelValorPrincipal = document.getElementById('labelValorPrincipal');
+    const containerLiquidoCobrar = document.getElementById('containerLiquidoCobrar');
     const textoResultadoTopo = document.getElementById('textoResultadoTopo');
     const resultadoBox = document.getElementById('resultadoCalculadoraBox');
-    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
     
-    // Elementos da bola e fundo do slider (animados manualmente por JS para segurança absoluta)
     const sliderBack = document.getElementById('sliderBack');
     const sliderBall = document.getElementById('sliderBall');
 
-    // Limpa os campos para evitar confusão de valores ao mudar de modo
-    document.getElementById('calc_valor_principal').value = '';
-    document.getElementById('calc_taxa_aplicada').value = '';
-    valorResultadoFinal.innerText = 'R$ 0,00';
+    limparCamposCalculadora();
 
     if (chave.checked) {
-        // 💰 MODO RECEBER ATIVADO (Chave para a Direita - Verde)
+        // 💰 MODO RECEBER (Reverso)
         labelCobrar.style.color = '#94a3b8';
         labelReceber.style.color = '#10b981';
-        
         sliderBack.style.backgroundColor = '#10b981';
         sliderBall.style.transform = 'translateX(24px)';
         
-        labelValorPrincipal.innerText = 'Quanto o Seller quer Receber Líquido (R$)';
+        labelValorPrincipal.innerText = 'Quanto quer Receber Líquido (R$)';
+        containerLiquidoCobrar.style.display = 'none'; // Esconde campo líquido extra
         textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
         textoResultadoTopo.style.color = '#065f46';
         
         resultadoBox.style.backgroundColor = '#ecfdf5';
         resultadoBox.style.borderColor = '#a7f3d0';
-        valorResultadoFinal.style.color = '#047857';
+        document.getElementById('valorResultadoFinal').style.color = '#047857';
     } else {
-        // 🛒 MODO COBRAR ATIVADO (Chave para a Esquerda - Azul)
+        // 🛒 MODO COBRAR (Direto)
         labelCobrar.style.color = '#0056b3';
         labelReceber.style.color = '#94a3b8';
-        
         sliderBack.style.backgroundColor = '#0056b3';
         sliderBall.style.transform = 'translateX(0px)';
         
         labelValorPrincipal.innerText = 'Valor Bruto / Operação (R$)';
-        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+        containerLiquidoCobrar.style.display = 'block'; // Mostra campo líquido extra
+        textoResultadoTopo.innerText = 'Resultado Calculado:';
         textoResultadoTopo.style.color = '#1e40af';
         
         resultadoBox.style.backgroundColor = '#eff6ff';
         resultadoBox.style.borderColor = '#bfdbfe';
-        valorResultadoFinal.style.color = '#1d4ed8';
+        document.getElementById('valorResultadoFinal').style.color = '#1d4ed8';
     }
 }
 
-// Executa os cálculos matemáticos em tempo real (OnInput)
-function ejecutarCalculoCalculadora() {
+function executarCalculoCalculadora() {
     const chave = document.getElementById('chaveCalculadora').checked;
-    const valorInput = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
+    const brutoInput = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
     const taxaInput = parseFloat(document.getElementById('calc_taxa_aplicada').value) || 0;
+    const liquidoInput = parseFloat(document.getElementById('calc_liquido_cobrar').value) || 0;
+    
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
     const valorResultadoFinal = document.getElementById('valorResultadoFinal');
 
-    if (valorInput <= 0 || taxaInput < 0) {
+    if (brutoInput <= 0) {
         valorResultadoFinal.innerText = 'R$ 0,00';
         return;
     }
 
     if (chave) {
-        // 💰 ENGENHARIA REVERSA: Descobrir o Bruto para receber o Líquido desejado
-        // Fórmula corporativa: Bruto = Líquido / (1 - (Taxa / 100))
+        // MODO RECEBER: Descobrir o Bruto
         if (taxaInput >= 100) {
             valorResultadoFinal.innerText = 'Taxa Inválida';
             return;
         }
-        const valorBrutoNecessario = valorInput / (1 - (taxaInput / 100));
+        const valorBrutoNecessario = brutoInput / (1 - (taxaInput / 100));
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
         valorResultadoFinal.innerText = valorBrutoNecessario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     } else {
-        // 🛒 CÁLCULO DIRETO: Descobrir o Líquido baseado no Bruto cobrado
-        // Fórmula: Líquido = Bruto - (Bruto * (Taxa / 100))
-        const valorLiquidoRestante = valorInput - (valorInput * (taxaInput / 100));
-        valorResultadoFinal.innerText = valorLiquidoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        // MODO COBRAR: Inteligência Dupla
+        if (liquidoInput > 0) {
+            // Se informou Bruto e Líquido -> CALCULA A TAXA DE JUROS AUTOMATICAMENTE
+            if (liquidoInput > brutoInput) {
+                valorResultadoFinal.innerText = 'Líquido maior que Bruto';
+                return;
+            }
+            const taxaCalculada = ((brutoInput - liquidoInput) / brutoInput) * 100;
+            textoResultadoTopo.innerText = 'Taxa de Juros Identificada:';
+            valorResultadoFinal.innerText = taxaCalculada.toFixed(2) + '%';
+        } else {
+            // Se informou Bruto e Taxa -> CALCULA O LÍQUIDO NORMAL
+            const valorLiquidoRestante = brutoInput - (brutoInput * (taxaInput / 100));
+            textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+            valorResultadoFinal.innerText = valorLiquidoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
     }
 }
 
-// Garante a abertura e fechamento correto do Box da Calculadora na tela
+function limparCamposCalculadora() {
+    document.getElementById('calc_valor_principal').value = '';
+    document.getElementById('calc_taxa_aplicada').value = '';
+    const campoLiq = document.getElementById('calc_liquido_cobrar');
+    if(campoLiq) campoLiq.value = '';
+    document.getElementById('valorResultadoFinal').innerText = 'R$ 0,00';
+}
+
 function toggleDescobreTaxa() {
     const box = document.getElementById('boxDescobreTaxa');
     if (box.style.display === 'none' || box.style.display === '') {
         box.style.display = 'block';
-        // Inicia forçando o Modo Cobrar por padrão de segurança
         document.getElementById('chaveCalculadora').checked = false;
         alternarModoCalculadora();
     } else {
