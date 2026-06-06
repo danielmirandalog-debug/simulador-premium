@@ -623,3 +623,102 @@ async function processarOCR(event, pref) {
     };
     reader.readAsDataURL(file);
 }
+
+
+// ==================================================================
+// 🧮 MOTOR LÓGICO DA CALCULADORA DE VENDAS (DIRETA / REVERSA)
+// ==================================================================
+
+// Alterna os textos e cores do layout ao arrastar o botão slide (Toggle)
+function alternarModoCalculadora() {
+    const chave = document.getElementById('chaveCalculadora');
+    const labelCobrar = document.getElementById('labelModoCobrar');
+    const labelReceber = document.getElementById('labelModoReceber');
+    const labelValorPrincipal = document.getElementById('labelValorPrincipal');
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    const resultadoBox = document.getElementById('resultadoCalculadoraBox');
+    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
+    
+    // Elementos da bola e fundo do slider (animados manualmente por JS para segurança absoluta)
+    const sliderBack = document.getElementById('sliderBack');
+    const sliderBall = document.getElementById('sliderBall');
+
+    // Limpa os campos para evitar confusão de valores ao mudar de modo
+    document.getElementById('calc_valor_principal').value = '';
+    document.getElementById('calc_taxa_aplicada').value = '';
+    valorResultadoFinal.innerText = 'R$ 0,00';
+
+    if (chave.checked) {
+        // 💰 MODO RECEBER ATIVADO (Chave para a Direita - Verde)
+        labelCobrar.style.color = '#94a3b8';
+        labelReceber.style.color = '#10b981';
+        
+        sliderBack.style.backgroundColor = '#10b981';
+        sliderBall.style.transform = 'translateX(24px)';
+        
+        labelValorPrincipal.innerText = 'Quanto o Seller quer Receber Líquido (R$)';
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+        textoResultadoTopo.style.color = '#065f46';
+        
+        resultadoBox.style.backgroundColor = '#ecfdf5';
+        resultadoBox.style.borderColor = '#a7f3d0';
+        valorResultadoFinal.style.color = '#047857';
+    } else {
+        // 🛒 MODO COBRAR ATIVADO (Chave para a Esquerda - Azul)
+        labelCobrar.style.color = '#0056b3';
+        labelReceber.style.color = '#94a3b8';
+        
+        sliderBack.style.backgroundColor = '#0056b3';
+        sliderBall.style.transform = 'translateX(0px)';
+        
+        labelValorPrincipal.innerText = 'Valor Bruto / Operação (R$)';
+        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+        textoResultadoTopo.style.color = '#1e40af';
+        
+        resultadoBox.style.backgroundColor = '#eff6ff';
+        resultadoBox.style.borderColor = '#bfdbfe';
+        valorResultadoFinal.style.color = '#1d4ed8';
+    }
+}
+
+// Executa os cálculos matemáticos em tempo real (OnInput)
+function ejecutarCalculoCalculadora() {
+    const chave = document.getElementById('chaveCalculadora').checked;
+    const valorInput = parseFloat(document.getElementById('calc_valor_principal').value) || 0;
+    const taxaInput = parseFloat(document.getElementById('calc_taxa_aplicada').value) || 0;
+    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
+
+    if (valorInput <= 0 || taxaInput < 0) {
+        valorResultadoFinal.innerText = 'R$ 0,00';
+        return;
+    }
+
+    if (chave) {
+        // 💰 ENGENHARIA REVERSA: Descobrir o Bruto para receber o Líquido desejado
+        // Fórmula corporativa: Bruto = Líquido / (1 - (Taxa / 100))
+        if (taxaInput >= 100) {
+            valorResultadoFinal.innerText = 'Taxa Inválida';
+            return;
+        }
+        const valorBrutoNecessario = valorInput / (1 - (taxaInput / 100));
+        valorResultadoFinal.innerText = valorBrutoNecessario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    } else {
+        // 🛒 CÁLCULO DIRETO: Descobrir o Líquido baseado no Bruto cobrado
+        // Fórmula: Líquido = Bruto - (Bruto * (Taxa / 100))
+        const valorLiquidoRestante = valorInput - (valorInput * (taxaInput / 100));
+        valorResultadoFinal.innerText = valorLiquidoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+}
+
+// Garante a abertura e fechamento correto do Box da Calculadora na tela
+function toggleDescobreTaxa() {
+    const box = document.getElementById('boxDescobreTaxa');
+    if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        // Inicia forçando o Modo Cobrar por padrão de segurança
+        document.getElementById('chaveCalculadora').checked = false;
+        alternarModoCalculadora();
+    } else {
+        box.style.display = 'none';
+    }
+}
