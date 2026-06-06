@@ -1,6 +1,9 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V8.1 - Correção Definitiva de Histórico, Relatórios e Engenharia Reversa
+   VERSÃO: Master V8.2 - Restauração de Histórico e Engenharia Reversa Absoluta
 */
+
+// CONSTANTE ESTRUTURAL MANDATÓRIA PARA REATIVAR O HISTÓRICO
+const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
 // 1. PROTEÇÃO E BLINDAGEM NATIVA DO SISTEMA
 document.addEventListener('contextmenu', event => event.preventDefault());
@@ -85,8 +88,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
-
-const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
 function gerarInputs() {
     let mpH = ""; 
@@ -228,7 +229,7 @@ function simularFaturamento() {
         let saldo = 0; let lucro = 0;
         let taxaM = Math.pow((1 + (cdiAnual / 100)), (1/12)) - 1;
         for(let i=1; i<=meses; i++){
-            let taxaA = (saldo <= 10000) ? (taxM * (cdiAlvoVal/100)) : (saldo <= 100000 ? taxaM : 0);
+            let taxaA = (saldo <= 10000) ? (taxaM * (cdiAlvoVal/100)) : (saldo <= 100000 ? taxaM : 0);
             let rend = saldo * taxaA; lucro += rend; saldo += rend + resMensal;
         }
         let ir = meses <= 6 ? 0.225 : (meses <= 12 ? 0.20 : (meses <= 24 ? 0.175 : 0.15));
@@ -271,10 +272,6 @@ function salvarNoHistorico() {
     historico.push({ id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", cnpj: document.getElementById("input_cnpj").value || "", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot });
     localStorage.setItem("historico_simulacoes", JSON.stringify(historico));
     alert("Simulação arquivada!");
-}
-
-function consultingOriginalFix() {
-    // Função ponte para manter a integridade estrutural
 }
 
 function consultarHistorico() {
@@ -407,7 +404,7 @@ async function processarOCR(event, pref) {
 }
 
 // ==================================================================
-// 🧮 MOTOR LÓGICO DA CALCULADORA DE 3 CAMPOS REALMENTE SEPARADOS
+// 🧮 MOTOR LÓGICO DA CALCULADORA DE 3 CAMPOS (FIXADO E SEPARADO)
 // ==================================================================
 
 function abrirCalculadoraPremium() {
@@ -435,7 +432,6 @@ function alternarModoCalculadora() {
     limparCamposCalculadora();
 
     if (chave.checked) {
-        // 💰 MODO RECEBER (Reverso)
         labelCobrar.style.color = '#94a3b8';
         labelReceber.style.color = '#10b981';
         sliderBack.style.backgroundColor = '#10b981';
@@ -447,7 +443,6 @@ function alternarModoCalculadora() {
         resultadoBox.style.borderColor = '#a7f3d0';
         valorResultadoFinal.style.color = '#047857';
     } else {
-        // 🛒 MODO COBRAR (Direto)
         labelCobrar.style.color = '#0056b3';
         labelReceber.style.color = '#94a3b8';
         sliderBack.style.backgroundColor = '#0056b3';
@@ -472,7 +467,7 @@ function executarCalculoCalculadora(origem) {
     const valorResultadoFinal = document.getElementById('valorResultadoFinal');
 
     if (!chave) {
-        // 🛒 MODO COBRAR (Direto)
+        // MODO COBRAR (Direto)
         if (origem === 'bruto' || origem === 'taxa') {
             if (bruto > 0 && taxa >= 0) {
                 let resLiquido = bruto - (bruto * (taxa / 100));
@@ -493,7 +488,7 @@ function executarCalculoCalculadora(origem) {
             }
         }
     } else {
-        // 💰 MODO RECEBER (Reverso Completo e Sem Erros)
+        // MODO RECEBER (Reverso Correto)
         if (origem === 'liquido' || origem === 'taxa') {
             if (liquido > 0 && taxa >= 0) {
                 if (taxa >= 100) {
