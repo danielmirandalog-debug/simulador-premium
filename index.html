@@ -135,7 +135,7 @@
                 <input id="input_data" type="text" readonly style="background:#f9f9f9; margin: 0;">
             </div>
             <div>
-                <button onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; width:100%; height:46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">🔍 CARREGAR PROPOSTA</button>
+                <button id="btnCarregarProposta" onclick="consultarHistorico()" style="background:#eee; color:#333; font-size:12px; width:100%; height:46px; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">🔍 CARREGAR PROPOSTA</button>
             </div>
         </div>
         <div class="grid-taxas" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 15px;">
@@ -279,6 +279,11 @@
         </div> 
     </div>
 
+    <div class="card">
+        <h3>📄 Informações Adicionais da Proposta</h3>
+        <textarea id="obs_proposta_campo" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; color: #333; text-align: left !important; font-weight: normal; resize: vertical;" rows="4" placeholder="Digite aqui observações ou condições personalizadas para este Seller..."></textarea>
+    </div>
+
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
     <button onclick="abrirCalculadoraPremium()" style="background:#333; color:#FFE600; margin-top:15px">🧮 Calculadora de Vendas (Direta / Reversa)</button>
@@ -291,91 +296,4 @@
             
             <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0; cursor: pointer;">
                 <input type="checkbox" id="chaveCalculadora" onchange="alternarModoCalculadora()" style="opacity: 0; width: 0; height: 0;">
-                <span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #0056b3; transition: .4s; border-radius: 34px;" id="sliderBack"></span>
-                <span style="position: absolute; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;" id="sliderBall"></span>
-            </label>
-            
-            <span id="labelModoReceber" style="font-weight: bold; font-size: 12px; color: #94a3b8;">💰 MODO RECEBER (Reverso)</span>
-        </div>
-
-        <div class="grid-taxas" style="grid-template-columns: 1fr; margin-bottom: 15px; gap: 5px;">
-            <div>
-                <label id="labelValorBruto">Valor Bruto / Operation (R$)</label>
-                <input id="calc_bruto" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('bruto')">
-            </div>
-            <div>
-                <label id="labelValorLiquido">Valor Líquido Recebido (R$)</label>
-                <input id="calc_liquido" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('liquido')">
-            </div>
-            <div>
-                <label id="labelTaxa">Taxa Applied (%)</label>
-                <input id="calc_taxa" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('taxa')">
-            </div>
-        </div>
-
-        <div id="resultadoCalculadoraBox" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; text-align: center; transition: .3s;">
-            <span id="textoResultadoTopo" style="font-size: 11px; color: #1e40af; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resultado Principal:</span>
-            <div id="valorResultadoFinal" style="font-size: 24px; font-weight: bold; color: #1d4ed8; margin-top: 5px;">R$ 0,00</div>
-        </div>
-    </div>
-    
-    <div class="footer-contador">
-        Visitas à aplicação: <span id="num_visitas">0</span><br>
-        <p><b>Desenvolvido por Marcos Daniel.</b></p>
-        <button type="button" class="btn-link-admin" onclick="gerenciarPainelAdmin()">⚙️ Painel Admin</button>
-    </div>
-</div> 
-
-<div id="modalTermos" class="modal-overlay">
-    <div class="modal-content">
-        <h2 style="margin-top:0; text-align:center; color:#333">⚠️ Termos e Isenção</h2>
-        <p>Esta aplicação é uma ferramenta independente. Ao prosseguir, você concorda que:</p>
-        <p>1. <b>Isenção de Vínculo:</b> Este software NÃO possui vínculo oficial com o Mercado Pago.</p>
-        <p>2. <b>Responsabilidade:</b> Todas as taxas inseridas são de inteira responsabilidade do usuário.</p>
-        <p>3. <b>Precisão:</b> Os dados gerados são estimativas e não garantem rentabilidade futura.</p>
-        <label class="chk-container" style="background:#f9f9f9; padding:15px; border-radius:10px; margin: 20px 0">
-            <input type="checkbox" id="chk_termos_uso"> Estou de acordo com os termos
-        </label>
-        <button type="button" onclick="confirmarTermos()" style="background:#333; color:white;">Acessar Sistema</button>
-    </div>
-</div>
-
-<div id="areaRelatorio">
-    <div style="text-align:center; border-bottom:5px solid #FFE600; padding-bottom:30px">
-        <h1>Compara taxa - Simulador Premium</h1>
-        <p style="font-size:18px; font-weight:bold; color:#666">Proposta Estratégica de Rentabilidade</p>
-    </div>
-    <div class="info-cli-rel">
-        <div><b>Seller:</b> <br><span id="rel_loja" style="font-size:18px; color:#3483FA; font-weight:800"></span></div>
-        <div><b>Data:</b> <br><span id="rel_data"></span></div>
-        <div><b>Responsável:</b> <br><span id="rel_cliente"></span></div>
-        <div><b>Executivo:</b> <br><span id="rel_executivo"></span></div>
-    </div>
-    <div id="rel_tabela_taxas"></div>
-    <div id="rel_share_cofrinho" style="margin-top:25px"></div>
-    <div id="rel_grafico_box" style="text-align:center; margin-top:25px">
-        <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 15px;">
-        <div style="display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 10px;">
-            <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:15px; background: #ffffff; text-align: center;">
-                <h3 style="font-size: 14px; font-weight: 800; color: #1a202c; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px 0; border-bottom: 2px solid #edf2f7; padding-bottom: 6px; text-align: center; display: block;">📊 Share de Parcelado</h3>
-                <img id="img_grafico_parcelado" style="max-width:100%; height: auto; max-height: 180px; display: inline-block;">
-            </div>
-            <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:15px; background: #ffffff; text-align: center;">
-                <h3 style="font-size: 14px; font-weight: 800; color: #1a202c; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px 0; border-bottom: 2px solid #edf2f7; padding-bottom: 6px; text-align: center; display: block;">💳 Share de Bandeiras</h3>
-                <img id="img_grafico_bandeiras" style="max-width:100%; height: auto; max-height: 180px; display: inline-block;">
-            </div>
-        </div>
-    </div>
-    <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
-    <div style="font-size: 8px; color: #cbd5e1; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify; line-height: 1.6; font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-        SOBRE O COFRINHO: PROJEÇÃO BASEADA EM APORTES MENSAIS FIXOS. ATÉ R$ 10.000,00 RENDE O PERCENTUAL ALVO DO CDI. DE R$ 10.000,01 ATÉ R$ 100.000,00, RENDE 100% DO CDI. ACIMA DESSE VALOR, NÃO POSSUI RENDIMENTO.
-        <br><br>
-        NOTA IMPORTANTE: ESTA SIMULAÇÃO É UMA FERRAMENTA DE APOIO ESTRITAMENTE BASEADA NAS TAXAS INFORMADAS PELO USUÁRIO E NAS TABELAS VIGENTES. SUJEITO A ANÁLISE DE PERFIL DE FATURAMENTO E ALTERAÇÕES DE MERCADO SEM AVISO PRÉVIO.
-        <br><br>
-        AVISO DE ISENÇÃO: OS DADOS, PROJEÇÕES E SIMULAÇÕES CONSTANTES NESTE RELATÓRIO SÃO DE RESPONSABILIDADE EXCLUSIVA DO EMISSOR E NÃO REPRESENTAM A OPINIÃO, PROPRIEDADE, PROPOSTA FINANCEIRA OFICIAL OU RESPONSABILIDADE LEGAL DO MERCADO PAGO OU DE QUALQUER EMPRESA INTEGRANTE DO GRUPO MERCADO LIVRE, QUE FICA INTEIRAMENTE ISENTA DE QUALQUER PLEITO JUDICIAL OU ADMINISTRATIVO RELACIONADO A ESTE DOCUMENTO.
-        <br><br>
-        <div style="text-align: center; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 12px; margin-top: 5px;">DESENVOLVIDO POR MARCOS DANIEL.</div>
-    </div>
-</div>
-</body>
-</html>
+                <span style="position: absolute;
