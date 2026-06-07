@@ -1,5 +1,5 @@
 /* PROJETO: Compara taxa - Simulador Premium
-   VERSÃO: Master V8.5 - Blindagem Total, Gráficos de Pizza em PDF e OCR Atualizado
+   VERSÃO: Master V8.6 - Correção de Vias da Calculadora, Histórico e PDF Oculto
 */
 
 // CONSTANTE MANDATÓRIA PARA O HISTÓRICO
@@ -64,7 +64,11 @@ document.addEventListener("DOMContentLoaded", function() {
     if (estadoAtual === "manutencao") return;
 
     const modalTermos = document.getElementById("modalTermos");
-    if (modalTermos) modalTermos.style.display = "flex";
+    if (modalTermos && localStorage.getItem("termos_aceitos_ba21") !== "sim") {
+        modalTermos.style.display = "flex";
+    } else if (modalTermos) {
+        modalTermos.style.display = "none";
+    }
     
     gerarInputs();
     buscarCDI();
@@ -284,6 +288,12 @@ function simularFaturamento() {
 function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input"); const snapshot = {};
     inputs.forEach(i => { if(i.id) snapshot[i.id] = i.value; });
+    
+    // Adiciona o campo de notas de texto livre no backup do histórico
+    if(document.getElementById("obs_proposta_campo")) {
+        snapshot["obs_proposta_campo"] = document.getElementById("obs_proposta_campo").value;
+    }
+
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
     historico.push({ id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", cnpj: document.getElementById("input_cnpj").value || "", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot });
     localStorage.setItem("historico_simulacoes", JSON.stringify(historico));
@@ -307,8 +317,15 @@ function consultarHistorico() {
     const choice = prompt(msg);
     if (choice > 0 && choice <= filtrados.length) {
         const item = filtrados[choice-1].snapshot;
-        for (let id in item) { let el = document.getElementById(id); if (el) el.value = item[id]; }
-        atualizarBarra(); alert("Dados carregados!");
+        for (let id in item) { 
+            let el = document.getElementById(id); 
+            if (el) el.value = item[id]; 
+        }
+        // Correção mandatória: Executa o alinhamento da barra se ela existir em tela
+        if (typeof atualizarBarra === "function") {
+            atualizarBarra();
+        }
+        alert("Dados da proposta carregados com sucesso!");
     }
 }
 
@@ -331,6 +348,7 @@ function importarBackupJSON(event) {
             alert("Backup mesclado!"); location.reload();
         } catch (erro) { alert("Arquivo inválido."); }
     };
+    let local = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
     leitor.readAsText(file);
 }
 
@@ -345,7 +363,10 @@ function exportarRelatorio(apenasTaxas) {
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
     
-    boxInfoAdicional.innerHTML = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: sem anuidade e sem taxas administrativas\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com "recebimento na hora" (mesma taxa da maquininha)\n➡️ Rendimentos diários no cofrinho (até 120% CDI)\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO! (inclusive finais de semana e feriados)\n➡️ FÁCIL ACESSO AO APP\n➡️ TAXAS FINAIS SEM SURPRESAS (antecipação inclusa)\n➡️ Consultoria de vendas no Mercado Livre e Sistema de Gestão completo e gratuito (consulte condições)\n⏳ Simulação com validade de 07 dias.`;
+    // Captura o texto que você digitou no campo dinâmico de observações
+    let notasDinamicas = document.getElementById("obs_proposta_campo") ? document.getElementById("obs_proposta_campo").value : "";
+    
+    boxInfoAdicional.innerHTML = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: sem anuidade e sem taxas administrativas\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com "recebimento na hora" (mesma taxa da maquininha)\n➡️ Rendimentos diários no cofrinho (até 120% CDI)\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO! (inclusive finais de semana e feriados)\n➡️ FÁCIL ACESSO AO APP\n➡️ TAXAS FINAIS SEM SURPRESAS (antecipação inclusa)\n➡️ Consultoria de vendas no Mercado Livre e Sistema de Gestão completo e gratuito (consulte condições)\n⏳ Simulação com validade de 07 dias.\n\n${notasDinamicas ? '<b>Observações Customizadas:</b>\n' + notasDinamicas : ''}`;
     
     if (!apenasTaxas) {
         if(boxCorpo) boxCorpo.style.display = "block"; if(boxGrafico) boxGrafico.style.display = "block";
@@ -423,7 +444,7 @@ function executarCalculoCalculadora(origem) {
 
     if (!chave) {
         // 🛒 MODO COBRAR (Cálculos Diretos)
-        if (origem === 'bruto' ||鋪origem === 'taxa') {
+        if (origem === 'bruto' || origem === 'taxa') {
             if (bruto > 0 && taxa >= 0) {
                 let resLiquido = bruto - (bruto * (taxa / 100));
                 document.getElementById('calc_liquido').value = resLiquido.toFixed(2);
@@ -443,7 +464,7 @@ function executarCalculoCalculadora(origem) {
             }
         }
     } else {
-        // 💰 MODO RECEBER (Cálculos Reversos)
+        // 💰 MODO RECEBER (Cálculos Reversos Exatos)
         if (origem === 'liquido' || origem === 'taxa') {
             if (liquido > 0 && taxa >= 0) {
                 if (taxa >= 100) {
