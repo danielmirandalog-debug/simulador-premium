@@ -335,13 +335,12 @@ const chartBox = document.getElementById("cont_grafico");
     });
 
     // ==================================================================
-    // 💎 MODO BLINDADO: INSTÂNCIAS DOS GRÁFICOS DE PIZZA (SHARE)
+    // 💎 COLETAR DADOS PARA INSTÂNCIAS DOS GRÁFICOS DE PIZZA (SHARE)
     // ==================================================================
     const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
     const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
     const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
     
-    // Soma automatizada e limpa de todas as parcelas reais informadas (2x até 10x)
     const shareParcelado = (
         (parseFloat(document.getElementById('share_2x').value) || 0) +
         (parseFloat(document.getElementById('share_3x').value) || 0) +
@@ -350,54 +349,41 @@ const chartBox = document.getElementById("cont_grafico");
         (parseFloat(document.getElementById('share_10x').value) || 0)
     );
 
-    const percDemaisBandeiras = parseFloat(document.getElementById('perc_demais_bandeiras').value) || 0;
-    const percVisaMaster = 100 - percDemaisBandeiras;
+    const percVisaMaster = 100 - pDemaisGeral;
 
-    // Destruição preventiva para evitar conflito de renderização na re-simulação
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
     if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
 
-    // Renderização do gráfico: Destinação do faturamento (Share Parcelamento)
+    // 1. Gráfico de Parcelados com Porcentagem Direta nas Legendas
     const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
         data: {
-            labels: ['Pix', 'Débito', 'Crédito 1x', 'Parcelado (2x-10x)'],
+            labels: [`Pix: ${sharePix.toFixed(1)}%`, `Débito: ${shareDebito.toFixed(1)}%`, `Crédito 1x: ${share1x.toFixed(1)}%`, `Parcelado: ${shareParcelado.toFixed(1)}%`],
             datasets: [{
                 data: [sharePix, shareDebito, share1x, shareParcelado],
                 backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
                 borderWidth: 1
             }]
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
     });
 
-    // Renderização do gráfico: Mix de Marcas (Share Bandeiras)
+    // 2. Gráfico de Bandeiras com Porcentagem Direta nas Legendas
     const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
         data: {
-            labels: ['Visa / Master', 'Outras Bandeiras'],
+            labels: [`Visa / Master: ${percVisaMaster.toFixed(1)}%`, `Outras: ${pDemaisGeral.toFixed(1)}%`],
             datasets: [{
-                data: [percVisaMaster, percDemaisBandeiras],
+                data: [percVisaMaster, pDemaisGeral],
                 backgroundColor: ['#0056b3', '#FFE600'],
                 borderWidth: 1
             }]
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
     });
 }
-
 function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
@@ -501,46 +487,144 @@ function exportarRelatorio(apenasTaxas) {
             for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
             boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMEMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
         }
-        if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
+if (window.g && document.getElementById("img_grafico")) {
+            document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
+        }
+        if (window.chartShareParcelado && document.getElementById("img_grafico_parcelado")) {
+            document.getElementById("img_grafico_parcelado").src = document.getElementById("graficoShareParcelado").toDataURL();
+        }
+        if (window.chartShareBandeiras && document.getElementById("img_grafico_bandeiras")) {
+            document.getElementById("img_grafico_bandeiras").src = document.getElementById("graficoShareBandeiras").toDataURL();
+        }
     } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }
     setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
 }
 
-function toggleDescobreTaxa() {
-    const box = document.getElementById("boxDescobreTaxa");
-    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+function abrirCalculadoraPremium() {
+    const box = document.getElementById('boxDescobreTaxa');
+    if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        document.getElementById('chaveCalculadora').checked = false;
+        alternarModoCalculadora();
+    } else {
+        box.style.display = 'none';
+    }
 }
 
-function calcularDescobreTaxa(origem) {
-    let valorOp = parseFloat(document.getElementById("calc_valor_op").value) || 0;
-    let valorRec = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
-    let taxaPercent = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
-    const resTaxa = document.getElementById("res_taxa_percent");
-    const resFinal = document.getElementById("res_valor_final");
+function alternarModoCalculadora() {
+    const chave = document.getElementById('chaveCalculadora');
+    const labelCobrar = document.getElementById('labelModoCobrar');
+    const labelReceber = document.getElementById('labelModoReceber');
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    const resultadoBox = document.getElementById('resultadoCalculadoraBox');
+    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
+    
+    const sliderBack = document.getElementById('sliderBack');
+    const sliderBall = document.getElementById('sliderBall');
 
-    if (origem === 'valor' || origem === 'recebido') {
-        if (valorOp > 0 && valorRec > 0) {
-            let taxa = ((valorOp - valorRec) / valorOp) * 100;
-            resTaxa.innerText = `${taxa.toFixed(2)}%`;
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)}`;
-            document.getElementById("calc_taxa_perc").value = taxa.toFixed(2);
+    limparCamposCalculadora();
+
+    if (chave.checked) {
+        // 💰 MODO RECEBER (Reverso)
+        labelCobrar.style.color = '#94a3b8';
+        labelReceber.style.color = '#10b981';
+        sliderBack.style.backgroundColor = '#10b981';
+        sliderBall.style.transform = 'translateX(24px)';
+        
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+        textoResultadoTopo.style.color = '#065f46';
+        resultadoBox.style.backgroundColor = '#ecfdf5';
+        resultadoBox.style.borderColor = '#a7f3d0';
+        valorResultadoFinal.style.color = '#047857';
+    } else {
+        // 🛒 MODO COBRAR (Direto)
+        labelCobrar.style.color = '#0056b3';
+        labelReceber.style.color = '#94a3b8';
+        sliderBack.style.backgroundColor = '#0056b3';
+        sliderBall.style.transform = 'translateX(0px)';
+        
+        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+        textoResultadoTopo.style.color = '#1e40af';
+        resultadoBox.style.backgroundColor = '#eff6ff';
+        resultadoBox.style.borderColor = '#bfdbfe';
+        valorResultadoFinal.style.color = '#1d4ed8';
+    }
+}
+
+function ejecutarCalculoCalculadora(origem) {
+    const chave = document.getElementById('chaveCalculadora').checked;
+    
+    let bruto = parseFloat(document.getElementById('calc_bruto').value) || 0;
+    let liquido = parseFloat(document.getElementById('calc_liquido').value) || 0;
+    let taxa = parseFloat(document.getElementById('calc_taxa').value) || 0;
+    
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    const valorResultadoFinal = document.getElementById('valorResultadoFinal');
+
+    if (!chave) {
+        // 🛒 MODO COBRAR (Cálculos Diretos)
+        if (origem === 'bruto' || origem === 'taxa') {
+            if (bruto > 0 && taxa >= 0) {
+                let resLiquido = bruto - (bruto * (taxa / 100));
+                document.getElementById('calc_liquido').value = resLiquido.toFixed(2);
+                textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+                valorResultadoFinal.innerText = resLiquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+        } else if (origem === 'liquido') {
+            if (bruto > 0 && liquido > 0) {
+                if (liquido > bruto) {
+                    valorResultadoFinal.innerText = 'Líquido maior que Bruto';
+                    return;
+                }
+                let resTaxa = ((bruto - liquido) / bruto) * 100;
+                document.getElementById('calc_taxa').value = resTaxa.toFixed(2);
+                textoResultadoTopo.innerText = 'Taxa de Juros Descoberta:';
+                valorResultadoFinal.innerText = resTaxa.toFixed(2) + '%';
+            }
         }
-    } 
-    if (origem === 'taxa') {
-        if (valorOp > 0 && taxaPercent > 0) {
-            let liquido = valorOp - (valorOp * (taxaPercent / 100));
-            resFinal.innerText = `R$ ${liquido.toFixed(2)}`;
-            resTaxa.innerText = `${taxaPercent.toFixed(2)}%`;
-            document.getElementById("calc_valor_rec").value = liquido.toFixed(2);
-        } else if (valorRec > 0 && taxaPercent > 0) {
-            let brutoNecessario = valorRec / (1 - (taxaPercent / 100));
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)} (Liq)`;
-            resTaxa.innerText = `Cobrar: R$ ${brutoNecessario.toFixed(2)}`;
-            document.getElementById("calc_valor_op").value = brutoNecessario.toFixed(2);
+    } else {
+        // 💰 MODO RECEBER (Cálculos Reversos)
+        if (origem === 'liquido' || origem === 'taxa') {
+            if (liquido > 0 && taxa >= 0) {
+                if (taxa >= 100) {
+                    valorResultadoFinal.innerText = 'Taxa Inválida';
+                    return;
+                }
+                let resBruto = liquido / (1 - (taxa / 100));
+                document.getElementById('calc_bruto').value = resBruto.toFixed(2);
+                textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+                valorResultadoFinal.innerText = resBruto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+        } else if (origem === 'bruto') {
+            if (bruto > 0 && liquido > 0) {
+                if (liquido > bruto) {
+                    valorResultadoFinal.innerText = 'Líquido maior que Bruto';
+                    return;
+                }
+                let resTaxa = ((bruto - liquido) / bruto) * 100;
+                document.getElementById('calc_taxa').value = resTaxa.toFixed(2);
+                textoResultadoTopo.innerText = 'Taxa de Juros Descoberta:';
+                valorResultadoFinal.innerText = resTaxa.toFixed(2) + '%';
+            }
         }
     }
 }
 
+function limparCamposCalculadora() {
+    document.getElementById('calc_bruto').value = '';
+    document.getElementById('calc_liquido').value = '';
+    document.getElementById('calc_taxa').value = '';
+    
+    const chave = document.getElementById('chaveCalculadora').checked;
+    const textoResultadoTopo = document.getElementById('textoResultadoTopo');
+    
+    if (chave) {
+        textoResultadoTopo.innerText = 'O Seller deve Cobrar do Cliente (Bruto):';
+    } else {
+        textoResultadoTopo.innerText = 'O Seller receberá Líquido:';
+    }
+    document.getElementById('valorResultadoFinal').innerText = 'R$ 0,00';
+}
 async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
