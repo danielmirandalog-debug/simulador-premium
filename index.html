@@ -44,7 +44,10 @@
         .barraContainer { width: 100%; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
         .barraProgresso { height: 100%; width: 0%; background: #FFE600; transition: 0.6s; }
         
-        .chart-box-wrapper { display: none; margin-top: 15px !important; width: 100%; max-height: 220px !important; overflow: hidden; }
+.chart-box-wrapper { display: none; margin-top: 15px !important; width: 100%; overflow: hidden; }
+.row-graficos-pizza { display: flex; gap: 15px; margin-top: 20px; width: 100%; }
+.card-pizza-wrapper { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; }
+#graficoShareParcelado, #graficoShareBandeiras { max-height: 200px !important; width: 100% !important; }
         #graficoEconomia { width: 100% !important; max-height: 220px !important; }
 
         .tabela-moderna { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
@@ -373,7 +376,22 @@
         </div>
         <button onclick="simularFaturamento()" style="margin-bottom: 0px;">Gerar Estudo</button>
         <div id="resultadoFaturamento"></div>
-        <div id="cont_grafico" class="chart-box-wrapper"><canvas id="graficoEconomia"></canvas></div>
+<div id="cont_grafico" class="chart-box-wrapper">
+    <!-- Gráfico de Economia Original -->
+    <canvas id="graficoEconomia"></canvas>
+    
+    <!-- Fileira com os dois novos gráficos de Pizza lado a lado -->
+    <div class="row-graficos-pizza">
+        <div class="card-pizza-wrapper">
+            <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">📊 Share de Parcelado</h4>
+            <canvas id="graficoShareParcelado"></canvas>
+        </div>
+        <div class="card-pizza-wrapper">
+            <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">💳 Share de Bandeiras</h4>
+            <canvas id="graficoShareBandeiras"></canvas>
+        </div>
+    </div>
+</div>
     </div>
 
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
