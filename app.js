@@ -551,7 +551,7 @@ function alternarModoCalculadora() {
     }
 }
 
-function ejecutarCalculoCalculadora(origem) {
+function executarCalculoCalculadora(origem) {
     const chave = document.getElementById('chaveCalculadora').checked;
     
     let bruto = parseFloat(document.getElementById('calc_bruto').value) || 0;
@@ -673,13 +673,7 @@ if(lines[i].toLowerCase().includes("pix")){
                 let subCampo = (centroX < (larguraImagemTotal / 2)) ? 'manual' : 'demais';
                 let linhaTextoProxima = w.line ? w.line.text.toLowerCase() : '';
                 
-                if (linhaTextoProxima.includes('déb') || linhaTextoProxima.includes('deb')) {
-                    if(document.getElementById('out_debito_' + subCampo)) document.getElementById('out_debito_' + subCampo).value = valorTaxa.toFixed(2);
-                } else if (linhaTextoProxima.includes('1x')) {
-                    if(document.getElementById('out1_' + subCampo)) document.getElementById('out1_' + subCampo).value = valorTaxa.toFixed(2);
-                } else if (linhaTextoProxima.includes('pix')) {
-                    if(document.getElementById('out_pix_' + subCampo)) document.getElementById('out_pix_' + subCampo).value = valorTaxa.toFixed(2);
-                } else {
+} else {
                     let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
                     if(matchParcela){
                         let p = parseInt(matchParcela[1]);
@@ -687,7 +681,7 @@ if(lines[i].toLowerCase().includes("pix")){
                             if(document.getElementById('out' + p + '_' + subCampo)) document.getElementById('out' + p + '_' + subCampo).value = valorTaxa.toFixed(2);
                         }
                     }
-}
+                }
             }
         });
         await worker.terminate(); await workerLetras.terminate();
