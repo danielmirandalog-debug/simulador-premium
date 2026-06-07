@@ -396,20 +396,42 @@
 
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
-    <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa</button>
+<button onclick="abrirCalculadoraPremium()" style="background:#333; color:#FFE600; margin-top:15px">🧮 Calculadora de Vendas (Direta / Reversa)</button>
     
-    <div id="boxDescobreTaxa" class="box-calculadora">
-        <h3>Calculadora Reversa <button type="button" class="btn-limpar" onclick="location.reload()" style="position:absolute; right:20px; top:18px">🗑</button></h3>
-        <div class="display-calculadora">
-            <span style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase">Resultado Principal</span><br>
-            <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800">R$ 0,00</span><br>
-            <span id="res_taxa_percent" style="font-size:18px; color:#d32f2f; font-weight:800">0.00%</span>
+    <div id="boxDescobreTaxa" class="box-calculadora" style="display:none; margin-top:15px; position:relative;">
+        <h3>Configuração do Cálculo <button type="button" class="btn-limpar" onclick="limparCamposCalculadora()" style="position:absolute; right:20px; top:18px">🗑 Limpar</button></h3>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <span id="labelModoCobrar" style="font-weight: bold; font-size: 12px; color: #0056b3;">🛒 MODO COBRAR (Direto)</span>
+            
+            <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0; cursor: pointer;">
+                <input type="checkbox" id="chaveCalculadora" onchange="alternarModoCalculadora()" style="opacity: 0; width: 0; height: 0;">
+                <span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #0056b3; transition: .4s; border-radius: 34px;" id="sliderBack"></span>
+                <span style="position: absolute; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;" id="sliderBall"></span>
+            </label>
+            
+            <span id="labelModoReceber" style="font-weight: bold; font-size: 12px; color: #94a3b8;">💰 MODO RECEBER (Reverso)</span>
         </div>
-        <div class="grid-taxas" style="grid-template-columns: 1fr;">
-            <span><label>Valor Bruto</label> <input id="calc_valor_op" type="number" oninput="calcularDescobreTaxa('valor')"></span>
-            <span><label>Valor Líquido</label> <input id="calc_valor_rec" type="number" oninput="calcularDescobreTaxa('recebido')"></span>
-            <span><label>Taxa Direta (%)</label> <input id="calc_taxa_perc" type="number" oninput="calcularDescobreTaxa('taxa')"></span>
-</div>
+
+        <div class="grid-taxas" style="grid-template-columns: 1fr; margin-bottom: 15px; gap: 5px;">
+            <div>
+                <label id="labelValorBruto">Valor Bruto / Operação (R$)</label>
+                <input id="calc_bruto" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('bruto')">
+            </div>
+            <div>
+                <label id="labelValorLiquido">Valor Líquido Recebido (R$)</label>
+                <input id="calc_liquido" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('liquido')">
+            </div>
+            <div>
+                <label id="labelTaxa">Taxa Aplicada (%)</label>
+                <input id="calc_taxa" type="number" step="0.01" placeholder="0,00" oninput="executarCalculoCalculadora('taxa')">
+            </div>
+        </div>
+
+        <div id="resultadoCalculadoraBox" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; text-align: center; transition: .3s;">
+            <span id="textoResultadoTopo" style="font-size: 11px; color: #1e40af; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resultado Principal:</span>
+            <div id="valorResultadoFinal" style="font-size: 24px; font-weight: bold; color: #1d4ed8; margin-top: 5px;">R$ 0,00</div>
+        </div>
     </div>
     
     <div class="footer-contador">
@@ -445,7 +467,17 @@
     </div>
     <div id="rel_tabela_taxas"></div>
     <div id="rel_share_cofrinho" style="margin-top:25px"></div>
-    <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
+<div id="rel_grafico_box" style="text-align:center; margin-top:25px">
+        <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 15px;">
+        <div style="display: flex; gap: 15px; width: 100%; justify-content: center;">
+            <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
+                <img id="img_grafico_parcelado" style="max-width:100%; height: auto;">
+            </div>
+            <div style="flex: 1; border:1px solid #eee; border-radius:15px; padding:10px; background: #ffffff;">
+                <img id="img_grafico_bandeiras" style="max-width:100%; height: auto;">
+            </div>
+        </div>
+    </div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
 <div style="font-size: 8px; color: #cbd5e1; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify; line-height: 1.6; font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
         SOBRE O COFRINHO: PROJEÇÃO BASEADA EM APORTES MENSAIS FIXOS. ATÉ R$ 10.000,00 RENDE O PERCENTUAL ALVO DO CDI. DE R$ 10.000,01 ATÉ R$ 100.000,00, RENDE 100% DO CDI. ACIMA DESSE VALOR, NÃO POSSUI RENDIMENTO.
