@@ -651,12 +651,16 @@ async function processarOCR(event, pref) {
                     let m = lines[i].match(/[\d.]+/);
                     if(m) document.getElementById("mp_debito").value = parseFloat(m[0]).toFixed(2);
                 }
-                if(lines[i].toLowerCase().includes("pix")){
+if(lines[i].toLowerCase().includes("pix")){
                     let m = lines[i].match(/[\d.]+/);
                     if(m) document.getElementById("mp_pix").value = parseFloat(m[0]).toFixed(2);
                 }
             }
-            await worker.terminate(); await workerLetras.terminate(); return; 
+            await worker.terminate(); await workerLetras.terminate();
+            
+            // Alerta de conferência obrigatória para o Mercado Pago
+            alert("Taxas carregadas. Revise cada taxa inserida para possível correção e preencha os que ficaram em branco.");
+            return; 
         }
 
         const palavras = resCompleto.data.words;
@@ -683,10 +687,13 @@ async function processarOCR(event, pref) {
                             if(document.getElementById('out' + p + '_' + subCampo)) document.getElementById('out' + p + '_' + subCampo).value = valorTaxa.toFixed(2);
                         }
                     }
-                }
+}
             }
         });
         await worker.terminate(); await workerLetras.terminate();
+        
+        // Alerta de conferência obrigatória para a Concorrência
+        alert("Taxas carregadas. Revise cada taxa inserida para possível correção e preencha os que ficaram em branco.");
     };
     reader.readAsDataURL(file);
 }
