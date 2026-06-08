@@ -353,33 +353,69 @@ function simularFaturamento() {
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
     if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
 
-// 4. RENDERIZAÇÃO DAS PIZZAS COM AS PORCENTAGENS CALCULADAS DIRETAMENTE NAS LEGENDAS
+// 4. RENDERIZAÇÃO DAS PIZZAS COM QUEBRA DE LINHA NAS LEGENDAS PARA ALINHAMENTO SIMÉTRICO
     const ctxParcelado = document.getElementById('graficoShareParcelado');
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
         data: {
-            labels: [`Pix (${sharePix.toFixed(1)}%)`, `Débito (${shareDebito.toFixed(1)}%)`, `Crédito 1x (${share1x.toFixed(1)}%)`, `Parcelado (${shareParcelado.toFixed(1)}%)`],
+            // Arrays internos criam a quebra de linha exata na exibição da legenda
+            labels: [
+                [`Pix`, `(${sharePix.toFixed(1)}%)`], 
+                [`Débito`, `(${shareDebito.toFixed(1)}%)`], 
+                [`Crédito 1x`, `(${share1x.toFixed(1)}%)`], 
+                [`Parcelado`, `(${shareParcelado.toFixed(1)}%)`]
+            ],
             datasets: [{
                 data: [sharePix, shareDebito, share1x, shareParcelado],
                 backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
                 borderWidth: 1
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        boxWidth: 10, 
+                        font: { size: 10 },
+                        padding: 8
+                    } 
+                } 
+            } 
+        }
     });
 
     const ctxBandeiras = document.getElementById('graficoShareBandeiras');
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
         data: {
-            labels: [`Visa/Master (${percVisaMaster.toFixed(1)}%)`, `Outras (${pDemaisGeral.toFixed(1)}%)`],
+            // Alterado de 'Outras' para 'Demais Bandeiras' com quebra de linha simétrica
+            labels: [
+                [`Visa/Master`, `(${percVisaMaster.toFixed(1)}%)`], 
+                [`Demais Bandeiras`, `(${pDemaisGeral.toFixed(1)}%)`]
+            ],
             datasets: [{
                 data: [percVisaMaster, pDemaisGeral],
                 backgroundColor: ['#0056b3', '#FFE600'],
                 borderWidth: 1
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        boxWidth: 10, 
+                        font: { size: 10 },
+                        padding: 8
+                    } 
+                } 
+            } 
+        }
     });
 }
 
