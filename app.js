@@ -333,7 +333,7 @@ function simularFaturamento() {
 
     // 2. DEPOIS DESENHAMOS O GRÁFICO DE BARRAS PRINCIPAL
 // 1. ATIVAMOS A CAIXA VISUAL PRIMEIRO PARA O CHART.JS CONSEGUIR LER O TAMANHO
-    const chartBox = document.getElementById("cont_grafico");
+    chartBox = document.getElementById("cont_grafico");
     if(chartBox) chartBox.style.display = "block";
 
     // 2. DESENHAMOS O SEU GRÁFICO DE BARRAS ORIGINAL
