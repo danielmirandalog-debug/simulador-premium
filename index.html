@@ -377,13 +377,13 @@
             <canvas id="graficoEconomia"></canvas>
             
             <div class="row-graficos-pizza" style="display: flex; gap: 15px; margin-top: 20px; width: 100%;">
-                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0;">
+                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; height: 300px;">
                     <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">📊 Share de Parcelado</h4>
-                    <canvas id="graficoShareParcelado" style="height: 220px !important; max-height: 220px !important; width: 100% !important; display: block !important;"></canvas>
+                    <div style="position: relative; height: 230px; width: 100%;"><canvas id="graficoShareParcelado"></canvas></div>
                 </div>
-                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0;">
+                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; height: 300px;">
                     <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">💳 Share de Bandeiras</h4>
-                    <canvas id="graficoShareBandeiras" style="height: 220px !important; max-height: 220px !important; width: 100% !important; display: block !important;"></canvas>
+                    <div style="position: relative; height: 230px; width: 100%;"><canvas id="graficoShareBandeiras"></canvas></div>
                 </div>
             </div>
         </div>
@@ -440,7 +440,19 @@
     </div>
     <div id="rel_tabela_taxas"></div>
     <div id="rel_share_cofrinho" style="margin-top:25px"></div>
-    <div id="rel_grafico_box" style="text-align:center; margin-top:25px"><img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee"></div>
+<div id="rel_grafico_box" style="text-align:center; margin-top:25px">
+        <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 20px;">
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <div style="flex: 1; text-align: center; background: #f7fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <span style="font-size: 12px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 5px; text-transform: uppercase;">Mix de Parcelado</span>
+                <img id="img_grafico_parcelado" style="max-width:100%; max-height: 200px; border-radius: 8px;">
+            </div>
+            <div style="flex: 1; text-align: center; background: #f7fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <span style="font-size: 12px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 5px; text-transform: uppercase;">Mix de Bandeiras</span>
+                <img id="img_grafico_bandeiras" style="max-width:100%; max-height: 200px; border-radius: 8px;">
+            </div>
+        </div>
+    </div>
     <div id="rel_info_adicional" style="margin-top:25px; font-size:14px; white-space:pre-line; border-left:5px solid #FFE600; padding-left:15px; line-height:1.6"></div>
     <div style="font-size:12px; color:#777; margin-top:40px; border-top:1px solid #eee; padding-top:20px; text-align:justify">
         <p><b>Sobre o Cofrinho:</b> Projeção baseada em aportes mensais fixos. Até R$ 10.000,00 rende o percentual alvo do CDI. De R$ 10.000,01 até R$ 100.000,00, rende 100% do CDI. Acima desse valor, não tem rendimento.</p>
