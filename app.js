@@ -324,11 +324,11 @@ document.getElementById("resultadoFaturamento").innerHTML = `
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
-    // 1. ADICIONADO: FORÇA A CAIXA DOS GRÁFICOS A FICAR VISÍVEL E GANHAR TAMANHO NA TELA
-    const chartBox = document.getElementById("cont_grafico");
-    if(chartBox) chartBox.style.display = "block";
+// 1. FORÇAMOS A CAIXA DOS GRÁFICOS A FICAR VISÍVEL E GANHAR TAMANHO NA TELA
+    const cBox = document.getElementById("cont_grafico");
+    if(cBox) cBox.style.display = "block";
 
-    // 2. ADICIONADO: RECONSTRÓI O SEU GRÁFICO DE BARRAS ORIGINAL DE ECONOMIA
+    // 2. RECONSTRÓI O SEU GRÁFICO DE BARRAS ORIGINAL DE ECONOMIA
     if (window.g) window.g.destroy();
     window.g = new Chart(document.getElementById("graficoEconomia"), {
         type: 'bar',
@@ -336,31 +336,31 @@ document.getElementById("resultadoFaturamento").innerHTML = `
         options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
     });
 
-    // 3. ADICIONADO: CAPTURA DO MIX DE SHARE PARA OS DOIS GRÁFICOS DE PIZZA
-    const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
-    const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
-    const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
+    // 3. CAPTURA DOS DADOS DE SHARE PARA OS DOIS GRÁFICOS DE PIZZA
+    const sPix = parseFloat(document.getElementById('share_pix').value) || 0;
+    const sDeb = parseFloat(document.getElementById('share_debito').value) || 0;
+    const s1x = parseFloat(document.getElementById('share_1x').value) || 0;
     
-    let shareParcelado = 0;
+    let sPar = 0;
     ["share_2x","share_3x","share_4x","share_6x","share_10x"].forEach(id => {
         const el = document.getElementById(id);
-        if(el) shareParcelado += parseFloat(el.value) || 0;
+        if(el) sPar += parseFloat(el.value) || 0;
     });
 
-    const percVisaMaster = 100 - pDemaisGeral;
+    const mixVisaMaster = 100 - pDemaisGeral;
 
     // Destruição preventiva essencial para não encavalar gráficos na memória
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
     if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
 
-    // 4. ADICIONADO: RENDERIZA OS DOIS GRÁFICOS DE PIZZA COM PORCENTAGEM DIRETAMENTE NAS LEGENDAS
+    // 4. RENDERIZA OS DOIS GRÁFICOS DE PIZZA COM PORCENTAGEM DIRETAMENTE NAS LEGENDAS
     const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
         data: {
-            labels: [`Pix (${sharePix.toFixed(1)}%)`, `Débito (${shareDebito.toFixed(1)}%)`, `Crédito 1x (${share1x.toFixed(1)}%)`, `Parcelado (${shareParcelado.toFixed(1)}%)`],
+            labels: [`Pix (${sPix.toFixed(1)}%)`, `Débito (${sDeb.toFixed(1)}%)`, `Crédito 1x (${s1x.toFixed(1)}%)`, `Parcelado (${sPar.toFixed(1)}%)`],
             datasets: [{
-                data: [sharePix, shareDebito, share1x, shareParcelado],
+                data: [sPix, sDeb, s1x, sPar],
                 backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
                 borderWidth: 1
             }]
@@ -372,9 +372,9 @@ document.getElementById("resultadoFaturamento").innerHTML = `
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
         data: {
-            labels: [`Visa/Master (${percVisaMaster.toFixed(1)}%)`, `Outras (${pDemaisGeral.toFixed(1)}%)`],
+            labels: [`Visa/Master (${mixVisaMaster.toFixed(1)}%)`, `Outras (${pDemaisGeral.toFixed(1)}%)`],
             datasets: [{
-                data: [percVisaMaster, pDemaisGeral],
+                data: [mixVisaMaster, pDemaisGeral],
                 backgroundColor: ['#0056b3', '#FFE600'],
                 borderWidth: 1
             }]
@@ -382,50 +382,6 @@ document.getElementById("resultadoFaturamento").innerHTML = `
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
     });
 }
-
-    // ABRIMOS O CONTAINER VISUAL PRIMEIRO
-    const chartBox = document.getElementById("cont_grafico");
-    if(chartBox) chartBox.style.display = "block";
-
-    // DESENHAMOS O GRÁFICO DE BARRAS
-    if (window.g) window.g.destroy();
-    window.g = new Chart(document.getElementById("graficoEconomia"), {
-        type: 'bar',
-        data: { labels: ["Eco. 1 Ano", "Eco. 5 Anos", "Cofre 5 Anos"], datasets: [{ label: 'R$', data: [ecoMes*12, ecoMes*60, calcInvestimento(60)], backgroundColor: ['#FFE600','#FFD400','#3483FA'] }] },
-        options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
-    });
-
-    // CAPTURA DOS VALORES ÚNICOS PARA OS DOIS GRÁFICOS DE PIZZA
-    const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
-    const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
-    const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
-    
-    let shareParcelado = 0;
-    ["share_2x","share_3x","share_4x","share_6x","share_10x"].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) shareParcelado += parseFloat(el.value) || 0;
-    });
-
-    const percVisaMaster = 100 - pDemaisGeral;
-
-    if (window.chartShareParcelado) window.chartShareParcelado.destroy();
-    if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
-
-    // INSTÂNCIAS DOS GRÁFICOS DE PIZZA PREMIUM COM AS % CALCULADAS
-    const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
-    window.chartShareParcelado = new Chart(ctxParcelado, {
-        type: 'pie',
-        data: {
-            labels: [`Pix (${sharePix.toFixed(1)}%)`, `Débito (${shareDebito.toFixed(1)}%)`, `Crédito 1x (${share1x.toFixed(1)}%)`, `Parcelado (${shareParcelado.toFixed(1)}%)`],
-            datasets: [{
-                data: [sharePix, shareDebito, share1x, shareParcelado],
-                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
-                borderWidth: 1
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
-    });
-
     const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
