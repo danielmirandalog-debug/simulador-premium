@@ -532,85 +532,51 @@ function toggleDescobreTaxa() {
 }
 
 // ==================================================================
-// 💎 MOTOR EXCLUSIVO: CALCULADORA DE TAXAS PREMIUM (CONTA REVERSA)
+// 💎 MOTOR INTEGRADO: CALCULADORA DE TAXAS PREMIUM (REVERSA AUTOMÁTICA)
 // ==================================================================
-window.modoCalculadoraPremium = "receber";
-
-function mudarModoCalc(modo) {
-    window.modoCalculadoraPremium = modo;
-    const btnReceber = document.getElementById("btn_modo_receber");
-    const btnCobrar = document.getElementById("btn_modo_cobrar");
-    const boxBruto = document.getElementById("box_input_bruto");
-    const boxLiquido = document.getElementById("box_input_liquido");
+function calcularPremiumInteligente(origem) {
+    const brutoEl = document.getElementById("calc_valor_op");
+    const liquidoEl = document.getElementById("calc_valor_rec");
+    const taxaEl = document.getElementById("calc_taxa_perc");
     
-    // Reseta os campos ao alternar o slide para não confundir o cálculo
-    document.getElementById("calc_valor_op").value = "";
-    document.getElementById("calc_valor_rec").value = "";
-    document.getElementById("calc_taxa_perc").value = "";
-    document.getElementById("res_valor_final").innerText = "R$ 0,00";
-    document.getElementById("res_taxa_percent").innerText = "Taxa Base: 0.00%";
-
-    if (modo === "receber") {
-        btnReceber.style.background = "#FFE600";
-        btnReceber.style.color = "#333";
-        btnCobrar.style.background = "transparent";
-        btnCobrar.style.color = "#64748b";
-        boxBruto.style.display = "block";
-        boxLiquido.style.display = "none";
-    } else {
-        btnCobrar.style.background = "#FFE600";
-        btnCobrar.style.color = "#333";
-        btnReceber.style.background = "transparent";
-        btnReceber.style.color = "#64748b";
-        boxBruto.style.display = "none";
-        boxLiquido.style.display = "block";
-    }
-}
-
-function ejecutarCalculoPremium() {
-    const taxaInput = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
     const visorFinal = document.getElementById("res_valor_final");
     const visorTaxa = document.getElementById("res_taxa_percent");
 
-    if (window.modoCalculadoraPremium === "receber") {
-        // Cenário 2: Sabe o Bruto e quer o Líquido
-        const bruto = parseFloat(document.getElementById("calc_valor_op").value) || 0;
-        if (bruto > 0) {
-            let liquido = bruto - (bruto * (taxaInput / 100));
+    let bruto = parseFloat(brutoEl.value) || 0;
+    let liquido = parseFloat(liquidoEl.value) || 0;
+    let taxa = parseFloat(taxaEl.value) || 0;
+
+    // Cenário 1: Digitando Bruto + Líquido -> Descobre a Taxa Real Cobrada
+    if (origem === 'bruto' || origin === 'liquido') {
+        if (bruto > 0 && liquido > 0 && bruto >= liquido) {
+            taxa = ((bruto - liquido) / bruto) * 100;
+            taxaEl.value = taxa.toFixed(2);
+            
             visorFinal.innerText = `R$ ${liquido.toFixed(2)}`;
-            visorTaxa.innerText = `Recebe Limpo (Taxa: ${taxaInput.toFixed(2)}%)`;
-        } else {
-            visorFinal.innerText = "R$ 0,00";
+            visorTaxa.innerText = `Taxa Descoberta: ${taxa.toFixed(2)}%`;
         }
-    } else {
-        // Cenário 3: Sabe o Líquido desejado e quer calcular a conta reversa real (Bruto)
-        const liquidoDesejado = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
-        if (liquidoDesejado > 0) {
-            if (taxaInput >= 100) {
-                visorFinal.innerText = "Taxa inválida";
-                return;
-            }
-            // Fórmula Comercial Reversa de Antecipação
-            let brutoNecessario = liquidoDesejado / (1 - (taxaInput / 100));
+    } 
+    
+    // Cenário 2 e 3: Mudando a Taxa -> Calcula o Bruto Reverso ou Líquido Direto
+    if (origem === 'taxa' && taxa > 0) {
+        if (taxa >= 100) {
+            visorFinal.innerText = "Taxa inválida";
+            return;
+        }
+        
+        if (bruto > 0 && liquido === 0) {
+            // Sabe o bruto e a taxa, descobre o líquido que recebe
+            let resultadoLiquido = bruto - (bruto * (taxa / 100));
+            liquidoEl.value = resultadoLiquido.toFixed(2);
+            visorFinal.innerText = `R$ ${resultadoLiquido.toFixed(2)}`;
+            visorTaxa.innerText = `Recebe Lípro (Taxa: ${taxa.toFixed(2)}%)`;
+        } else if (liquido > 0) {
+            // Conta Reversa Real: Quer receber o líquido cheio, descobre quanto cobrar na máquina
+            let brutoNecessario = liquido / (1 - (taxa / 100));
+            brutoEl.value = brutoNecessario.toFixed(2);
             visorFinal.innerText = `R$ ${brutoNecessario.toFixed(2)}`;
-            visorTaxa.innerText = `Passar na Máquina (Taxa: ${taxaInput.toFixed(2)}%)`;
-        } else {
-            visorFinal.innerText = "R$ 0,00";
+            visorTaxa.innerText = `Cobrar Bruto (Taxa: ${taxa.toFixed(2)}%)`;
         }
-    }
-}
-
-function descobrirTaxaReal() {
-    // Cenário 1: Descobrir Taxa Real unindo Bruto + Líquido cobrado pela concorrência
-    const bruto = parseFloat(document.getElementById("calc_descobre_bruto").value) || 0;
-    const liquido = parseFloat(document.getElementById("calc_descobre_liquido").value) || 0;
-    const visorFinal = document.getElementById("res_valor_final");
-    const visorTaxa = document.getElementById("res_taxa_percent");
-
-    if (bruto > 0 && liquido > 0 && bruto >= liquido) {
-        let taxaReal = ((bruto - liquido) / bruto) * 100;
-        visorFinal.innerText = `${taxaReal.toFixed(2)}%`;
-        visorTaxa.innerText = `Taxa Real Descoberta Comercialmente`;
     }
 }
 
@@ -618,10 +584,8 @@ function limparCalcPremium() {
     document.getElementById("calc_valor_op").value = "";
     document.getElementById("calc_valor_rec").value = "";
     document.getElementById("calc_taxa_perc").value = "";
-    document.getElementById("calc_descobre_bruto").value = "";
-    document.getElementById("calc_descobre_liquido").value = "";
     document.getElementById("res_valor_final").innerText = "R$ 0,00";
-    document.getElementById("res_taxa_percent").innerText = "Taxa Base: 0.00%";
+    document.getElementById("res_taxa_percent").innerText = "0.00%";
 }
 async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
