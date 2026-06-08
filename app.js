@@ -531,36 +531,98 @@ function toggleDescobreTaxa() {
     box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
 }
 
-function calcularDescobreTaxa(origem) {
-    let valorOp = parseFloat(document.getElementById("calc_valor_op").value) || 0;
-    let valorRec = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
-    let taxaPercent = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
-    const resTaxa = document.getElementById("res_taxa_percent");
-    const resFinal = document.getElementById("res_valor_final");
+// ==================================================================
+// 💎 MOTOR EXCLUSIVO: CALCULADORA DE TAXAS PREMIUM (CONTA REVERSA)
+// ==================================================================
+window.modoCalculadoraPremium = "receber";
 
-    if (origem === 'valor' || origem === 'recebido') {
-        if (valorOp > 0 && valorRec > 0) {
-            let taxa = ((valorOp - valorRec) / valorOp) * 100;
-            resTaxa.innerText = `${taxa.toFixed(2)}%`;
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)}`;
-            document.getElementById("calc_taxa_perc").value = taxa.toFixed(2);
+function mudarModoCalc(modo) {
+    window.modoCalculadoraPremium = modo;
+    const btnReceber = document.getElementById("btn_modo_receber");
+    const btnCobrar = document.getElementById("btn_modo_cobrar");
+    const boxBruto = document.getElementById("box_input_bruto");
+    const boxLiquido = document.getElementById("box_input_liquido");
+    
+    // Reseta os campos ao alternar o slide para não confundir o cálculo
+    document.getElementById("calc_valor_op").value = "";
+    document.getElementById("calc_valor_rec").value = "";
+    document.getElementById("calc_taxa_perc").value = "";
+    document.getElementById("res_valor_final").innerText = "R$ 0,00";
+    document.getElementById("res_taxa_percent").innerText = "Taxa Base: 0.00%";
+
+    if (modo === "receber") {
+        btnReceber.style.background = "#FFE600";
+        btnReceber.style.color = "#333";
+        btnCobrar.style.background = "transparent";
+        btnCobrar.style.color = "#64748b";
+        boxBruto.style.display = "block";
+        boxLiquido.style.display = "none";
+    } else {
+        btnCobrar.style.background = "#FFE600";
+        btnCobrar.style.color = "#333";
+        btnReceber.style.background = "transparent";
+        btnReceber.style.color = "#64748b";
+        boxBruto.style.display = "none";
+        boxLiquido.style.display = "block";
+    }
+}
+
+function ejecutarCalculoPremium() {
+    const taxaInput = parseFloat(document.getElementById("calc_taxa_perc").value) || 0;
+    const visorFinal = document.getElementById("res_valor_final");
+    const visorTaxa = document.getElementById("res_taxa_percent");
+
+    if (window.modoCalculadoraPremium === "receber") {
+        // Cenário 2: Sabe o Bruto e quer o Líquido
+        const bruto = parseFloat(document.getElementById("calc_valor_op").value) || 0;
+        if (bruto > 0) {
+            let liquido = bruto - (bruto * (taxaInput / 100));
+            visorFinal.innerText = `R$ ${liquido.toFixed(2)}`;
+            visorTaxa.innerText = `Recebe Limpo (Taxa: ${taxaInput.toFixed(2)}%)`;
+        } else {
+            visorFinal.innerText = "R$ 0,00";
         }
-    } 
-    if (origem === 'taxa') {
-        if (valorOp > 0 && taxaPercent > 0) {
-            let liquido = valorOp - (valorOp * (taxaPercent / 100));
-            resFinal.innerText = `R$ ${liquido.toFixed(2)}`;
-            resTaxa.innerText = `${taxaPercent.toFixed(2)}%`;
-            document.getElementById("calc_valor_rec").value = liquido.toFixed(2);
-        } else if (valorRec > 0 && taxaPercent > 0) {
-            let brutoNecessario = valorRec / (1 - (taxaPercent / 100));
-            resFinal.innerText = `R$ ${valorRec.toFixed(2)} (Liq)`;
-            resTaxa.innerText = `Cobrar: R$ ${brutoNecessario.toFixed(2)}`;
-            document.getElementById("calc_valor_op").value = brutoNecessario.toFixed(2);
+    } else {
+        // Cenário 3: Sabe o Líquido desejado e quer calcular a conta reversa real (Bruto)
+        const liquidoDesejado = parseFloat(document.getElementById("calc_valor_rec").value) || 0;
+        if (liquidoDesejado > 0) {
+            if (taxaInput >= 100) {
+                visorFinal.innerText = "Taxa inválida";
+                return;
+            }
+            // Fórmula Comercial Reversa de Antecipação
+            let brutoNecessario = liquidoDesejado / (1 - (taxaInput / 100));
+            visorFinal.innerText = `R$ ${brutoNecessario.toFixed(2)}`;
+            visorTaxa.innerText = `Passar na Máquina (Taxa: ${taxaInput.toFixed(2)}%)`;
+        } else {
+            visorFinal.innerText = "R$ 0,00";
         }
     }
 }
 
+function descobrirTaxaReal() {
+    // Cenário 1: Descobrir Taxa Real unindo Bruto + Líquido cobrado pela concorrência
+    const bruto = parseFloat(document.getElementById("calc_descobre_bruto").value) || 0;
+    const liquido = parseFloat(document.getElementById("calc_descobre_liquido").value) || 0;
+    const visorFinal = document.getElementById("res_valor_final");
+    const visorTaxa = document.getElementById("res_taxa_percent");
+
+    if (bruto > 0 && liquido > 0 && bruto >= liquido) {
+        let taxaReal = ((bruto - liquido) / bruto) * 100;
+        visorFinal.innerText = `${taxaReal.toFixed(2)}%`;
+        visorTaxa.innerText = `Taxa Real Descoberta Comercialmente`;
+    }
+}
+
+function limparCalcPremium() {
+    document.getElementById("calc_valor_op").value = "";
+    document.getElementById("calc_valor_rec").value = "";
+    document.getElementById("calc_taxa_perc").value = "";
+    document.getElementById("calc_descobre_bruto").value = "";
+    document.getElementById("calc_descobre_liquido").value = "";
+    document.getElementById("res_valor_final").innerText = "R$ 0,00";
+    document.getElementById("res_taxa_percent").innerText = "Taxa Base: 0.00%";
+}
 async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
