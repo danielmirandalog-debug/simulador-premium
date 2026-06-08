@@ -376,18 +376,18 @@
 <div id="cont_grafico" class="chart-box-wrapper">
             <canvas id="graficoEconomia"></canvas>
             
+            <!-- Fileira na Tela: Alinhada e Centralizada -->
             <div class="row-graficos-pizza" style="display: flex; gap: 15px; margin-top: 20px; width: 100%;">
-                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; height: 300px;">
-                    <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">📊 Share de Parcelado</h4>
-                    <div style="position: relative; height: 230px; width: 100%;"><canvas id="graficoShareParcelado"></canvas></div>
+                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; height: 320px; display: flex; flex-direction: column; align-items: center;">
+                    <h4 style="margin: 0 0 15px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase; font-weight: bold; width: 100%;">📊 Share de Parcelado</h4>
+                    <div style="position: relative; height: 230px; width: 100%; max-width: 230px; margin: 0 auto;"><canvas id="graficoShareParcelado"></canvas></div>
                 </div>
-                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; height: 300px;">
-                    <h4 style="margin: 0 0 10px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase;">💳 Share de Bandeiras</h4>
-                    <div style="position: relative; height: 230px; width: 100%;"><canvas id="graficoShareBandeiras"></canvas></div>
+                <div class="card-pizza-wrapper" style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; min-width: 0; height: 320px; display: flex; flex-direction: column; align-items: center;">
+                    <h4 style="margin: 0 0 15px 0; font-size: 13px; text-align: center; color: #4a5568; text-transform: uppercase; font-weight: bold; width: 100%;">💳 Share de Bandeiras</h4>
+                    <div style="position: relative; height: 230px; width: 100%; max-width: 230px; margin: 0 auto;"><canvas id="graficoShareBandeiras"></canvas></div>
                 </div>
             </div>
-        </div>
-    </div>
+        </div>    </div>
 
     <button onclick="exportarRelatorio(false)" class="btn-exportar">Exportar Relatório Completo</button>
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
@@ -443,13 +443,13 @@
 <div id="rel_grafico_box" style="text-align:center; margin-top:25px">
         <img id="img_grafico" style="max-width:100%; border-radius:15px; border: 1px solid #eee; margin-bottom: 20px;">
         <div style="display: flex; gap: 20px; width: 100%;">
-            <div style="flex: 1; text-align: center; background: #f7fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <span style="font-size: 12px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 5px; text-transform: uppercase;">Mix de Parcelado</span>
-                <img id="img_grafico_parcelado" style="max-width:100%; max-height: 200px; border-radius: 8px;">
+            <div style="flex: 1; text-align: center; background: #f7fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size: 12px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">📊 Share de Parcelado</span>
+                <img id="img_grafico_parcelado" style="max-width: 100%; max-height: 180px; object-fit: contain; margin: 0 auto;">
             </div>
-            <div style="flex: 1; text-align: center; background: #f7fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <span style="font-size: 12px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 5px; text-transform: uppercase;">Mix de Bandeiras</span>
-                <img id="img_grafico_bandeiras" style="max-width:100%; max-height: 200px; border-radius: 8px;">
+            <div style="flex: 1; text-align: center; background: #f7fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size: 12px; font-weight: bold; color: #4a5568; display: block; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">💳 Share de Bandeiras</span>
+                <img id="img_grafico_bandeiras" style="max-width: 100%; max-height: 180px; object-fit: contain; margin: 0 auto;">
             </div>
         </div>
     </div>
