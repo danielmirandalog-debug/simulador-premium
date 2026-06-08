@@ -313,7 +313,7 @@ function simularFaturamento() {
         itensOcultos: { "Software": cSoftware, "Aluguel": cMaquina, "Cesta Bancária": cCesta, "Manutenção": cManutencao, "Pix App Bancário": cPixApp }
     };
 
-document.getElementById("resultadoFaturamento").innerHTML = `
+    document.getElementById("resultadoFaturamento").innerHTML = `
         <div class="resumo-financeiro" style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-top:15px;">
             <h4 style="margin-top:0">💰 Rentabilidade Real Individualizada</h4>
             <b>Economia Mensal:</b> <span style="color:${ecoMes > 0 ? '#007bff' : 'red'}; font-size:16px; font-weight:bold">R$ ${ecoMes.toFixed(2)}</span><br>
@@ -324,11 +324,11 @@ document.getElementById("resultadoFaturamento").innerHTML = `
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
-// 1. FORÇAMOS A CAIXA DOS GRÁFICOS A FICAR VISÍVEL E GANHAR TAMANHO NA TELA
+    // 1. FORÇAMOS A CAIXA VISUAL A APARECER E GANHAR TAMANHO REAL NA TELA
     const cBox = document.getElementById("cont_grafico");
     if(cBox) cBox.style.display = "block";
 
-    // 2. RECONSTRÓI O SEU GRÁFICO DE BARRAS ORIGINAL DE ECONOMIA
+    // 2. DESENHAMOS O GRÁFICO DE BARRAS PADRÃO ORIGINAL
     if (window.g) window.g.destroy();
     window.g = new Chart(document.getElementById("graficoEconomia"), {
         type: 'bar',
@@ -337,17 +337,17 @@ document.getElementById("resultadoFaturamento").innerHTML = `
     });
 
     // 3. CAPTURA DOS DADOS DE SHARE PARA OS DOIS GRÁFICOS DE PIZZA
-    const sPix = parseFloat(document.getElementById('share_pix').value) || 0;
-    const sDeb = parseFloat(document.getElementById('share_debito').value) || 0;
-    const s1x = parseFloat(document.getElementById('share_1x').value) || 0;
+    const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
+    const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
+    const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
     
-    let sPar = 0;
+    let shareParcelado = 0;
     ["share_2x","share_3x","share_4x","share_6x","share_10x"].forEach(id => {
         const el = document.getElementById(id);
-        if(el) sPar += parseFloat(el.value) || 0;
+        if(el) shareParcelado += parseFloat(el.value) || 0;
     });
 
-    const mixVisaMaster = 100 - pDemaisGeral;
+    const percVisaMaster = 100 - pDemaisGeral;
 
     // Destruição preventiva essencial para não encavalar gráficos na memória
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
@@ -358,9 +358,9 @@ document.getElementById("resultadoFaturamento").innerHTML = `
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
         data: {
-            labels: [`Pix (${sPix.toFixed(1)}%)`, `Débito (${sDeb.toFixed(1)}%)`, `Crédito 1x (${s1x.toFixed(1)}%)`, `Parcelado (${sPar.toFixed(1)}%)`],
+            labels: [`Pix (${sharePix.toFixed(1)}%)`, `Débito (${shareDebito.toFixed(1)}%)`, `Crédito 1x (${share1x.toFixed(1)}%)`, `Parcelado (${shareParcelado.toFixed(1)}%)`],
             datasets: [{
-                data: [sPix, sDeb, s1x, sPar],
+                data: [sharePix, shareDebito, share1x, shareParcelado],
                 backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
                 borderWidth: 1
             }]
@@ -368,20 +368,6 @@ document.getElementById("resultadoFaturamento").innerHTML = `
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
     });
 
-    const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
-    window.chartShareBandeiras = new Chart(ctxBandeiras, {
-        type: 'pie',
-        data: {
-            labels: [`Visa/Master (${mixVisaMaster.toFixed(1)}%)`, `Outras (${pDemaisGeral.toFixed(1)}%)`],
-            datasets: [{
-                data: [mixVisaMaster, pDemaisGeral],
-                backgroundColor: ['#0056b3', '#FFE600'],
-                borderWidth: 1
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
-    });
-}
     const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
