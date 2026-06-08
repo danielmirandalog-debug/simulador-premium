@@ -487,7 +487,7 @@ function exportarRelatorio(apenasTaxas) {
         }
         if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
         
-        // INTEGRADO: Captura em tempo real os gráficos de pizza para compor o PNG
+// ATUALIZADO: Captura em tempo real as imagens de Share para o relatório em PNG
         if (window.chartShareParcelado && document.getElementById("img_grafico_parcelado")) {
             document.getElementById("img_grafico_parcelado").src = document.getElementById("graficoShareParcelado").toDataURL();
         }
