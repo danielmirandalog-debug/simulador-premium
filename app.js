@@ -359,12 +359,7 @@ function simularFaturamento() {
         type: 'pie',
         data: {
             // Arrays internos criam a quebra de linha exata na exibição da legenda
-            labels: [
-                [`Pix`, `(${sharePix.toFixed(1)}%)`], 
-                [`Débito`, `(${shareDebito.toFixed(1)}%)`], 
-                [`Crédito 1x`, `(${share1x.toFixed(1)}%)`], 
-                [`Parcelado`, `(${shareParcelado.toFixed(1)}%)`]
-            ],
+labels: [`Pix (${sharePix.toFixed(1)}%)`, `Débito (${shareDebito.toFixed(1)}%)`, `Crédito 1x (${share1x.toFixed(1)}%)`, `Parcelado (${shareParcelado.toFixed(1)}%)`],
             datasets: [{
                 data: [sharePix, shareDebito, share1x, shareParcelado],
                 backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'],
@@ -392,10 +387,7 @@ function simularFaturamento() {
         type: 'pie',
         data: {
             // Alterado de 'Outras' para 'Demais Bandeiras' com quebra de linha simétrica
-            labels: [
-                [`Visa/Master`, `(${percVisaMaster.toFixed(1)}%)`], 
-                [`Demais Bandeiras`, `(${pDemaisGeral.toFixed(1)}%)`]
-            ],
+labels: [`Visa/Master (${percVisaMaster.toFixed(1)}%)`, `Demais Bandeiras (${pDemaisGeral.toFixed(1)}%)`],
             datasets: [{
                 data: [percVisaMaster, pDemaisGeral],
                 backgroundColor: ['#0056b3', '#FFE600'],
