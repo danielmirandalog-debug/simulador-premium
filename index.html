@@ -266,18 +266,16 @@
             <span><label>Débito (%)</label> <input id="mp_debito" type="number" value="0.99"></span>
             <span><label>Crédito 1x (%)</label> <input id="mp1" type="number" value="3.05"></span>
         </div>
-        <div class="grid-taxas" style="margin-top:10px">
-            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'mp')">📷 Câmera</label>
-            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'mp')">📁 Arquivo</label>
+ <div class="grid-taxas" style="margin-top:10px; grid-template-columns: 1fr;">
+            <label style="background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333; display:block;"><input type="file" style="display:none" onchange="processarOCR(event, 'mp')">📁 Selecionar Arquivo da Proposta</label>
         </div>
         <div id="mpParcelas" class="grid-taxas" style="margin-top:12px"></div>
     </div>
 
     <div class="card">
         <h3>Concorrência <button type="button" class="btn-limpar" onclick="limparSecao('out')">Limpar</button></h3>
-        <div class="grid-taxas" style="margin-bottom:15px">
-            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" capture="camera" style="display:none" onchange="processarOCR(event, 'out')">📷 Câmera</label>
-            <label style="flex:1; background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Arquivo</label>
+ <div class="grid-taxas" style="margin-bottom:15px; grid-template-columns: 1fr;">
+            <label style="background:#fff; border:2px solid #FFE600; padding:12px; border-radius:10px; cursor:pointer; text-align:center; font-weight:bold; color:#333; display:block;"><input type="file" style="display:none" onchange="processarOCR(event, 'out')">📁 Selecionar Arquivo da Concorrência</label>
         </div>
 
         <div style="display: flex; flex-direction: column;">
