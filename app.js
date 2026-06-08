@@ -353,8 +353,8 @@ function simularFaturamento() {
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
     if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
 
-    // 4. RENDERIZAÇÃO DAS PIZZAS COM AS PORCENTAGENS CALCULADAS DIRETAMENTE NAS LEGENDAS
-    const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
+// 4. RENDERIZAÇÃO DAS PIZZAS COM AS PORCENTAGENS CALCULADAS DIRETAMENTE NAS LEGENDAS
+    const ctxParcelado = document.getElementById('graficoShareParcelado');
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
         data: {
@@ -365,10 +365,10 @@ function simularFaturamento() {
                 borderWidth: 1
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
     });
 
-    const ctxBandeiras = document.getElementById('graficoShareBandeiras').getContext('2d');
+    const ctxBandeiras = document.getElementById('graficoShareBandeiras');
     window.chartShareBandeiras = new Chart(ctxBandeiras, {
         type: 'pie',
         data: {
@@ -379,7 +379,7 @@ function simularFaturamento() {
                 borderWidth: 1
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
     });
 }
 
