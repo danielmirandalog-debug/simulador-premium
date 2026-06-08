@@ -324,11 +324,11 @@ function simularFaturamento() {
             <b>Saldo 5 Anos:</b> R$ ${calcInvestimento(60).toFixed(2)}
         </div>`;
 
-    // 1. FORÇAMOS A CAIXA VISUAL A APARECER E GANHAR TAMANHO REAL NA TELA
-    const cBox = document.getElementById("cont_grafico");
-    if(cBox) cBox.style.display = "block";
+    // 1. ATIVAMOS O CONTEINER VISUAL DOS GRÁFICOS
+    const chartBox = document.getElementById("cont_grafico");
+    if(chartBox) chartBox.style.display = "block";
 
-    // 2. DESENHAMOS O GRÁFICO DE BARRAS PADRÃO ORIGINAL
+    // 2. DESENHAMOS O SEU GRÁFICO DE BARRAS DE ECONOMIA
     if (window.g) window.g.destroy();
     window.g = new Chart(document.getElementById("graficoEconomia"), {
         type: 'bar',
@@ -336,7 +336,7 @@ function simularFaturamento() {
         options: { animation: false, plugins: { legend: { display: false } }, maintainAspectRatio: true }
     });
 
-    // 3. CAPTURA DOS DADOS DE SHARE PARA OS DOIS GRÁFICOS DE PIZZA
+    // 3. CAPTURA DOS DADOS DO MIX DE SHARE PARA OS DOIS GRÁFICOS DE PIZZA
     const sharePix = parseFloat(document.getElementById('share_pix').value) || 0;
     const shareDebito = parseFloat(document.getElementById('share_debito').value) || 0;
     const share1x = parseFloat(document.getElementById('share_1x').value) || 0;
@@ -349,11 +349,11 @@ function simularFaturamento() {
 
     const percVisaMaster = 100 - pDemaisGeral;
 
-    // Destruição preventiva essencial para não encavalar gráficos na memória
+    // Limpeza da memória preventiva do Chart.js para evitar crashes
     if (window.chartShareParcelado) window.chartShareParcelado.destroy();
     if (window.chartShareBandeiras) window.chartShareBandeiras.destroy();
 
-    // 4. RENDERIZA OS DOIS GRÁFICOS DE PIZZA COM PORCENTAGEM DIRETAMENTE NAS LEGENDAS
+    // 4. RENDERIZAÇÃO DAS PIZZAS COM AS PORCENTAGENS CALCULADAS DIRETAMENTE NAS LEGENDAS
     const ctxParcelado = document.getElementById('graficoShareParcelado').getContext('2d');
     window.chartShareParcelado = new Chart(ctxParcelado, {
         type: 'pie',
@@ -470,7 +470,6 @@ function exportarRelatorio(apenasTaxas) {
     let boxGrafico = document.getElementById("rel_grafico_box");
     let boxInfoAdicional = document.getElementById("rel_info_adicional");
     
-    // TEXTO DE INFORMAÇÕES ADICIONAIS AUTOMÁTICO (SEMPRE INCLUSO)
     const textoCompleto = `<b>Informações adicionais:</b>\n➡️ Máquina sem aluguel\n➡️ Opção de TEF\n➡️ Mesma taxa para todas as bandeiras\n➡️ CONTA NEGÓCIO: sem anuidade e sem taxas administrativas\n➡️ PARCELAMENTO ATÉ 18x NA POINT\n➡️ Link de pagamento com "recebimento na hora" (mesma taxa da maquininha)\n➡️ Rendimentos diários no cofrinho (até 120% CDI)\n➡️ PASSOU O CARTÃO, RECEBIMENTO IMEDIATO! (inclusive finais de semana e feriados)\n➡️ FÁCIL ACESSO AO APP\n➡️ TAXAS FINAIS SEM SURPRESAS (antecipação inclusa)\n➡️ Consultoria de vendas no Mercado Livre e Sistema de Gestão completo e gratuito (consulte condições)\n⏳ Simulação com validade de 07 dias.`;
     
     if(boxInfoAdicional) {
@@ -486,16 +485,17 @@ function exportarRelatorio(apenasTaxas) {
             for (let label in v.itensOcultos) { if(v.itensOcultos[label] > 0) htmlCustos += `• ${label}: R$ ${v.itensOcultos[label].toFixed(2)}<br>`; }
             boxCorpo.innerHTML = `<div style="background:#f4f4f4; padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #ddd"><b>RESUMO DA ANÁLISE:</b><br>Faturamento: R$ ${v.faturamento.toLocaleString()}<br>Aporte Cofrinho: R$ ${v.aporte.toLocaleString()} / mês (CDI: ${v.cdiAlvo}%)<br><br><b style="color:#d32f2f">DETALHAMEMENTO DE CUSTOS CONCORRÊNCIA:</b><br>${htmlCustos || "• Nenhum custo fixo informado."}</div><h3>Rentabilidade e Projeção</h3>` + document.getElementById("resultadoFaturamento").innerHTML;
         }
-if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
+        if (window.g && document.getElementById("img_grafico")) document.getElementById("img_grafico").src = document.getElementById("graficoEconomia").toDataURL();
         
-        // ADICIONADO: Captura a imagem das duas pizzas para o relatório impresso
+        // INTEGRADO: Captura em tempo real os gráficos de pizza para compor o PNG
         if (window.chartShareParcelado && document.getElementById("img_grafico_parcelado")) {
             document.getElementById("img_grafico_parcelado").src = document.getElementById("graficoShareParcelado").toDataURL();
         }
         if (window.chartShareBandeiras && document.getElementById("img_grafico_bandeiras")) {
             document.getElementById("img_grafico_bandeiras").src = document.getElementById("graficoShareBandeiras").toDataURL();
         }
-    } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }    setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
+    } else { if(boxCorpo) boxCorpo.style.display = "none"; if(boxGrafico) boxGrafico.style.display = "none"; }   
+    setTimeout(() => { html2canvas(document.getElementById("areaRelatorio"), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => { let link = document.createElement("a"); link.download = `BA21_PROPOSTA_${document.getElementById("input_loja").value}.png`; link.href = canvas.toDataURL("image/png", 1.0); link.click(); }); }, 800);
 }
 
 function toggleDescobreTaxa() {
@@ -584,7 +584,7 @@ async function processarOCR(event, pref) {
                 } else if (linhaTextoProxima.includes('pix')) {
                     if(document.getElementById('out_pix_' + subCampo)) document.getElementById('out_pix_' + subCampo).value = valorTaxa.toFixed(2);
                 } else {
-                    let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
+                    let matchParcela = inlineTextoProxima.match(/(\d{1,2})x/);
                     if(matchParcela){
                         let p = parseInt(matchParcela[1]);
                         if(p >= 2 && p <= 18){
