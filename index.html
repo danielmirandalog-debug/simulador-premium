@@ -394,42 +394,35 @@
     <button onclick="salvarNoHistorico()" class="btn-arquivar">💾 Arquivar Proposta em Histórico</button>
     <button onclick="toggleDescobreTaxa()" style="background:#333; color:#FFE600; margin-top:15px">🔍 Calculadora Reversa</button>
     
-<div id="boxDescobreTaxa" class="box-calculadora" style="border: 2px solid #333; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 20px; border-radius: 15px;">
-        <h3 style="font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+<div id="boxDescobreTaxa" class="box-calculadora" style="border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 4px 25px rgba(0,0,0,0.05); padding: 25px; border-radius: 20px;">
+        <h3 style="font-weight: 800; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; margin-top: 0; color: #1e293b; display: flex; justify-content: space-between; align-items: center; width: 100%; border: none; padding: 0; margin-bottom: 20px;">
             <span>🧮 CALCULADORA DE TAXAS PREMIUM</span>
-            <button type="button" class="btn-limpar" onclick="limparCalcPremium()" style="background: #fcfcfc; border: 1px solid #eee; padding: 4px 8px; border-radius: 6px; cursor: pointer; color: #d32f2f; font-weight: bold;">🗑️ Limpar</button>
+            <button type="button" class="btn-limpar" onclick="limparCalcPremium()" style="background: #fff; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; cursor: pointer; color: #64748b; font-weight: bold; font-size: 11px;">🗑️ Limpar</button>
         </h3>
         
-        <div class="grid-taxas" style="grid-template-columns: 1fr 1fr 1fr; gap: 6px; background: #f4f4f4; padding: 4px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ddd;">
-            <button id="btn_calc_receber" type="button" onclick="mudarModoOperacaoCalc('receber')" style="margin: 0; padding: 8px 4px; font-size: 11px; font-weight: bold; border-radius: 6px; background: #FFE600; color: #333; border: none; text-transform: none; cursor: pointer;">📉 RECEBER</button>
-            <button id="btn_calc_cobrar" type="button" onclick="mudarModoOperacaoCalc('cobrar')" style="margin: 0; padding: 8px 4px; font-size: 11px; font-weight: bold; border-radius: 6px; background: transparent; color: #777; border: none; text-transform: none; cursor: pointer;">📈 COBRAR</button>
-            <button id="btn_calc_taxa" type="button" onclick="mudarModoOperacaoCalc('taxa')" style="margin: 0; padding: 8px 4px; font-size: 11px; font-weight: bold; border-radius: 6px; background: transparent; color: #777; border: none; text-transform: none; cursor: pointer;">🔍 DESCOBRIR %</button>
+        <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+            <button id="btn_calc_cobrar" type="button" onclick="mudarModoOperacaoCalc('cobrar')" style="flex: 1; margin: 0; padding: 12px; font-size: 13px; font-weight: 700; border-radius: 10px; background: #FFE600; color: #333; border: none; text-transform: none; cursor: pointer; transition: all 0.2s;">Para cobrar</button>
+            <button id="btn_calc_receber" type="button" onclick="mudarModoOperacaoCalc('receber')" style="flex: 1; margin: 0; padding: 12px; font-size: 13px; font-weight: 700; border-radius: 10px; background: transparent; color: #64748b; border: none; text-transform: none; cursor: pointer; transition: all 0.2s;">Para receber</button>
         </div>
 
-        <div class="display-calculadora" style="background: #f4f4f4; border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px; border: 1px solid #ddd;">
-            <span id="res_titulo_modo" style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase; letter-spacing: 0.5px;">Quanto cobrar na máquina (Bruto)</span><br>
-            <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800; display: block; margin: 3px 0;">R$ 0,00</span>
-            <span id="res_taxa_percent" style="font-size:14px; color:#d32f2f; font-weight:800;">0.00%</span>
+        <div class="display-calculadora" style="background: #ffffff; border-radius: 0; padding: 10px 0 25px 0; text-align: center; margin-bottom: 20px; border: none; border-bottom: 1px dashed #e2e8f0;">
+            <span id="res_titulo_modo" style="font-size:12px; color:#64748b; font-weight:600; letter-spacing: 0.2px;">Valor que você vai cobrar do cliente</span><br>
+            <span id="res_valor_final" style="font-size:36px; color:#1e293b; font-weight:800; display: block; margin: 8px 0; letter-spacing: -1px;">R$ 0</span>
+            <span id="res_taxa_percent" style="font-size:13px; color:#3483FA; font-weight:700; background: #edf2ff; padding: 4px 10px; border-radius: 20px; display: inline-block;">Resultados em tempo real</span>
         </div>
 
-        <div class="grid-taxas" style="grid-template-columns: 1fr; gap: 10px;">
+        <div class="grid-taxas" style="grid-template-columns: 1fr; gap: 12px;">
             <div id="campo_calc_bruto">
-                <label id="lbl_calc_bruto">Valor Bruto (Passar na Máquina R$)</label>
-                <input id="calc_valor_op" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
+                <label id="lbl_calc_bruto" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Bruto (Passar na Máquina R$)</label>
+                <input id="calc_valor_op" type="number" step="0.01" oninput="calcularPremiumInteligente('bruto')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
             <div id="campo_calc_liquido">
-                <label id="lbl_calc_liquido">Valor Líquido (Receber na Conta R$)</label>
-                <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
+                <label id="lbl_calc_liquido" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Líquido (Receber na Conta R$)</label>
+                <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente('liquido')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
-            
-            <div id="campo_calc_intermediario">
-                <label id="lbl_calc_intermediario">Campo Intermediário Premium (R$)</label>
-                <input id="calc_valor_intermediario" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
-            </div>
-            
             <div id="campo_calc_taxa">
-                <label id="lbl_calc_taxa">Taxa Praticada / Direta (%)</label>
-                <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
+                <label id="lbl_calc_taxa" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Taxa Praticada / Direta (%)</label>
+                <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente('taxa')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
         </div>
     </div>
