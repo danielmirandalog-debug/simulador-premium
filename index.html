@@ -412,17 +412,17 @@
         </div>
 
         <div class="grid-taxas" style="grid-template-columns: 1fr; gap: 12px;">
-            <div>
+            <div id="campo_calc_bruto">
                 <label style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Bruto (Passar na Máquina R$)</label>
-                <input id="calc_valor_op" type="number" step="0.01" oninput="calcularPremiumInteligente()" onfocus="registrarUltimoFoco('bruto')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
+                <input id="calc_valor_op" type="number" step="0.01" oninput="calcularPremiumInteligente('bruto')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
-            <div>
-                <label style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Líquido (Receber na Conta R$)</label>
-                <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente()" onfocus="registrarUltimoFoco('liquido')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
+            <div id="campo_calc_liquido">
+                <label id="lbl_calc_liquido" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Líquido (Receber na Conta R$)</label>
+                <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente('liquido')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
-            <div>
+            <div id="campo_calc_taxa">
                 <label style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Imposto / Taxa Praticada (%)</label>
-                <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente()" onfocus="registrarUltimoFoco('taxa')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
+                <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente('taxa')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
         </div>
     </div>
