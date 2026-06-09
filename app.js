@@ -679,14 +679,22 @@ async function processarOCR(event, pref) {
             await worker.terminate(); await workerLetras.terminate(); return; 
         }
 
+        // ------------------------------------------------------------------
+        // LEITURA INTELIGENTE DA CONCORRÊNCIA (Calibrado para InfinitePay)
+        // ------------------------------------------------------------------
         const palavras = resCompleto.data.words;
         palavras.forEach(w => {
             let textoPalavra = w.text.toLowerCase().replace(/,/g, ".");
+            
+            // Filtra se a palavra é um número de taxa válido
             if(/^[0-9]+(\.[0-9]+)?%?$/.test(textoPalavra)){
                 let valorTaxa = parseFloat(textoPalavra.replace('%', ''));
+                
+                // Divisão matemática de colunas (Esquerda = Visa/Master | Direita = Elo/Amex)
                 let centroX = w.bbox.x0 + ((w.bbox.x1 - w.bbox.x0) / 2);
                 let larguraImagemTotal = resCompleto.data.image ? resCompleto.data.image.width : 1000;
-                let subCampo = (centroX < (larguraImagemTotal / 2)) ? 'manual' : 'demais';
+                let subCampo = (centroX < (larguraImagemTotal * 0.52)) ? 'manual' : 'demais';
+                
                 let linhaTextoProxima = w.line ? w.line.text.toLowerCase() : '';
                 
                 if (linhaTextoProxima.includes('déb') || linhaTextoProxima.includes('deb')) {
@@ -696,7 +704,8 @@ async function processarOCR(event, pref) {
                 } else if (linhaTextoProxima.includes('pix')) {
                     if(document.getElementById('out_pix_' + subCampo)) document.getElementById('out_pix_' + subCampo).value = valorTaxa.toFixed(2);
                 } else {
-                    let matchParcela = inlineTextoProxima.match(/(\d{1,2})x/);
+                    // CORRIGIDO: Variável inlineTextoProxima alterada para linhaTextoProxima para evitar o crash
+                    let matchParcela = linhaTextoProxima.match(/(\d{1,2})x/);
                     if(matchParcela){
                         let p = parseInt(matchParcela[1]);
                         if(p >= 2 && p <= 18){
