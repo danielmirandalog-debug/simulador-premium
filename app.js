@@ -535,23 +535,14 @@ function toggleDescobreTaxa() {
 // 💎 MOTOR INTEGRADO: CALCULADORA DE TAXAS PREMIUM (PADRÃO APP OFICIAL)
 // ==================================================================
 window.modoCalcPremium = "cobrar";
-window.historicoFocoCalc = [];
-
-function registrarUltimoFoco(campo) {
-    // Mantém um histórico dos dois últimos campos que o usuário interagiu
-    if (window.historicoFocoCalc[window.historicoFocoCalc.length - 1] !== campo) {
-        window.historicoFocoCalc.push(campo);
-        if (window.historicoFocoCalc.length > 2) {
-            window.historicoFocoCalc.shift();
-        }
-    }
-}
 
 function mudarModoOperacaoCalc(modo) {
     window.modoCalcPremium = modo;
     
     const btnCobrar = document.getElementById("btn_calc_cobrar");
     const btnReceber = document.getElementById("btn_calc_receber");
+    const divBruto = document.getElementById("campo_calc_bruto");
+    const lblLiquido = document.getElementById("lbl_calc_liquido");
     const txtTitulo = document.getElementById("res_titulo_modo");
 
     if (btnCobrar && btnReceber) {
@@ -563,93 +554,77 @@ function mudarModoOperacaoCalc(modo) {
 
     if (modo === "cobrar") {
         if(btnCobrar) { btnCobrar.style.background = "#FFE600"; btnCobrar.style.color = "#333"; }
+        if(divBruto) divBruto.style.display = "block";
+        if(lblLiquido) lblLiquido.innerText = "Valor Líquido (Receber na Conta R$)";
         if(txtTitulo) txtTitulo.innerText = "Valor que você vai cobrar do cliente";
     } else if (modo === "receber") {
         if(btnReceber) { btnReceber.style.background = "#FFE600"; btnReceber.style.color = "#333"; }
-        if(txtTitulo) txtTitulo.innerText = "Quanto você deseja receber (Líquido)";
+        if(divBruto) divBruto.style.display = "none"; // Remove o input Bruto da tela
+        if(lblLiquido) lblLiquido.innerText = "Valor que quer receber (Líquido R$)";
+        if(txtTitulo) txtTitulo.innerText = "Quanto você deve cobrar";
     }
 
     limparCalcPremium();
 }
 
-function calcularPremiumInteligente() {
+function calcularPremiumInteligente(origem) {
     const brutoEl = document.getElementById("calc_valor_op");
     const liquidoEl = document.getElementById("calc_valor_rec");
     const taxaEl = document.getElementById("calc_taxa_perc");
     
     const visorFinal = document.getElementById("res_valor_final");
     const visorTaxa = document.getElementById("res_taxa_percent");
+    const txtTitulo = document.getElementById("res_titulo_modo");
 
     let bruto = parseFloat(brutoEl.value) || 0;
     let liquido = parseFloat(liquidoEl.value) || 0;
     let taxa = parseFloat(taxaEl.value) || 0;
 
-    // Garante que o histórico tenha dados válidos com base no preenchimento
-    if (window.historicoFocoCalc.length < 2) {
-        if (bruto > 0 && taxa > 0) window.historicoFocoCalc = ['bruto', 'taxa'];
-        if (liquido > 0 && taxa > 0) window.historicoFocoCalc = ['liquido', 'taxa'];
-        if (bruto > 0 && liquido > 0) window.historicoFocoCalc = ['bruto', 'liquido'];
-    }
-
     // ------------------------------------------------------------------
-    // ABA 1: MODO COBRAR (Cálculos Lineares e Cruzados)
+    // ABA 1: MODO COBRAR (Simplificado)
     // ------------------------------------------------------------------
     if (window.modoCalcPremium === "cobrar") {
         
-        // CENÁRIO 1: Digitou Bruto + Taxa -> Descobre o Líquido
-        if (window.historicoFocoCalc.includes('bruto') && window.historicoFocoCalc.includes('taxa')) {
-            if (bruto > 0) {
-                let calcLiquido = bruto - (bruto * (taxa / 100));
-                liquidoEl.value = calcLiquido > 0 ? calcLiquido.toFixed(2) : "";
-                visorFinal.innerText = `R$ ${calcLiquido.toFixed(2)}`;
-                visorTaxa.innerText = `Líquido Calculado (Bruto Original: R$ ${bruto.toFixed(2)})`;
-            }
+        // CENÁRIO A: Digitou Bruto + Taxa -> Mostra o Bruto em cima e calcula o Líquido
+        if (bruto > 0 && taxa > 0 && liquidoEl !== document.activeElement) {
+            let resultadoLiquido = bruto - (bruto * (taxa / 100));
+            liquidoEl.value = resultadoLiquido > 0 ? resultadoLiquido.toFixed(2) : "";
+            txtTitulo.innerText = "Valor que você vai cobrar do cliente";
+            visorFinal.innerText = `R$ ${bruto.toFixed(2)}`;
+            visorTaxa.innerText = `Você recebe líquido: R$ ${resultadoLiquido.toFixed(2)} (${taxa.toFixed(2)}%)`;
         }
         
-        // CENÁRIO 2: Digitou Líquido + Taxa -> Descobre o Bruto Linear
-        else if (window.historicoFocoCalc.includes('liquido') && window.historicoFocoCalc.includes('taxa')) {
-            if (liquido > 0) {
-                if (taxa >= 100) { visorFinal.innerText = "Erro"; return; }
-                let calcBruto = liquido / (1 - (taxa / 100));
-                brutoEl.value = calcBruto > 0 ? calcBruto.toFixed(2) : "";
-                visorFinal.innerText = `R$ ${calcBruto.toFixed(2)}`;
-                visorTaxa.innerText = `Bruto Calculado (Líquido Base: R$ ${liquido.toFixed(2)})`;
-            }
-        }
-        
-        // CENÁRIO 3: Digitou Bruto + Líquido -> Descobre a Taxa Cobrada
-        else if (window.historicoFocoCalc.includes('bruto') && window.historicoFocoCalc.includes('liquido')) {
-            if (bruto > 0 && liquido > 0) {
-                if (bruto >= liquido) {
-                    let calcTaxa = ((bruto - liquido) / bruto) * 100;
-                    taxaEl.value = calcTaxa.toFixed(2);
-                    visorFinal.innerText = `${calcTaxa.toFixed(2)}%`;
-                    visorTaxa.innerText = `Taxa Descoberta (Retido: R$ ${(bruto - liquido).toFixed(2)})`;
-                } else {
-                    visorFinal.innerText = "Erro";
-                    visorTaxa.innerText = "Líquido maior que Bruto";
-                }
+        // CENÁRIO B: Digitou Bruto + Líquido -> Altera o título dinamicamente e calcula a Taxa Real
+        else if (bruto > 0 && liquido > 0 && taxaEl !== document.activeElement) {
+            if (bruto >= liquido) {
+                let taxaCalculada = ((bruto - liquido) / bruto) * 100;
+                taxaEl.value = taxaCalculada.toFixed(2);
+                txtTitulo.innerText = "Taxa real cobrada do cliente";
+                visorFinal.innerText = `${taxaCalculada.toFixed(2)}%`;
+                visorTaxa.innerText = `Retido pela máquina: R$ ${(bruto - liquido).toFixed(2)}`;
+            } else {
+                visorFinal.innerText = "Erro";
+                visorTaxa.innerText = "Líquido maior que Bruto";
             }
         }
     }
     
     // ------------------------------------------------------------------
-    // ABA 2: MODO RECEBER (Fórmula Reversa Absoluta da Point)
+    // ABA 2: MODO RECEBER (Simplificado Absoluto da Point)
     // ------------------------------------------------------------------
     else if (window.modoCalcPremium === "receber") {
         if (liquido > 0 && taxa > 0) {
             if (taxa >= 100) {
                 visorFinal.innerText = "Taxa Inválida";
                 visorTaxa.innerText = "A taxa deve ser menor que 100%";
-                brutoEl.value = "";
                 return;
             }
-            // Conta Reversa Real da Point (Exemplo: 100 / (1 - 0.0498) = 105.24)
+            // Fórmula Reversa Padrão Point
             let brutoNecessario = liquido / (1 - (taxa / 100));
-            brutoEl.value = brutoNecessario.toFixed(2);
             
+            txtTitulo.innerText = "Quanto você deve cobrar";
             visorFinal.innerText = `R$ ${brutoNecessario.toFixed(2)}`;
-            visorTaxa.innerText = `Valor a Cobrar (Juros/Adiantamentos Embutidos)`;
+            visorTaxa.innerText = `Garante R$ ${liquido.toFixed(2)} limpos (Juros: R$ ${(brutoNecessario - liquido).toFixed(2)})`;
         } else {
             visorFinal.innerText = "R$ 0,00";
             visorTaxa.innerText = "Resultados em tempo real";
@@ -663,8 +638,14 @@ function limparCalcPremium() {
     document.getElementById("calc_taxa_perc").value = "";
     document.getElementById("res_valor_final").innerText = "R$ 0,00";
     document.getElementById("res_taxa_percent").innerText = "Resultados em tempo real";
-    window.historicoFocoCalc = [];
-}async function processarOCR(event, pref) {
+    
+    const txtTitulo = document.getElementById("res_titulo_modo");
+    if (txtTitulo) {
+        txtTitulo.innerText = window.modoCalcPremium === "cobrar" ? 
+            "Valor que você vai cobrar do cliente" : "Quanto você deve cobrar";
+    }
+}
+async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
