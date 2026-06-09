@@ -407,22 +407,22 @@
 
         <div class="display-calculadora" style="background: #ffffff; border-radius: 0; padding: 10px 0 25px 0; text-align: center; margin-bottom: 20px; border: none; border-bottom: 1px dashed #e2e8f0;">
             <span id="res_titulo_modo" style="font-size:12px; color:#64748b; font-weight:600; letter-spacing: 0.2px;">Valor que você vai cobrar do cliente</span><br>
-            <span id="res_valor_final" style="font-size:36px; color:#1e293b; font-weight:800; display: block; margin: 8px 0; letter-spacing: -1px;">R$ 0</span>
-            <span id="res_taxa_percent" style="font-size:13px; color:#3483FA; font-weight:700; background: #edf2ff; padding: 4px 10px; border-radius: 20px; display: inline-block;">Resultados em tempo real</span>
+            <span id="res_valor_final" style="font-size:36px; color:#3483FA; font-weight:800; display: block; margin: 8px 0; letter-spacing: -1px;">R$ 0,00</span>
+            <span id="res_taxa_percent" style="font-size:13px; color:#475569; font-weight:700; background: #f1f5f9; padding: 4px 12px; border-radius: 20px; display: inline-block;">Resultados em tempo real</span>
         </div>
 
         <div class="grid-taxas" style="grid-template-columns: 1fr; gap: 12px;">
-            <div id="campo_calc_bruto">
-                <label id="lbl_calc_bruto" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Bruto (Passar na Máquina R$)</label>
-                <input id="calc_valor_op" type="number" step="0.01" oninput="calcularPremiumInteligente('bruto')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
+            <div>
+                <label style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Bruto (Passar na Máquina R$)</label>
+                <input id="calc_valor_op" type="number" step="0.01" oninput="calcularPremiumInteligente()" onfocus="registrarUltimoFoco('bruto')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
-            <div id="campo_calc_liquido">
-                <label id="lbl_calc_liquido" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Líquido (Receber na Conta R$)</label>
-                <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente('liquido')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
+            <div>
+                <label style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Valor Líquido (Receber na Conta R$)</label>
+                <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente()" onfocus="registrarUltimoFoco('liquido')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
-            <div id="campo_calc_taxa">
-                <label id="lbl_calc_taxa" style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Taxa Praticada / Direta (%)</label>
-                <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente('taxa')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
+            <div>
+                <label style="color:#475569; font-size:12px; font-weight:700; margin-bottom:4px;">Imposto / Taxa Praticada (%)</label>
+                <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente()" onfocus="registrarUltimoFoco('taxa')" placeholder="0,00" style="margin: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 15px;">
             </div>
         </div>
     </div>
