@@ -9,7 +9,7 @@ document.onkeydown = function(e) {
 };
 
 // 2. CONFIGURAÇÃO DE SEGURANÇA ADMINISTRATIVA
-const SENHA_MESTRE = "Marcos2026";
+const SENHA_MESTRE = "Bela@2017";
 
 function checarStatusManutencao() {
     const estado = localStorage.getItem("status_manutencao_ba21") || "online";
