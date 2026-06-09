@@ -535,6 +535,17 @@ function toggleDescobreTaxa() {
 // 💎 MOTOR INTEGRADO: CALCULADORA DE TAXAS PREMIUM (PADRÃO APP OFICIAL)
 // ==================================================================
 window.modoCalcPremium = "cobrar";
+window.historicoFocoCalc = [];
+
+function registrarUltimoFoco(campo) {
+    // Mantém um histórico dos dois últimos campos que o usuário interagiu
+    if (window.historicoFocoCalc[window.historicoFocoCalc.length - 1] !== campo) {
+        window.historicoFocoCalc.push(campo);
+        if (window.historicoFocoCalc.length > 2) {
+            window.historicoFocoCalc.shift();
+        }
+    }
+}
 
 function mudarModoOperacaoCalc(modo) {
     window.modoCalcPremium = modo;
@@ -543,7 +554,6 @@ function mudarModoOperacaoCalc(modo) {
     const btnReceber = document.getElementById("btn_calc_receber");
     const txtTitulo = document.getElementById("res_titulo_modo");
 
-    // Sincroniza o visual do Slide Toggle (Idêntico ao App do Mercado Pago)
     if (btnCobrar && btnReceber) {
         btnCobrar.style.background = "transparent";
         btnCobrar.style.color = "#64748b";
@@ -562,7 +572,7 @@ function mudarModoOperacaoCalc(modo) {
     limparCalcPremium();
 }
 
-function calcularPremiumInteligente(origem) {
+function calcularPremiumInteligente() {
     const brutoEl = document.getElementById("calc_valor_op");
     const liquidoEl = document.getElementById("calc_valor_rec");
     const taxaEl = document.getElementById("calc_taxa_perc");
@@ -574,71 +584,74 @@ function calcularPremiumInteligente(origem) {
     let liquido = parseFloat(liquidoEl.value) || 0;
     let taxa = parseFloat(taxaEl.value) || 0;
 
+    // Garante que o histórico tenha dados válidos com base no preenchimento
+    if (window.historicoFocoCalc.length < 2) {
+        if (bruto > 0 && taxa > 0) window.historicoFocoCalc = ['bruto', 'taxa'];
+        if (liquido > 0 && taxa > 0) window.historicoFocoCalc = ['liquido', 'taxa'];
+        if (bruto > 0 && liquido > 0) window.historicoFocoCalc = ['bruto', 'liquido'];
+    }
+
     // ------------------------------------------------------------------
-    // ABA 1: MODO COBRAR (Inteligência de Cruzamento de 3 Vias)
+    // ABA 1: MODO COBRAR (Cálculos Lineares e Cruzados)
     // ------------------------------------------------------------------
     if (window.modoCalcPremium === "cobrar") {
         
-        // Entrada Cruzada A: Digitou Bruto + Líquido -> Descobre a Taxa Real da Concorrência
-        if ((origem === 'bruto' || origem === 'liquido') && bruto > 0 && liquido > 0) {
-            if (bruto >= liquido) {
-                let taxaCalculada = ((bruto - liquido) / bruto) * 100;
-                taxaEl.value = taxaCalculada.toFixed(2);
-                visorFinal.innerText = `R$ ${bruto.toFixed(2)}`;
-                visorTaxa.innerText = `Taxa Descoberta: ${taxaCalculada.toFixed(2)}%`;
-            } else {
-                visorFinal.innerText = "Erro";
-                visorTaxa.innerText = "Líquido maior que Bruto";
-            }
-        }
-        
-        // Entrada Cruzada B: Digitou Bruto + Taxa -> Descobre o Líquido (Quanto sobra)
-        else if (origem === 'bruto' || (origem === 'taxa' && bruto > 0 && liquido === 0)) {
+        // CENÁRIO 1: Digitou Bruto + Taxa -> Descobre o Líquido
+        if (window.historicoFocoCalc.includes('bruto') && window.historicoFocoCalc.includes('taxa')) {
             if (bruto > 0) {
-                let resultadoLiquido = bruto - (bruto * (taxa / 100));
-                liquidoEl.value = resultadoLiquido > 0 ? resultadoLiquido.toFixed(2) : "";
-                visorFinal.innerText = `R$ ${bruto.toFixed(2)}`;
-                visorTaxa.innerText = `Você recebe líquido: R$ ${resultadoLiquido.toFixed(2)} (Taxa: ${taxa.toFixed(2)}%)`;
+                let calcLiquido = bruto - (bruto * (taxa / 100));
+                liquidoEl.value = calcLiquido > 0 ? calcLiquido.toFixed(2) : "";
+                visorFinal.innerText = `R$ ${calcLiquido.toFixed(2)}`;
+                visorTaxa.innerText = `Líquido Calculado (Bruto Original: R$ ${bruto.toFixed(2)})`;
             }
         }
         
-        // Entrada Cruzada C: Digitou Líquido + Taxa -> Descobre o Bruto Direto
-        else if (origem === 'liquido' || (origem === 'taxa' && liquido > 0 && bruto === 0)) {
+        // CENÁRIO 2: Digitou Líquido + Taxa -> Descobre o Bruto Linear
+        else if (window.historicoFocoCalc.includes('liquido') && window.historicoFocoCalc.includes('taxa')) {
             if (liquido > 0) {
-                if (taxa >= 100) { visorFinal.innerText = "Erro %"; return; }
-                let resultadoBruto = liquido / (1 - (taxa / 100));
-                brutoEl.value = resultadoBruto > 0 ? resultadoBruto.toFixed(2) : "";
-                visorFinal.innerText = `R$ ${resultadoBruto.toFixed(2)}`;
-                visorTaxa.innerText = `Valor total a cobrar (Líquido: R$ ${liquido.toFixed(2)})`;
+                if (taxa >= 100) { visorFinal.innerText = "Erro"; return; }
+                let calcBruto = liquido / (1 - (taxa / 100));
+                brutoEl.value = calcBruto > 0 ? calcBruto.toFixed(2) : "";
+                visorFinal.innerText = `R$ ${calcBruto.toFixed(2)}`;
+                visorTaxa.innerText = `Bruto Calculado (Líquido Base: R$ ${liquido.toFixed(2)})`;
+            }
+        }
+        
+        // CENÁRIO 3: Digitou Bruto + Líquido -> Descobre a Taxa Cobrada
+        else if (window.historicoFocoCalc.includes('bruto') && window.historicoFocoCalc.includes('liquido')) {
+            if (bruto > 0 && liquido > 0) {
+                if (bruto >= liquido) {
+                    let calcTaxa = ((bruto - liquido) / bruto) * 100;
+                    taxaEl.value = calcTaxa.toFixed(2);
+                    visorFinal.innerText = `${calcTaxa.toFixed(2)}%`;
+                    visorTaxa.innerText = `Taxa Descoberta (Retido: R$ ${(bruto - liquido).toFixed(2)})`;
+                } else {
+                    visorFinal.innerText = "Erro";
+                    visorTaxa.innerText = "Líquido maior que Bruto";
+                }
             }
         }
     }
     
     // ------------------------------------------------------------------
-    // ABA 2: MODO RECEBER (Repasse e Conta Reversa Real da Maquininha Point)
+    // ABA 2: MODO RECEBER (Fórmula Reversa Absoluta da Point)
     // ------------------------------------------------------------------
     else if (window.modoCalcPremium === "receber") {
-        if (liquido > 0) {
+        if (liquido > 0 && taxa > 0) {
             if (taxa >= 100) {
                 visorFinal.innerText = "Taxa Inválida";
                 visorTaxa.innerText = "A taxa deve ser menor que 100%";
                 brutoEl.value = "";
                 return;
             }
-            // Fórmula Comercial Reversa Absoluta de Repasse de Juros
+            // Conta Reversa Real da Point (Exemplo: 100 / (1 - 0.0498) = 105.24)
             let brutoNecessario = liquido / (1 - (taxa / 100));
             brutoEl.value = brutoNecessario.toFixed(2);
             
             visorFinal.innerText = `R$ ${brutoNecessario.toFixed(2)}`;
-            visorTaxa.innerText = `Valor a cobrar na máquina para receber R$ ${liquido.toFixed(2)} integral`;
-        } else if (bruto > 0 && taxa > 0) {
-            // Reciprocidade se preencher os outros campos nesta aba
-            let resultadoLiquido = bruto - (bruto * (taxa / 100));
-            liquidoEl.value = resultadoLiquido.toFixed(2);
-            visorFinal.innerText = `R$ ${bruto.toFixed(2)}`;
-            visorTaxa.innerText = `Garante Líquido de: R$ ${resultadoLiquido.toFixed(2)}`;
+            visorTaxa.innerText = `Valor a Cobrar (Juros/Adiantamentos Embutidos)`;
         } else {
-            visorFinal.innerText = "R$ 0";
+            visorFinal.innerText = "R$ 0,00";
             visorTaxa.innerText = "Resultados em tempo real";
         }
     }
@@ -648,17 +661,10 @@ function limparCalcPremium() {
     document.getElementById("calc_valor_op").value = "";
     document.getElementById("calc_valor_rec").value = "";
     document.getElementById("calc_taxa_perc").value = "";
-    document.getElementById("res_valor_final").innerText = "R$ 0";
-    document.getElementById("res_taxa_percent").innerText = "Resultados em tempo real";
-}
-function limparCalcPremium() {
-    document.getElementById("calc_valor_op").value = "";
-    document.getElementById("calc_valor_rec").value = "";
-    document.getElementById("calc_taxa_perc").value = "";
     document.getElementById("res_valor_final").innerText = "R$ 0,00";
-    document.getElementById("res_taxa_percent").innerText = "0.00%";
-}
-async function processarOCR(event, pref) {
+    document.getElementById("res_taxa_percent").innerText = "Resultados em tempo real";
+    window.historicoFocoCalc = [];
+}async function processarOCR(event, pref) {
     const file = event.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
