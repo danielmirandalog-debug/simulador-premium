@@ -534,7 +534,53 @@ function toggleDescobreTaxa() {
 // ==================================================================
 // 💎 MOTOR INTEGRADO: CALCULADORA DE TAXAS PREMIUM (REVERSA AUTOMÁTICA)
 // ==================================================================
-function calcularPremiumInteligente(origem) {
+window.modoCalcPremium = "receber";
+
+function mudarModoOperacaoCalc(modo) {
+    window.modoCalcPremium = modo;
+    
+    // Elementos dos botões
+    const btnReceber = document.getElementById("btn_calc_receber");
+    const btnCobrar = document.getElementById("btn_calc_cobrar");
+    const btnTaxa = document.getElementById("btn_calc_taxa");
+    
+    // Elementos dos campos e rótulos
+    const divBruto = document.getElementById("campo_calc_bruto");
+    const divLiquido = document.getElementById("campo_calc_liquido");
+    const divTaxa = document.getElementById("campo_calc_taxa");
+    
+    const txtTitulo = document.getElementById("res_titulo_modo");
+
+    // Reseta as cores de todos os botões para o padrão inativo
+    [btnReceber, btnCobrar, btnTaxa].forEach(b => {
+        if(b) { b.style.background = "transparent"; b.style.color = "#777"; }
+    });
+
+    // Ativa o botão selecionado e ajusta a visibilidade dos inputs (Efeito Slide)
+    if (modo === "receber") {
+        if(btnReceber) { btnReceber.style.background = "#FFE600"; btnReceber.style.color = "#333"; }
+        if(divBruto) divBruto.style.display = "block";
+        if(divLiquido) divLiquido.style.display = "none";
+        if(divTaxa) divTaxa.style.display = "block";
+        if(txtTitulo) txtTitulo.innerText = "Quanto o Cliente Recebe (Líquido)";
+    } else if (modo === "cobrar") {
+        if(btnCobrar) { btnCobrar.style.background = "#FFE600"; btnCobrar.style.color = "#333"; }
+        if(divBruto) divBruto.style.display = "none";
+        if(divLiquido) divLiquido.style.display = "block";
+        if(divTaxa) divTaxa.style.display = "block";
+        if(txtTitulo) txtTitulo.innerText = "Quanto cobrar na máquina (Bruto)";
+    } else if (modo === "taxa") {
+        if(btnTaxa) { btnTaxa.style.background = "#FFE600"; btnTaxa.style.color = "#333"; }
+        if(divBruto) divBruto.style.display = "block";
+        if(divLiquido) divLiquido.style.display = "block";
+        if(divTaxa) divTaxa.style.display = "none";
+        if(txtTitulo) txtTitulo.innerText = "Taxa Real Oculta Descoberta";
+    }
+
+    limparCalcPremium();
+}
+
+function calcularPremiumInteligente() {
     const brutoEl = document.getElementById("calc_valor_op");
     const liquidoEl = document.getElementById("calc_valor_rec");
     const taxaEl = document.getElementById("calc_taxa_perc");
@@ -546,40 +592,67 @@ function calcularPremiumInteligente(origem) {
     let liquido = parseFloat(liquidoEl.value) || 0;
     let taxa = parseFloat(taxaEl.value) || 0;
 
-    // Cenário 1: Digitando Bruto + Líquido -> Descobre a Taxa Real Cobrada
-    if (origem === 'bruto' || origin === 'liquido') {
-        if (bruto > 0 && liquido > 0 && bruto >= liquido) {
-            taxa = ((bruto - liquido) / bruto) * 100;
-            taxaEl.value = taxa.toFixed(2);
-            
-            visorFinal.innerText = `R$ ${liquido.toFixed(2)}`;
-            visorTaxa.innerText = `Taxa Descoberta: ${taxa.toFixed(2)}%`;
+    // CENÁRIO 1: Modo Descobrir Taxa (Bruto + Líquido)
+    if (window.modoCalcPremium === "taxa") {
+        if (bruto > 0 && liquido > 0) {
+            if (bruto >= liquido) {
+                let taxaCalculada = ((bruto - liquido) / bruto) * 100;
+                visorFinal.innerText = `${taxaCalculada.toFixed(2)}%`;
+                visorTaxa.style.color = "#cbd5e1";
+                visorTaxa.innerText = `Desconto total: R$ ${(bruto - liquido).toFixed(2)}`;
+            } else {
+                visorFinal.innerText = "Erro";
+                visorTaxa.innerText = "Líquido maior que Bruto";
+            }
+        } else {
+            visorFinal.innerText = "R$ 0,00";
+            visorTaxa.innerText = "0.00%";
         }
-    } 
-    
-    // Cenário 2 e 3: Mudando a Taxa -> Calcula o Bruto Reverso ou Líquido Direto
-    if (origem === 'taxa' && taxa > 0) {
-        if (taxa >= 100) {
-            visorFinal.innerText = "Taxa inválida";
-            return;
-        }
-        
-        if (bruto > 0 && liquido === 0) {
-            // Sabe o bruto e a taxa, descobre o líquido que recebe
+        return;
+    }
+
+    // CENÁRIO 2: Modo Quero Receber (Saber o Líquido final)
+    if (window.modoCalcPremium === "receber") {
+        if (bruto > 0) {
             let resultadoLiquido = bruto - (bruto * (taxa / 100));
-            liquidoEl.value = resultadoLiquido.toFixed(2);
             visorFinal.innerText = `R$ ${resultadoLiquido.toFixed(2)}`;
-            visorTaxa.innerText = `Recebe Lípro (Taxa: ${taxa.toFixed(2)}%)`;
-        } else if (liquido > 0) {
-            // Conta Reversa Real: Quer receber o líquido cheio, descobre quanto cobrar na máquina
-            let brutoNecessario = liquido / (1 - (taxa / 100));
-            brutoEl.value = brutoNecessario.toFixed(2);
-            visorFinal.innerText = `R$ ${brutoNecessario.toFixed(2)}`;
-            visorTaxa.innerText = `Cobrar Bruto (Taxa: ${taxa.toFixed(2)}%)`;
+            visorTaxa.style.color = "#d32f2f";
+            visorTaxa.innerText = `Desconto: R$ ${(bruto - resultadoLiquido).toFixed(2)} (${taxa.toFixed(2)}%)`;
+        } else {
+            visorFinal.innerText = "R$ 0,00";
+            visorTaxa.innerText = "0.00%";
         }
+        return;
+    }
+
+    // CENÁRIO 3: Modo Quero Cobrar (Conta Reversa Comercial Bruta)
+    if (window.modoCalcPremium === "cobrar") {
+        if (liquido > 0) {
+            if (taxa >= 100) {
+                visorFinal.innerText = "Taxa Inválida";
+                visorTaxa.innerText = "A taxa deve ser menor que 100%";
+                return;
+            }
+            let brutoNecessario = liquido / (1 - (taxa / 100));
+            visorFinal.innerText = `R$ ${brutoNecessario.toFixed(2)}`;
+            visorTaxa.style.color = "#28a745";
+            visorTaxa.innerText = `Custo repassado: R$ ${(brutoNecessario - liquido).toFixed(2)} (${taxa.toFixed(2)}%)`;
+        } else {
+            visorFinal.innerText = "R$ 0,00";
+            visorTaxa.innerText = "0.00%";
+        }
+        return;
     }
 }
 
+function limparCalcPremium() {
+    document.getElementById("calc_valor_op").value = "";
+    document.getElementById("calc_valor_rec").value = "";
+    document.getElementById("calc_taxa_perc").value = "";
+    document.getElementById("res_valor_final").innerText = "R$ 0,00";
+    document.getElementById("res_taxa_percent").style.color = "#d32f2f";
+    document.getElementById("res_taxa_percent").innerText = "0.00%";
+}
 function limparCalcPremium() {
     document.getElementById("calc_valor_op").value = "";
     document.getElementById("calc_valor_rec").value = "";
