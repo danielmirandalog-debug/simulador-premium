@@ -407,7 +407,7 @@
         </div>
 
         <div class="display-calculadora" style="background: #f4f4f4; border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px; border: 1px solid #ddd;">
-            <span id="res_titulo_modo" style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase; letter-spacing: 0.5px;">Quanto o Cliente Recebe (Líquido)</span><br>
+            <span id="res_titulo_modo" style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase; letter-spacing: 0.5px;">Quanto cobrar na máquina (Bruto)</span><br>
             <span id="res_valor_final" style="font-size:24px; color:#3483FA; font-weight:800; display: block; margin: 3px 0;">R$ 0,00</span>
             <span id="res_taxa_percent" style="font-size:14px; color:#d32f2f; font-weight:800;">0.00%</span>
         </div>
@@ -421,12 +421,18 @@
                 <label id="lbl_calc_liquido">Valor Líquido (Receber na Conta R$)</label>
                 <input id="calc_valor_rec" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
             </div>
+            
+            <div id="campo_calc_intermediario">
+                <label id="lbl_calc_intermediario">Campo Intermediário Premium (R$)</label>
+                <input id="calc_valor_intermediario" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
+            </div>
+            
             <div id="campo_calc_taxa">
                 <label id="lbl_calc_taxa">Taxa Praticada / Direta (%)</label>
                 <input id="calc_taxa_perc" type="number" step="0.01" oninput="calcularPremiumInteligente()" style="margin-top:5px;">
             </div>
         </div>
-    </div>    
+    </div>
     <div class="footer-contador">
         Visitas à aplicação: <span id="num_visitas">0</span><br>
         <p><b>Desenvolvido por Marcos Daniel.</b></p>
