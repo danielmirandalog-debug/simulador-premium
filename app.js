@@ -83,15 +83,6 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("num_visitas").innerText = visitas;
     }
 
-    const cnpjInput = document.getElementById("input_cnpj");
-    if(cnpjInput) {
-        cnpjInput.addEventListener("input", function(e) {
-            let x = e.target.value.replace(/\D/g, "").match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/);
-            e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + '.' + x[3] + (x[4] ? '/' + x[4] : '') + (x[5] ? '-' + x[5] : '');
-        });
-    }
-});
-
 const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
 function gerarInputs() {
@@ -415,7 +406,7 @@ function salvarNoHistorico() {
     const inputs = document.querySelectorAll("input");
     const snapshot = {};
     inputs.forEach(i => { if(i.id) snapshot[i.id] = i.value; });
-    const dados = { id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", cnpj: document.getElementById("input_cnpj").value || "", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot };
+    const dados = { id: Date.now(), seller: document.getElementById("input_loja").value || "Sem Nome", responsavel: document.getElementById("input_cliente").value, executivo: document.getElementById("input_executivo").value, data: new Date().toLocaleString(), snapshot: snapshot };
     let historico = JSON.parse(localStorage.getItem("historico_simulacoes") || "[]");
     historico.push(dados);
     localStorage.setItem("historico_simulacoes", JSON.stringify(historico));
