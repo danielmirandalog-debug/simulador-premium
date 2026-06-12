@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if(document.getElementById("num_visitas")) {
         document.getElementById("num_visitas").innerText = visitas;
     }
+});
 
 const IDs_SHARE = ["share_pix","share_debito","share_1x","share_2x","share_3x","share_4x","share_6x","share_10x"];
 
